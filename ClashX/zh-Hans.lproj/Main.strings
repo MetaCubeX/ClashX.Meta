@@ -70,6 +70,9 @@
 /* Class = "NSMenuItem"; title = "INFO"; ObjectID = "d8V-h0-0zF"; */
 "d8V-h0-0zF.title" = "INFO";
 
+/* Class = "NSMenuItem"; title = "Close all connections"; ObjectID = "dB4-Lh-g5C"; */
+"dB4-Lh-g5C.title" = "关闭所有连接";
+
 /* Class = "NSMenuItem"; title = "Help"; ObjectID = "Dd9-2F-FVY"; */
 "Dd9-2F-FVY.title" = "帮助";
 

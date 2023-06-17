@@ -655,7 +655,12 @@
                                 <action selector="actionAllowFromLan:" target="Voe-Tx-rLC" id="BGp-Tp-MiH"/>
                             </connections>
                         </menuItem>
-                        <menuItem isSeparatorItem="YES" id="HZ7-Hd-kA2"/>
+			<menuItem title="Close all connections" keyEquivalent="a" id="dB4-Lh-g5C">
+                            <connections>
+                                <action selector="actionCloseConnections:" target="Voe-Tx-rLC" id="OLE-21-i5A"/>
+                            </connections>
+                        </menuItem>
+			<menuItem isSeparatorItem="YES" id="HZ7-Hd-kA2"/>
                         <menuItem title="Benchmark" keyEquivalent="t" id="COu-UX-bww">
                             <connections>
                                 <action selector="actionSpeedTest:" target="Voe-Tx-rLC" id="wQV-1R-Ym6"/>

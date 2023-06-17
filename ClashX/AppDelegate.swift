@@ -1031,6 +1031,10 @@ extension AppDelegate {
         LaunchAtLogin.shared.isEnabled = !LaunchAtLogin.shared.isEnabled
     }
 
+    @IBAction func actionCloseConnections(_ sender: NSMenuItem) {
+        ConnectionManager.closeAllConnection()
+    }
+
     @IBAction func actionSwitchProxyMode(_ sender: NSMenuItem) {
         let mode: ClashProxyMode
         switch sender {
