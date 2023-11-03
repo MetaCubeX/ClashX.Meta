@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import CoreWLAN
 import SystemConfiguration
 
 class NetworkChangeNotifier {
@@ -27,11 +28,11 @@ class NetworkChangeNotifier {
             name: NSWorkspace.didWakeNotification, object: nil
         )
 
-        let changed: SCDynamicStoreCallBack = { dynamicStore, _, _ in
+        let changed: SCDynamicStoreCallBack = { _, _, _ in
             NotificationCenter.default.post(name: .systemNetworkStatusDidChange, object: nil)
         }
         var dynamicContext = SCDynamicStoreContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
-        let dcAddress = withUnsafeMutablePointer(to: &dynamicContext, { UnsafeMutablePointer<SCDynamicStoreContext>($0) })
+        let dcAddress = withUnsafeMutablePointer(to: &dynamicContext) { UnsafeMutablePointer<SCDynamicStoreContext>($0) }
 
         if let dynamicStore = SCDynamicStoreCreate(kCFAllocatorDefault, "com.clashx.proxy.networknotification" as CFString, changed, dcAddress) {
             let keysArray = ["State:/Network/Global/Proxies" as CFString] as CFArray
@@ -43,11 +44,11 @@ class NetworkChangeNotifier {
     }
 
     private static func startIPChangeWatch() {
-        let changed: SCDynamicStoreCallBack = { dynamicStore, _, _ in
+        let changed: SCDynamicStoreCallBack = { _, _, _ in
             NotificationCenter.default.post(name: .systemNetworkStatusIPUpdate, object: nil)
         }
         var dynamicContext = SCDynamicStoreContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
-        let dcAddress = withUnsafeMutablePointer(to: &dynamicContext, { UnsafeMutablePointer<SCDynamicStoreContext>($0) })
+        let dcAddress = withUnsafeMutablePointer(to: &dynamicContext) { UnsafeMutablePointer<SCDynamicStoreContext>($0) }
 
         if let dynamicStore = SCDynamicStoreCreate(kCFAllocatorDefault, "com.clashx.ipv4.networknotification" as CFString, changed, dcAddress) {
             let keysArray = ["State:/Network/Global/IPv4" as CFString] as CFArray
@@ -78,7 +79,7 @@ class NetworkChangeNotifier {
         return (httpProxy, httpsProxy, socksProxy)
     }
 
-    static func isCurrentSystemSetToClash(looser:Bool = false) -> Bool {
+    static func isCurrentSystemSetToClash(looser: Bool = false) -> Bool {
         let (http, https, socks) = NetworkChangeNotifier.currentSystemProxySetting()
         let currentPort = ConfigManager.shared.currentConfig?.usedHttpPort ?? 0
         let currentSocks = ConfigManager.shared.currentConfig?.usedSocksPort ?? 0
@@ -91,15 +92,15 @@ class NetworkChangeNotifier {
             return http == currentPort && https == currentPort && socks == currentSocks
         }
     }
-    
+
     static func hasInterfaceProxySetToClash() -> Bool {
         let currentPort = ConfigManager.shared.currentConfig?.usedHttpPort
         let currentSocks = ConfigManager.shared.currentConfig?.usedSocksPort
         if let prefRef = SCPreferencesCreate(nil, "ClashX" as CFString, nil),
-           let sets = SCPreferencesGetValue(prefRef, kSCPrefNetworkServices){
+           let sets = SCPreferencesGetValue(prefRef, kSCPrefNetworkServices) {
             for key in sets.allKeys {
                 let dict = sets[key] as? NSDictionary
-                let proxySettings = dict?["Proxies"] as? [String:Any]
+                let proxySettings = dict?["Proxies"] as? [String: Any]
                 if currentPort != nil {
                     if proxySettings?[kCFNetworkProxiesHTTPPort as String] as? Int == currentPort ||
                         proxySettings?[kCFNetworkProxiesHTTPSPort as String] as? Int == currentPort {
@@ -107,7 +108,7 @@ class NetworkChangeNotifier {
                     }
                 }
                 if currentSocks != nil {
-                    if  proxySettings?[kCFNetworkProxiesSOCKSPort as String] as? Int == currentSocks {
+                    if proxySettings?[kCFNetworkProxiesSOCKSPort as String] as? Int == currentSocks {
                         return true
                     }
                 }
@@ -125,6 +126,24 @@ class NetworkChangeNotifier {
         let key = SCDynamicStoreKeyCreateNetworkGlobalEntity(nil, kSCDynamicStoreDomainState, kSCEntNetIPv4)
         let dict = SCDynamicStoreCopyValue(store, key) as? [String: String]
         return dict?[kSCDynamicStorePropNetPrimaryInterface as String]
+    }
+
+    static func getPrimaryIsDhcp() -> Bool {
+        let store = SCDynamicStoreCreate(nil, "ClashX" as CFString, nil, nil)
+        if store == nil {
+            return false
+        }
+
+        let key = SCDynamicStoreKeyCreateNetworkGlobalEntity(nil, kSCDynamicStoreDomainState, kSCEntNetIPv4)
+        let dict = SCDynamicStoreCopyValue(store, key) as? [String: String]
+
+        guard let serviceID = dict?[kSCDynamicStorePropNetPrimaryService as String] else { return false }
+        let dhcpInfoKey = SCDynamicStoreKeyCreateNetworkServiceEntity(nil,
+                                                                      kSCDynamicStoreDomainState,
+                                                                      serviceID as CFString,
+                                                                      kSCEntNetDHCP)
+        let dhcpInfo = SCDynamicStoreCopyValue(store, dhcpInfoKey) as? [String: Any]
+        return dhcpInfo != nil
     }
 
     static func getCurrentDns() -> [String] {

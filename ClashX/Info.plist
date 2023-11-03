@@ -2,8 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ClashX use location info to detect your current WiFi network SSID name and provide the auto suspend services.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ClashX use location info to detect your current WiFi network SSID name and provide the auto suspend services.</string>
 	<key>BETA</key>
-	<false/>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDocumentTypes</key>

@@ -64,7 +64,7 @@ class HyperlinkTextField: NSTextField {
         super.awakeFromNib()
         let attributes: [NSAttributedString.Key: Any] = [
             NSAttributedString.Key.foregroundColor: NSColor.linkColor,
-            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue as AnyObject,
+            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue as AnyObject
         ]
         attributedStringValue = NSAttributedString(string: stringValue, attributes: attributes)
     }

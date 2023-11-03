@@ -15,7 +15,7 @@ class ClashRule: Codable {
 }
 
 class ClashRuleResponse: Codable {
-    var rules: [ClashRule]? = nil
+    var rules: [ClashRule]?
 
     static func empty() -> ClashRuleResponse {
         return ClashRuleResponse()

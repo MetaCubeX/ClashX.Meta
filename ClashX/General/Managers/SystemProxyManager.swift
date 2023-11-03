@@ -21,28 +21,19 @@ class SystemProxyManager: NSObject {
         }
     }
 
-    private var disableRestoreProxy: Bool {
-        get {
-            return UserDefaults.standard.bool(forKey: "kDisableRestoreProxy")
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "kDisableRestoreProxy")
-        }
-    }
-
     private var helper: ProxyConfigRemoteProcessProtocol? {
         PrivilegedHelperManager.shared.helper()
     }
 
     func saveProxy() {
-        guard !disableRestoreProxy else { return }
+        guard !Settings.disableRestoreProxy else { return }
         Logger.log("saveProxy", level: .debug)
-        helper?.getCurrentProxySetting({ [weak self] info in
+        helper?.getCurrentProxySetting { [weak self] info in
             Logger.log("saveProxy done", level: .debug)
             if let info = info as? [String: Any] {
                 self?.savedProxyInfo = info
             }
-        })
+        }
     }
 
     func enableProxy() {
@@ -56,16 +47,21 @@ class SystemProxyManager: NSObject {
             Logger.log("enableProxy fail: \(port) \(socksPort)", level: .error)
             return
         }
+        if SSIDSuspendTool.shared.shouldSuspend() {
+            Logger.log("not enableProxy due to ssid in disabled list", level: .info)
+            return
+        }
         Logger.log("enableProxy", level: .debug)
         helper?.enableProxy(withPort: Int32(port),
                             socksPort: Int32(socksPort),
                             pac: nil,
                             filterInterface: Settings.filterInterface,
+                            ignoreList: Settings.proxyIgnoreList,
                             error: { error in
-            if let error = error {
-                Logger.log("enableProxy \(error)", level: .error)
-            }
-        })
+                                if let error = error {
+                                    Logger.log("enableProxy \(error)", level: .error)
+                                }
+                            })
     }
 
     func disableProxy(forceDisable: Bool = false, complete: (() -> Void)? = nil) {
@@ -77,7 +73,7 @@ class SystemProxyManager: NSObject {
     func disableProxy(port: Int, socksPort: Int, forceDisable: Bool = false, complete: (() -> Void)? = nil) {
         Logger.log("disableProxy", level: .debug)
 
-        if disableRestoreProxy || forceDisable {
+        if Settings.disableRestoreProxy || forceDisable {
             helper?.disableProxy(withFilterInterface: Settings.filterInterface) { error in
                 if let error = error {
                     Logger.log("disableProxy \(error)", level: .error)
@@ -93,23 +89,5 @@ class SystemProxyManager: NSObject {
             }
             complete?()
         })
-    }
-
-    // MARK: - Expriment Menu Items
-
-    func addDisableRestoreProxyMenuItem(_ menu: inout NSMenu) {
-        let item = NSMenuItem(title: NSLocalizedString("Disable Restore Proxy Setting", comment: ""), action: #selector(optionMenuItemTap(sender:)), keyEquivalent: "")
-        item.target = self
-        menu.addItem(item)
-        updateMenuItemStatus(item)
-    }
-
-    func updateMenuItemStatus(_ item: NSMenuItem) {
-        item.state = disableRestoreProxy ? .on : .off
-    }
-
-    @objc func optionMenuItemTap(sender: NSMenuItem) {
-        disableRestoreProxy = !disableRestoreProxy
-        updateMenuItemStatus(sender)
     }
 }

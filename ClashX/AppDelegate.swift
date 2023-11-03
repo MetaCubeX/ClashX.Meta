@@ -8,19 +8,21 @@
 
 import Alamofire
 import Cocoa
+import CocoaLumberjack
 import LetsMove
 import RxCocoa
 import RxSwift
 
 import AppCenter
 import AppCenterAnalytics
+import AppCenterCrashes
 
+let statusItemLengthWithSpeed: CGFloat = 72
 
-private let statusItemLengthWithSpeed: CGFloat = 72
-
-@NSApplicationMain
+@main
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var statusItem: NSStatusItem!
+    private(set) var statusItem: NSStatusItem!
+    @IBOutlet var checkForUpdateMenuItem: NSMenuItem!
 
     @IBOutlet var statusMenu: NSMenu!
     @IBOutlet var proxySettingMenuItem: NSMenuItem!
@@ -43,22 +45,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var apiPortMenuItem: NSMenuItem!
     @IBOutlet var ipMenuItem: NSMenuItem!
     @IBOutlet var remoteConfigAutoupdateMenuItem: NSMenuItem!
-    @IBOutlet var buildApiModeMenuitem: NSMenuItem!
-    @IBOutlet var showProxyGroupCurrentMenuItem: NSMenuItem!
     @IBOutlet var copyExportCommandMenuItem: NSMenuItem!
     @IBOutlet var copyExportCommandExternalMenuItem: NSMenuItem!
-    @IBOutlet var experimentalMenu: NSMenu!
     @IBOutlet var externalControlSeparator: NSMenuItem!
+    @IBOutlet var connectionsMenuItem: NSMenuItem!
 
     var disposeBag = DisposeBag()
-    var statusItemView: StatusItemView!
+    var statusItemView: StatusItemViewProtocol!
     var isSpeedTesting = false
 
     var runAfterConfigReload: (() -> Void)?
 
-    var dashboardWindowController: ClashWebViewWindowController?
-
     func applicationWillFinishLaunching(_ notification: Notification) {
+        Logger.log("applicationWillFinishLaunching")
         signal(SIGPIPE, SIG_IGN)
         // crash recorder
         failLaunchProtect()
@@ -76,23 +75,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // setup menu item first
         statusItem = NSStatusBar.system.statusItem(withLength: statusItemLengthWithSpeed)
         statusItemView = StatusItemView.create(statusItem: statusItem)
-        statusItemView.frame = CGRect(x: 0, y: 0, width: statusItemLengthWithSpeed, height: 22)
+        statusItemView.updateSize(width: statusItemLengthWithSpeed)
         statusMenu.delegate = self
-        registCrashLogger()
+        setupStatusMenuItemData()
         DispatchQueue.main.async {
             self.postFinishLaunching()
         }
     }
 
     func postFinishLaunching() {
+        Logger.log("postFinishLaunching")
         defer {
             statusItem.menu = statusMenu
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+                self.checkMenuIconVisable()
+            }
         }
-        setupStatusMenuItemData()
+        if #unavailable(macOS 10.15) {
+            // dashboard is not support in macOS 10.15 below
+            self.dashboardMenuItem.isHidden = true
+            self.connectionsMenuItem.isHidden = true
+        }
         AppVersionUtil.showUpgradeAlert()
-        iCloudManager.shared.setup()
-        setupExperimentalMenuItem()
+        ICloudManager.shared.setup()
 
+        if WebPortalManager.hasWebProtal {
+            WebPortalManager.shared.addWebProtalMenuItem(&statusMenu)
+        }
+        AutoUpgardeManager.shared.setup()
+        AutoUpgardeManager.shared.setupCheckForUpdatesMenuItem(checkForUpdateMenuItem)
         // install proxy helper
         _ = ClashResourceManager.check()
         PrivilegedHelperManager.shared.checkInstall()
@@ -103,13 +114,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // claer not existed selected model
         removeUnExistProxyGroups()
 
+        // clash logger
+        if ApiRequest.useDirectApi() {
+            Logger.log("setup built in logger/traffic")
+            clash_setLogBlock { line, level in
+                let clashLevel = ClashLogLevel(rawValue: level ?? "info")
+                Logger.log(line ?? "", level: clashLevel ?? .info, function: "")
+            }
+            clashSetupLogger()
+
+            clash_setTrafficBlock { [weak self] up, down in
+                if RemoteControlManager.selectConfig == nil {
+                    DispatchQueue.main.async {
+                        self?.didUpdateTraffic(up: Int(up), down: Int(down))
+                    }
+                }
+            }
+            clashSetupTraffic()
+
+        } else {
+            Logger.log("do not setup built in logger/traffic, useDirectApi = false")
+        }
         // start proxy
         Logger.log("initClashCore")
         initClashCore()
         Logger.log("initClashCore finish")
         setupData()
         runAfterConfigReload = { [weak self] in
-            if !ConfigManager.builtInApiMode {
+            if !Settings.builtInApiMode {
                 self?.selectAllowLanWithMenory()
             }
         }
@@ -121,59 +153,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         RemoteConfigManager.shared.autoUpdateCheck()
 
-
         setupNetworkNotifier()
+        registCrashLogger()
+        KeyboardShortCutManager.setup()
+        RemoteControlManager.setupMenuItem(separator: externalControlSeparator)
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        let group = DispatchGroup()
-        var shouldWait = false
-
-        if ConfigManager.shared.proxyPortAutoSet && !ConfigManager.shared.isProxySetByOtherVariable.value || NetworkChangeNotifier.isCurrentSystemSetToClash(looser: true) ||
-            NetworkChangeNotifier.hasInterfaceProxySetToClash() {
-            Logger.log("ClashX quit need clean proxy setting")
-            shouldWait = true
-            group.enter()
-
-            SystemProxyManager.shared.disableProxy(forceDisable: ConfigManager.shared.isProxySetByOtherVariable.value) {
-                group.leave()
-            }
-        }
-
-        if !shouldWait {
-            Logger.log("ClashX quit without clean waiting")
-            return .terminateNow
-        }
-
-        if statusItem != nil, statusItem.menu != nil {
-            statusItem.menu = nil
-        }
-        disposeBag = DisposeBag()
-
-        DispatchQueue.global(qos: .default).async {
-            let res = group.wait(timeout: .now() + 5)
-            switch res {
-            case .success:
-                Logger.log("ClashX quit after clean up finish")
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.2) {
-                    NSApp.reply(toApplicationShouldTerminate: true)
-                }
-                DispatchQueue.global().asyncAfter(deadline: .now()+1) {
-                    NSApp.reply(toApplicationShouldTerminate: true)
-                }
-            case .timedOut:
-                Logger.log("ClashX quit after clean up timeout")
-                DispatchQueue.main.async {
-                    NSApp.reply(toApplicationShouldTerminate: true)
-                }
-                DispatchQueue.global().asyncAfter(deadline: .now()+1) {
-                    NSApp.reply(toApplicationShouldTerminate: true)
-                }
-            }
-        }
-
-        Logger.log("ClashX quit wait for clean up")
-        return .terminateLater
+        return TerminalConfirmAction.run()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -181,8 +168,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Logger.log("ClashX will terminate")
         if NetworkChangeNotifier.isCurrentSystemSetToClash(looser: true) ||
             NetworkChangeNotifier.hasInterfaceProxySetToClash() {
-            Logger.log("Need Reset Proxy Setting again",level: .error)
+            Logger.log("Need Reset Proxy Setting again", level: .error)
             SystemProxyManager.shared.disableProxy()
+        }
+    }
+
+    func checkMenuIconVisable() {
+        guard let button = statusItem.button else { assertionFailure(); return }
+        guard let window = button.window else { assertionFailure(); return }
+        let buttonRect = button.convert(button.bounds, to: nil)
+        let onScreenRect = window.convertToScreen(buttonRect)
+        var leftScreenX: CGFloat = 0
+        for screen in NSScreen.screens where screen.frame.origin.x < leftScreenX {
+            leftScreenX = screen.frame.origin.x
+        }
+        let isMenuIconHidden = onScreenRect.midX < leftScreenX
+
+        var isCoverdByNotch = false
+        if #available(macOS 12, *), NSScreen.screens.count == 1, let screen = NSScreen.screens.first, let leftArea = screen.auxiliaryTopLeftArea, let rightArea = screen.auxiliaryTopRightArea {
+            if onScreenRect.minX > leftArea.maxX, onScreenRect.maxX < rightArea.minX {
+                isCoverdByNotch = true
+            }
+        }
+
+        Logger.log("checkMenuIconVisable: \(onScreenRect) \(leftScreenX), hidden: \(isMenuIconHidden), coverd by notch:\(isCoverdByNotch)")
+
+        if isMenuIconHidden || isCoverdByNotch, !Settings.disableMenubarNotice {
+            let alert = NSAlert()
+            alert.messageText = NSLocalizedString("The status icon is coverd or hide by other app.", comment: "")
+            alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
+            alert.addButton(withTitle: NSLocalizedString("Never show again", comment: ""))
+            if alert.runModal() == .alertSecondButtonReturn {
+                Settings.disableMenubarNotice = true
+            }
         }
     }
 
@@ -194,24 +212,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.showNetSpeedIndicatorMenuItem.state = (show ?? true) ? .on : .off
                 let statusItemLength: CGFloat = (show ?? true) ? statusItemLengthWithSpeed : 25
                 self.statusItem.length = statusItemLength
-                self.statusItemView.frame.size.width = statusItemLength
+                self.statusItemView.updateSize(width: statusItemLength)
                 self.statusItemView.showSpeedContainer(show: show ?? true)
             }.disposed(by: disposeBag)
 
         statusItemView.updateViewStatus(enableProxy: ConfigManager.shared.proxyPortAutoSet)
-
-        LaunchAtLogin.shared
-            .isEnableVirable
-            .asObservable()
-            .subscribe(onNext: { [weak self] enable in
-                guard let self = self else { return }
-                self.autoStartMenuItem.state = enable ? .on : .off
-            }).disposed(by: disposeBag)
-
-        remoteConfigAutoupdateMenuItem.state = RemoteConfigManager.autoUpdateEnable ? .on : .off
     }
 
     func setupData() {
+        SSIDSuspendTool.shared.setup()
         ConfigManager.shared
             .showNetSpeedIndicatorObservable.skip(1)
             .bind {
@@ -221,9 +230,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         Observable
             .merge([ConfigManager.shared.proxyPortAutoSetObservable,
-                    ConfigManager.shared.isProxySetByOtherVariable.asObservable()])
+                    ConfigManager.shared.isProxySetByOtherVariable.asObservable(),
+                    ConfigManager.shared.proxyShouldPaused.asObservable()])
+            .observe(on: MainScheduler.instance)
             .map { _ -> NSControl.StateValue in
-                if ConfigManager.shared.isProxySetByOtherVariable.value && ConfigManager.shared.proxyPortAutoSet {
+                if (ConfigManager.shared.isProxySetByOtherVariable.value || ConfigManager.shared.proxyShouldPaused.value) && ConfigManager.shared.proxyPortAutoSet {
                     return .mixed
                 }
                 return ConfigManager.shared.proxyPortAutoSet ? .on : .off
@@ -239,6 +250,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .asObservable()
         Observable.zip(configObservable, configObservable.skip(1))
             .filter { _, new in return new != nil }
+            .observe(on: MainScheduler.instance)
             .bind { [weak self] old, config in
                 guard let self = self, let config = config else { return }
                 self.proxyModeDirectMenuItem.state = .off
@@ -271,13 +283,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
 
             }.disposed(by: disposeBag)
-        
+
         if !PrivilegedHelperManager.shared.isHelperCheckFinished.value &&
             ConfigManager.shared.proxyPortAutoSet {
             PrivilegedHelperManager.shared.isHelperCheckFinished
-                .filter({$0})
+                .filter { $0 }
                 .take(1)
-                .take(while:{_ in ConfigManager.shared.proxyPortAutoSet})
+                .take(while: { _ in ConfigManager.shared.proxyPortAutoSet })
                 .observe(on: MainScheduler.instance)
                 .bind(onNext: { _ in
                     SystemProxyManager.shared.enableProxy()
@@ -285,11 +297,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else if ConfigManager.shared.proxyPortAutoSet {
             SystemProxyManager.shared.enableProxy()
         }
-        
+
+        LaunchAtLogin.shared
+            .isEnableVirable
+            .asObservable()
+            .subscribe(onNext: { [weak self] enable in
+                guard let self = self else { return }
+                self.autoStartMenuItem.state = enable ? .on : .off
+            }).disposed(by: disposeBag)
+
+        remoteConfigAutoupdateMenuItem.state = RemoteConfigManager.autoUpdateEnable ? .on : .off
+
         if !PrivilegedHelperManager.shared.isHelperCheckFinished.value {
             proxySettingMenuItem.target = nil
             PrivilegedHelperManager.shared.isHelperCheckFinished
-                .filter({$0})
+                .filter { $0 }
                 .take(1)
                 .observe(on: MainScheduler.instance)
                 .subscribe { [weak self] _ in
@@ -328,9 +350,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter
             .default
             .rx
-            .notification(.systemNetworkStatusIPUpdate).map({ _ in
+            .notification(.systemNetworkStatusIPUpdate).map { _ in
                 NetworkChangeNotifier.getPrimaryIPAddress(allowIPV6: false)
-            })
+            }
             .startWith(NetworkChangeNotifier.getPrimaryIPAddress(allowIPV6: false))
             .distinctUntilChanged()
             .skip(1)
@@ -345,7 +367,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .asObservable()
             .filter { _ in ConfigManager.shared.proxyPortAutoSet }
             .distinctUntilChanged()
-            .filter { $0 }.bind { _ in
+            .filter { $0 }
+            .filter { _ in !ConfigManager.shared.proxyShouldPaused.value }
+            .bind { _ in
                 let rawProxy = NetworkChangeNotifier.getRawProxySetting()
                 Logger.log("proxy changed to no clashX setting: \(rawProxy)", level: .warning)
                 NSUserNotificationCenter.default.postProxyChangeByOtherAppNotice()
@@ -354,9 +378,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter
             .default
             .rx
-            .notification(.systemNetworkStatusIPUpdate).map({ _ in
+            .notification(.systemNetworkStatusIPUpdate).map { _ in
                 NetworkChangeNotifier.getPrimaryIPAddress(allowIPV6: false)
-            }).bind { [weak self] _ in
+            }.bind { [weak self] _ in
                 if RemoteControlManager.selectConfig != nil {
                     self?.resetStreamApi()
                 }
@@ -366,8 +390,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func updateProxyList(withMenus menus: [NSMenuItem]) {
         let startIndex = statusMenu.items.firstIndex(of: separatorLineTop)! + 1
         let endIndex = statusMenu.items.firstIndex(of: sepatatorLineEndProxySelect)!
-        sepatatorLineEndProxySelect.isHidden = menus.count == 0
-        for _ in 0..<endIndex - startIndex {
+        sepatatorLineEndProxySelect.isHidden = menus.isEmpty
+        for _ in 0 ..< endIndex - startIndex {
             statusMenu.removeItem(at: startIndex)
         }
         for each in menus {
@@ -380,7 +404,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         MenuItemFactory.generateSwitchConfigMenuItems {
             items in
             let lineIndex = menu.items.firstIndex(of: self.configSeparatorLine)!
-            for _ in 0..<lineIndex {
+            for _ in 0 ..< lineIndex {
                 menu.removeItem(at: 0)
             }
             for item in items.reversed() {
@@ -400,6 +424,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func startProxy() {
         if ConfigManager.shared.isRunning { return }
 
+        if !Settings.isApiSecretSet {
+            if #available(macOS 11.0, *), let password = SecCreateSharedWebCredentialPassword() as? String {
+                Settings.apiSecret = password
+            } else {
+                Settings.apiSecret = UUID().uuidString
+            }
+        }
+
+        if clash_checkSecret().toString().isEmpty || Settings.overrideConfigSecret {
+            clash_setSecret(Settings.apiSecret.goStringBuffer())
+        }
+
         struct StartProxyResp: Codable {
             let externalController: String
             let secret: String
@@ -411,11 +447,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             setUIPath(uiPath.goStringBuffer())
         }
 
-        Logger.log("Trying start proxy")
-        let string = run(ConfigManager.builtInApiMode.goObject(), ConfigManager.allowConnectFromLan.goObject())?.toString() ?? ""
-        let jsonData = string.data(using: .utf8) ?? Data()
+        Logger.log("Trying start proxy, build-in mode: \(Settings.builtInApiMode), allow lan: \(ConfigManager.allowConnectFromLan) custom port: \(Settings.proxyPort)")
+
+        var apiAddr = ""
+        if Settings.apiPort > 0 {
+            if Settings.apiPortAllowLan {
+                apiAddr = "0.0.0.0:\(Settings.apiPort)"
+            } else {
+                apiAddr = "127.0.0.1:\(Settings.apiPort)"
+            }
+        }
+        let startRes = run(Settings.builtInApiMode.goObject(),
+                           ConfigManager.allowConnectFromLan.goObject(),
+                           Settings.enableIPV6.goObject(),
+                           GoUint32(Settings.proxyPort),
+                           apiAddr.goStringBuffer())?
+            .toString() ?? ""
+        let jsonData = startRes.data(using: .utf8) ?? Data()
         if let res = try? JSONDecoder().decode(StartProxyResp.self, from: jsonData) {
             let port = res.externalController.components(separatedBy: ":").last ?? "9090"
+            ConfigManager.shared.allowExternalControl = !res.externalController.contains("127.0.0.1") && !res.externalController.contains("localhost")
             ConfigManager.shared.apiPort = port
             ConfigManager.shared.apiSecret = res.secret
             ConfigManager.shared.isRunning = true
@@ -424,7 +475,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             ConfigManager.shared.isRunning = false
             proxyModeMenuItem.isEnabled = false
-            NSUserNotificationCenter.default.postConfigErrorNotice(msg: string)
+            Logger.log(startRes, level: .error)
+            NSUserNotificationCenter.default.postConfigErrorNotice(msg: startRes)
         }
         Logger.log("Start proxy done")
     }
@@ -457,10 +509,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 completeHandler?(err)
             }
 
-            if let error = err {
-                NSUserNotificationCenter.default
-                    .postNotificationAlert(title: NSLocalizedString("Reload Config Fail", comment: ""),
-                          info: error)
+            if let err {
+                UpdateConfigAction.showError(text: err, configName: config)
             } else {
                 self.syncConfig()
                 self.resetStreamApi()
@@ -483,29 +533,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func setupExperimentalMenuItem() {
-        ConnectionManager.addCloseOptionMenuItem(&experimentalMenu)
-        ClashResourceManager.addUpdateMMDBMenuItem(&experimentalMenu)
-        SystemProxyManager.shared.addDisableRestoreProxyMenuItem(&experimentalMenu)
-        MenuItemFactory.addExperimentalMenuItem(&experimentalMenu)
-        if WebPortalManager.hasWebProtal {
-            WebPortalManager.shared.addWebProtalMenuItem(&statusMenu)
-        }
-        iCloudManager.shared.addEnableMenuItem(&experimentalMenu)
-        AutoUpgardeManager.shared.setup()
-        AutoUpgardeManager.shared.addChanelMenuItem(&experimentalMenu)
-        updateExperimentalFeatureStatus()
-        RemoteControlManager.setupMenuItem(separator: externalControlSeparator)
-    }
-
-    func updateExperimentalFeatureStatus() {
-        buildApiModeMenuitem.state = ConfigManager.builtInApiMode ? .on : .off
-        showProxyGroupCurrentMenuItem.state = ConfigManager.shared.disableShowCurrentProxyInMenu ? .off : .on
-    }
-
     @objc func resetProxySettingOnWakeupFromSleep() {
         guard !ConfigManager.shared.isProxySetByOtherVariable.value,
-            ConfigManager.shared.proxyPortAutoSet else { return }
+              ConfigManager.shared.proxyPortAutoSet else { return }
         guard NetworkChangeNotifier.getPrimaryInterface() != nil else { return }
         if !NetworkChangeNotifier.isCurrentSystemSetToClash() {
             let rawProxy = NetworkChangeNotifier.getRawProxySetting()
@@ -522,24 +552,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func healthCheckOnNetworkChange() {
         ApiRequest.getMergedProxyData {
             proxyResp in
-            guard let proxyResp = proxyResp else {return}
-            
+            guard let proxyResp = proxyResp else { return }
+
             var providers = Set<ClashProxyName>()
-            
-            let groups = proxyResp.proxyGroups.filter({$0.type.isAutoGroup})
+
+            let groups = proxyResp.proxyGroups.filter(\.type.isAutoGroup)
             for group in groups {
-                group.all?.compactMap{
+                group.all?.compactMap {
                     proxyResp.proxiesMap[$0]?.enclosingProvider?.name
-                }.forEach{
+                }.forEach {
                     providers.insert($0)
                 }
             }
-            
+
             for group in groups {
                 Logger.log("Start auto health check for group \(group.name)")
                 ApiRequest.healthCheck(proxy: group.name)
             }
-            
+
             for provider in providers {
                 Logger.log("Start auto health check for provider \(provider)")
                 ApiRequest.healthCheck(proxy: provider)
@@ -551,15 +581,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 // MARK: Main actions
 
 extension AppDelegate {
-    @IBAction func actionDashboard(_ sender: NSMenuItem) {
-        if dashboardWindowController == nil {
-            dashboardWindowController = ClashWebViewWindowController.create()
-            dashboardWindowController?.onWindowClose = {
-                [weak self] in
-                self?.dashboardWindowController = nil
-            }
+    @IBAction func actionDashboard(_ sender: NSMenuItem?) {
+        ClashWindowController<ClashWebViewContoller>.create().showWindow(sender)
+    }
+
+    @IBAction func actionConnections(_ sender: NSMenuItem?) {
+        if #available(macOS 10.15, *) {
+            ClashWindowController<DashboardViewController>.create().showWindow(sender)
         }
-        dashboardWindowController?.showWindow(sender)
     }
 
     @IBAction func actionAllowFromLan(_ sender: NSMenuItem) {
@@ -587,9 +616,13 @@ extension AppDelegate {
         default:
             return
         }
+        switchProxyMode(mode: mode)
+    }
+
+    func switchProxyMode(mode: ClashProxyMode) {
         let config = ConfigManager.shared.currentConfig?.copy()
         config?.mode = mode
-        ApiRequest.updateOutBoundMode(mode: mode) { success in
+        ApiRequest.updateOutBoundMode(mode: mode) { _ in
             ConfigManager.shared.currentConfig = config
             ConfigManager.selectOutBoundMode = mode
             MenuItemFactory.recreateProxyMenuItems()
@@ -600,9 +633,11 @@ extension AppDelegate {
         ConfigManager.shared.showNetSpeedIndicator = !(sender.state == .on)
     }
 
-    @IBAction func actionSetSystemProxy(_ sender: Any) {
+    @IBAction func actionSetSystemProxy(_ sender: Any?) {
         var canSaveProxy = true
-        if ConfigManager.shared.isProxySetByOtherVariable.value {
+        if ConfigManager.shared.proxyPortAutoSet && ConfigManager.shared.proxyShouldPaused.value {
+            ConfigManager.shared.proxyPortAutoSet = false
+        } else if ConfigManager.shared.isProxySetByOtherVariable.value {
             // should reset proxy to clashx
             ConfigManager.shared.isProxySetByOtherVariable.accept(false)
             ConfigManager.shared.proxyPortAutoSet = true
@@ -667,8 +702,16 @@ extension AppDelegate {
         }
     }
 
+    @IBAction func actionUpdateExternalResource(_ sender: Any) {
+        UpdateExternalResourceAction.run()
+    }
+
     @IBAction func actionQuit(_ sender: Any) {
         NSApplication.shared.terminate(self)
+    }
+
+    @IBAction func actionMoreSetting(_ sender: Any) {
+        ClashWindowController<SettingTabViewController>.create().showWindow(sender)
     }
 }
 
@@ -687,7 +730,7 @@ extension AppDelegate: ApiRequestStreamDelegate {
 // MARK: Help actions
 
 extension AppDelegate {
-    @IBAction func actionShowLog(_ sender: Any) {
+    @IBAction func actionShowLog(_ sender: Any?) {
         NSWorkspace.shared.openFile(Logger.shared.logFilePath())
     }
 }
@@ -696,8 +739,8 @@ extension AppDelegate {
 
 extension AppDelegate {
     @IBAction func openConfigFolder(_ sender: Any) {
-        if iCloudManager.shared.isICloudEnable() {
-            iCloudManager.shared.getUrl() {
+        if ICloudManager.shared.useiCloud.value {
+            ICloudManager.shared.getUrl {
                 url in
                 if let url = url {
                     NSWorkspace.shared.open(url)
@@ -715,6 +758,7 @@ extension AppDelegate {
     @IBAction func actionSetLogLevel(_ sender: NSMenuItem) {
         let level = ClashLogLevel(rawValue: sender.title.lowercased()) ?? .unknow
         ConfigManager.selectLoggingApiLevel = level
+        dynamicLogLevel = level.toDDLogLevel()
         updateLoggingLevel()
         resetStreamApi()
     }
@@ -727,46 +771,9 @@ extension AppDelegate {
     @IBAction func actionUpdateRemoteConfig(_ sender: Any) {
         RemoteConfigManager.shared.updateCheck(ignoreTimeLimit: true, showNotification: true)
     }
-    
+
     @IBAction func actionSetUpdateInterval(_ sender: Any) {
         RemoteConfigManager.showAdd()
-    }
-
-    @IBAction func actionSetUseApiMode(_ sender: Any) {
-        let alert = NSAlert()
-        alert.informativeText = NSLocalizedString("Need to Restart the ClashX to Take effect, Please start clashX manually", comment: "")
-        alert.addButton(withTitle: NSLocalizedString("Apply and Quit", comment: ""))
-        alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
-        if alert.runModal() == .alertFirstButtonReturn {
-            ConfigManager.builtInApiMode = !ConfigManager.builtInApiMode
-            NSApp.terminate(nil)
-        }
-    }
-
-    @IBAction func actionUpdateProxyGroupMenu(_ sender: Any) {
-        ConfigManager.shared.disableShowCurrentProxyInMenu = !ConfigManager.shared.disableShowCurrentProxyInMenu
-        updateExperimentalFeatureStatus()
-        MenuItemFactory.recreateProxyMenuItems()
-    }
-
-    @IBAction func actionSetBenchmarkUrl(_ sender: Any) {
-        let alert = NSAlert()
-        let textfiled = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 20))
-        textfiled.stringValue = ConfigManager.shared.benchMarkUrl
-        alert.messageText = NSLocalizedString("Benchmark", comment: "")
-        alert.accessoryView = textfiled
-        alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
-        alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
-
-        if alert.runModal() == .alertFirstButtonReturn {
-            if textfiled.stringValue.isUrlVaild() {
-                ConfigManager.shared.benchMarkUrl = textfiled.stringValue
-            } else {
-                let err = NSAlert()
-                err.messageText = NSLocalizedString("URL is not valid", comment: "")
-                err.runModal()
-            }
-        }
     }
 }
 
@@ -780,9 +787,10 @@ extension AppDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 AppCenter.start(withAppSecret: "dce6e9a3-b6e3-4fd2-9f2d-35c767a99663", services: [
                     Analytics.self,
+                    Crashes.self
                 ])
             }
-        
+
         #endif
     }
 
@@ -790,9 +798,9 @@ extension AppDelegate {
         #if DEBUG
             return
         #else
-            UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": true])
+            UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": false])
             let x = UserDefaults.standard
-            var launch_fail_times: Int = 0
+            var launch_fail_times = 0
             if let xx = x.object(forKey: "launch_fail_times") as? Int { launch_fail_times = xx }
             launch_fail_times += 1
             x.set(launch_fail_times, forKey: "launch_fail_times")
@@ -804,11 +812,11 @@ extension AppDelegate {
                     UserDefaults.standard.removePersistentDomain(forName: domain)
                     UserDefaults.standard.synchronize()
                 }
-                NSUserNotificationCenter.default.post(title: "Fail on launch protect", info: "You origin Config has been renamed")
+                NSUserNotificationCenter.default.post(title: "Fail on launch protect", info: "You origin Config has been renamed", notiOnly: false)
             }
-            DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + Double(Int64(5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
+            DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + Double(Int64(5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
                 x.set(0, forKey: "launch_fail_times")
-            })
+            }
         #endif
     }
 }
@@ -841,8 +849,8 @@ extension AppDelegate {
             }
         }
 
-        if iCloudManager.shared.isICloudEnable() {
-            iCloudManager.shared.getConfigFilesList { list in
+        if ICloudManager.shared.useiCloud.value {
+            ICloudManager.shared.getConfigFilesList { list in
                 action(list)
             }
         } else {
@@ -932,7 +940,7 @@ extension AppDelegate {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "didGetUrl"), object: nil, userInfo: userInfo)
             }
         } else if host == "update-config" {
-          updateConfig()
+            updateConfig()
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  ConfigFileFactory.swift
+//  ConfigFileManager.swift
 //  ClashX
 //
 //  Created by CYC on 2018/8/5.

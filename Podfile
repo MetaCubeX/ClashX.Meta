@@ -8,8 +8,8 @@ post_install do |installer|
           config.build_settings['SWIFT_VERSION'] = '5'
         end
       end
-      if config.build_settings['MACOSX_DEPLOYMENT_TARGET'] == ''
-        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.10'
+      if config.build_settings['MACOSX_DEPLOYMENT_TARGET'] == '' || Gem::Version.new(config.build_settings['MACOSX_DEPLOYMENT_TARGET']) < Gem::Version.new("10.14")
+        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.14'
       end
     end
   end
@@ -24,11 +24,13 @@ target 'ClashX' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'CocoaLumberjack/Swift'
-  pod 'WebViewJavascriptBridge'
   pod 'Starscream','3.1.1'
   pod 'AppCenter/Analytics'
-  pod 'Sparkle','~>1.0'
+  pod 'AppCenter/Crashes'
+  pod 'Sparkle','~>2.0'
   pod "FlexibleDiff"
   pod 'GzipSwift'
+  pod 'SwiftLint'
+  pod 'SwiftFormat/CLI', '~> 0.49'
 end
 

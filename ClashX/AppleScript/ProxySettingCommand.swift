@@ -6,8 +6,8 @@
 //  Copyright © 2022 west2online. All rights reserved.
 //
 
-import Foundation
 import AppKit
+import Foundation
 
 @objc class ProxySettingCommand: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {

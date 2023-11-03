@@ -7,9 +7,9 @@
 //
 
 import AppKit
-import ServiceManagement
-import RxSwift
 import RxCocoa
+import RxSwift
+import ServiceManagement
 
 class PrivilegedHelperManager {
     let isHelperCheckFinished = BehaviorRelay<Bool>(value: false)
@@ -19,8 +19,11 @@ class PrivilegedHelperManager {
     private var authRef: AuthorizationRef?
     private var connection: NSXPCConnection?
     private var _helper: ProxyConfigRemoteProcessProtocol?
-    static let machServiceName = "com.west2online.ClashX.ProxyConfigHelper"
-
+    #if PRO_VERSION
+        static let machServiceName = "com.west2online.ClashXPro.ProxyConfigHelper"
+    #else
+        static let machServiceName = "com.west2online.ClashX.ProxyConfigHelper"
+    #endif
     static let shared = PrivilegedHelperManager()
     init() {
         initAuthorizationRef()
@@ -30,10 +33,30 @@ class PrivilegedHelperManager {
 
     func checkInstall() {
         Logger.log("checkInstall", level: .debug)
-        
-        getHelperStatus { [weak self] installed in
-            guard let self = self else {return}
-            if !installed {
+        getHelperStatus { [weak self] status in
+            Logger.log("check result: \(status)", level: .debug)
+            guard let self = self else { return }
+            switch status {
+            case .noFound:
+                if #available(macOS 13, *) {
+                    let url = URL(string: "/Library/LaunchDaemons/\(PrivilegedHelperManager.machServiceName).plist")!
+                    let status = SMAppService.statusForLegacyPlist(at: url)
+                    if status == .requiresApproval {
+                        let alert = NSAlert()
+                        let notice = NSLocalizedString("ClashX use a daemon helper to setup your system proxy. Please enable ClashX in the Login Items under the Allow in the Background section and relaunch the app", comment: "")
+                        let addition = NSLocalizedString("If you can not find ClashX in the settings, you can try reset daemon", comment: "")
+                        alert.messageText = notice + "\n" + addition
+                        alert.addButton(withTitle: NSLocalizedString("Open System Login Item Setting", comment: ""))
+                        alert.addButton(withTitle: NSLocalizedString("Reset Daemon", comment: ""))
+                        if alert.runModal() == .alertFirstButtonReturn {
+                            SMAppService.openSystemSettingsLoginItems()
+                        } else {
+                            self.removeInstallHelper()
+                        }
+                    }
+                }
+                fallthrough
+            case .needUpdate:
                 Logger.log("need to install helper", level: .debug)
                 if Thread.isMainThread {
                     self.notifyInstall()
@@ -42,7 +65,7 @@ class PrivilegedHelperManager {
                         self.notifyInstall()
                     }
                 }
-            } else {
+            case .installed:
                 self.isHelperCheckFinished.accept(true)
             }
         }
@@ -101,7 +124,6 @@ class PrivilegedHelperManager {
 
         // Launch the privileged helper using SMJobBless tool
         var error: Unmanaged<CFError>?
-
         if SMJobBless(kSMDomainSystemLaunchd, PrivilegedHelperManager.machServiceName as CFString, authRef, &error) == false {
             let blessError = error!.takeRetainedValue() as Error
             Logger.log("Bless Error: \(blessError)", level: .error)
@@ -112,76 +134,66 @@ class PrivilegedHelperManager {
         return .success
     }
 
-    private func helperConnection() -> NSXPCConnection? {
-        // Check that the connection is valid before trying to do an inter process call to helper
-        if connection == nil {
-            connection = NSXPCConnection(machServiceName: PrivilegedHelperManager.machServiceName, options: NSXPCConnection.Options.privileged)
-            connection?.remoteObjectInterface = NSXPCInterface(with: ProxyConfigRemoteProcessProtocol.self)
-            connection?.invalidationHandler = {
-                [weak self] in
-                guard let self = self else { return }
-                self.connection?.invalidationHandler = nil
-                OperationQueue.main.addOperation {
-                    self.connection = nil
-                    self._helper = nil
-                    Logger.log("XPC Connection Invalidated")
-                }
-            }
-            connection?.resume()
+    func helper(failture: (() -> Void)? = nil) -> ProxyConfigRemoteProcessProtocol? {
+        connection = NSXPCConnection(machServiceName: PrivilegedHelperManager.machServiceName, options: NSXPCConnection.Options.privileged)
+        connection?.remoteObjectInterface = NSXPCInterface(with: ProxyConfigRemoteProcessProtocol.self)
+        connection?.invalidationHandler = {
+            Logger.log("XPC Connection Invalidated")
         }
-        return connection
+        connection?.resume()
+        guard let helper = connection?.remoteObjectProxyWithErrorHandler({ error in
+            Logger.log("Helper connection was closed with error: \(error)")
+            failture?()
+        }) as? ProxyConfigRemoteProcessProtocol else { return nil }
+        return helper
     }
 
-    func helper(failture: (() -> Void)? = nil) -> ProxyConfigRemoteProcessProtocol? {
-        if _helper == nil {
-            guard let newHelper = helperConnection()?.remoteObjectProxyWithErrorHandler({ error in
-                Logger.log("Helper connection was closed with error: \(error)")
-                failture?()
-            }) as? ProxyConfigRemoteProcessProtocol else { return nil }
-            _helper = newHelper
-        }
-        return _helper
-    }
     var timer: Timer?
-    private func getHelperStatus(callback:@escaping ((Bool)->Void)) {
-        
+
+    enum HelperStatus {
+        case installed
+        case noFound
+        case needUpdate
+    }
+
+    private func getHelperStatus(callback: @escaping ((HelperStatus) -> Void)) {
         var called = false
-        let reply:((Bool)->Void) = {
-            installed in
-            if called {return}
+        let reply: ((HelperStatus) -> Void) = {
+            status in
+            if called { return }
             called = true
-            callback(installed)
+            callback(status)
         }
-        
+
         let helperURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Library/LaunchServices/" + PrivilegedHelperManager.machServiceName)
         guard
             let helperBundleInfo = CFBundleCopyInfoDictionaryForURL(helperURL as CFURL) as? [String: Any],
             let helperVersion = helperBundleInfo["CFBundleShortVersionString"] as? String else {
             Logger.log("check helper status fail")
-            reply(false)
+            reply(.noFound)
             return
         }
         let helperFileExists = FileManager.default.fileExists(atPath: "/Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)")
         if !helperFileExists {
-            reply(false)
+            reply(.noFound)
             return
         }
         let timeout: TimeInterval = helperFileExists ? 15 : 5
         let time = Date()
-        
+
         timer = Timer.scheduledTimer(withTimeInterval: timeout, repeats: false) { _ in
             Logger.log("check helper timeout time: \(timeout)")
-            reply(false)
+            reply(.noFound)
         }
-        
+
         helper()?.getVersion { [weak timer] installedHelperVersion in
             timer?.invalidate()
             timer = nil
             Logger.log("helper version \(installedHelperVersion ?? "") require version \(helperVersion)", level: .debug)
-            let installed = installedHelperVersion == helperVersion
+            let versionMatch = installedHelperVersion == helperVersion
             let interval = Date().timeIntervalSince(time)
             Logger.log("check helper using time: \(interval)")
-            reply(installed)
+            reply(versionMatch ? .installed : .needUpdate)
         }
     }
 }
@@ -240,7 +252,7 @@ extension PrivilegedHelperManager {
     }
 }
 
-fileprivate struct AppAuthorizationRights {
+private enum AppAuthorizationRights {
     static let rightName: NSString = "\(PrivilegedHelperManager.machServiceName).config" as NSString
     static let rightDefaultRule: Dictionary = adminRightsRule
     static let rightDescription: CFString = "ProxyConfigHelper wants to configure your proxy setting'" as CFString
@@ -250,7 +262,7 @@ fileprivate struct AppAuthorizationRights {
                                                  "version": 1]
 }
 
-fileprivate enum DaemonInstallResult {
+private enum DaemonInstallResult {
     case success
     case authorizationFail
     case getAdminFail
@@ -270,7 +282,6 @@ fileprivate enum DaemonInstallResult {
             case kSMErrorToolNotValid: return "blessError: kSMErrorToolNotValid"
             case kSMErrorJobNotFound: return "blessError: kSMErrorJobNotFound"
             case kSMErrorServiceUnavailable: return "blessError: kSMErrorServiceUnavailable"
-            case kSMErrorJobNotFound: return "blessError: kSMErrorJobNotFound"
             case kSMErrorJobMustBeEnabled: return "ClashX Helper is disabled by other process. Please run \"sudo launchctl enable system/\(PrivilegedHelperManager.machServiceName)\" in your terminal. The command has been copied to your pasteboard"
             case kSMErrorInvalidPlist: return "blessError: kSMErrorInvalidPlist"
             default:

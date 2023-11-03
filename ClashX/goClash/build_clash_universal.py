@@ -11,22 +11,20 @@ def get_version():
                 return line.split("-")[-1].strip()[:6]
     return "unknown"
 
+go_bin = "go"
 
 def build_clash(version,build_time,arch):
-    clang = f"{os.getcwd()}/clangWrap.sh"
     command = f"""
-go build -trimpath -ldflags '-X "github.com/Dreamacro/clash/constant.Version={version}" \
+{go_bin} build -trimpath -ldflags '-X "github.com/Dreamacro/clash/constant.Version={version}" \
 -X "github.com/Dreamacro/clash/constant.BuildTime={build_time}"' \
 -buildmode=c-archive -o goClash_{arch}.a """
     envs = os.environ.copy()
     envs.update({
-        "CC":clang,
-        "CXX":clang,
         "GOOS":"darwin",
         "GOARCH":arch,
         "CGO_ENABLED":"1",
-        "CGO_LDFLAGS":"-mmacosx-version-min=10.12",
-        "CGO_CFLAGS":"-mmacosx-version-min=10.12",
+        "CGO_LDFLAGS":"-mmacosx-version-min=10.14",
+        "CGO_CFLAGS":"-mmacosx-version-min=10.14",
     })    
     subprocess.check_output(command, shell=True,env=envs)
 
@@ -61,8 +59,7 @@ def run():
     print("current clash version:", version)
     build_time = datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
     print("clean existing")
-    subprocess.check_output("rm -f *.h *.a", shell=True)
-        
+    subprocess.check_output("rm -f *Clash*.h *.a", shell=True)
     print("create arm64")
     build_clash(version,build_time,"arm64")
     print("create amd64")

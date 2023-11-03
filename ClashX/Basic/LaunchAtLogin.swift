@@ -1,5 +1,5 @@
 //
-//  AutoStartManager.swift
+//  LaunchAtLogin.swift
 //  ClashX
 //
 //  Created by CYC on 2018/6/14.

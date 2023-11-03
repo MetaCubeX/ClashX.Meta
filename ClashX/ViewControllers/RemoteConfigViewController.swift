@@ -219,24 +219,24 @@ class RemoteConfigAddView: NSView, NibLoadable {
     /// Get the config name
     /// - Returns: return (name, isUserInput)
     func getConfigName() -> (String, Bool) {
-        if configNameTextField.stringValue.count > 0 {
+        if !configNameTextField.stringValue.isEmpty {
             return (configNameTextField.stringValue, true)
         }
         return (configNameTextField.placeholderString ?? "", false)
     }
 
     func isVaild() -> Bool {
-        return urlTextField.stringValue.isUrlVaild() && getConfigName().0.count > 0
+        return urlTextField.stringValue.isUrlVaild() && !getConfigName().0.isEmpty
     }
 
     func setUrl(string: String, name: String? = nil, defaultName: String?) {
         urlTextField.stringValue = string
 
-        if let name = name, name.count > 0 {
+        if let name = name, !name.isEmpty {
             configNameTextField.stringValue = name
         }
 
-        if let defaultName = defaultName, defaultName.count > 0 {
+        if let defaultName = defaultName, !defaultName.isEmpty {
             configNameTextField.placeholderString = defaultName
         }
 

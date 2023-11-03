@@ -11,7 +11,7 @@ let kConfigFolderPath = "\(NSHomeDirectory())/.config/clash/"
 
 let kDefaultConfigFilePath = "\(kConfigFolderPath)config.yaml"
 
-struct Paths {
+enum Paths {
     static func localConfigPath(for name: String) -> String {
         return "\(kConfigFolderPath)\(configFileName(for: name))"
     }

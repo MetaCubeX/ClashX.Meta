@@ -20,3 +20,5 @@ mv Country.mmdb.gz ./ClashX/Resources/Country.mmdb.gz
 echo "install dashboard"
 cd ClashX/Resources
 git clone -b gh-pages https://github.com/Dreamacro/clash-dashboard.git dashboard
+cd dashboard
+rm -rf *.webmanifest *.js CNAME .git

@@ -27,3 +27,15 @@ extension NibLoadable where Self: NSView {
         return views.last as! Self
     }
 }
+
+extension NibLoadable where Self: NSViewController {
+    static var nibName: String? {
+        return String(describing: Self.self)
+    }
+
+    static func createFromNib(in bundle: Bundle = Bundle.main) -> Self {
+        guard let nibName = nibName else { fatalError() }
+        let sb = NSStoryboard(name: "Main", bundle: Bundle.main)
+        return sb.instantiateController(withIdentifier: nibName) as! Self
+    }
+}

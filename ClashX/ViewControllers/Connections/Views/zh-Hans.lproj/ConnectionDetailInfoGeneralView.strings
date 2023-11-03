@@ -1,0 +1,53 @@
+/* Class = "NSTextFieldCell"; title = "NetworkType"; ObjectID = "6p6-n8-rBg"; */
+"6p6-n8-rBg.title" = "网络类型";
+
+/* Class = "NSBox"; title = "Current Speed"; ObjectID = "7fZ-OX-aWF"; */
+"7fZ-OX-aWF.title" = "实时速率";
+
+/* Class = "NSTextFieldCell"; title = "Source"; ObjectID = "9Id-dT-XYP"; */
+"9Id-dT-XYP.title" = "来源";
+
+/* Class = "NSTextFieldCell"; title = "Upload"; ObjectID = "CGD-ut-PXk"; */
+"CGD-ut-PXk.title" = "上传";
+
+/* Class = "NSBox"; title = "Rule"; ObjectID = "CiP-Ib-BPd"; */
+"CiP-Ib-BPd.title" = "规则";
+
+/* Class = "NSTextFieldCell"; title = "Upload"; ObjectID = "GhE-tw-D8L"; */
+"GhE-tw-D8L.title" = "上传";
+
+/* Class = "NSTextFieldCell"; title = "Entry"; ObjectID = "KQt-5l-lyc"; */
+"KQt-5l-lyc.title" = "入口";
+
+/* Class = "NSTextFieldCell"; title = "Upload"; ObjectID = "KsS-nl-D2n"; */
+"KsS-nl-D2n.title" = "上传";
+
+/* Class = "NSBox"; title = "Proxy Chain"; ObjectID = "MIz-sg-4Rx"; */
+"MIz-sg-4Rx.title" = "代理链";
+
+/* Class = "NSBox"; title = "Max Speed"; ObjectID = "NBq-b1-RLL"; */
+"NBq-b1-RLL.title" = "最高速率";
+
+/* Class = "NSTextFieldCell"; title = "Download"; ObjectID = "ZEc-E9-AXS"; */
+"ZEc-E9-AXS.title" = "下载";
+
+/* Class = "NSTextFieldCell"; title = "Download"; ObjectID = "iem-RP-B0u"; */
+"iem-RP-B0u.title" = "下载";
+
+/* Class = "NSBox"; title = "General"; ObjectID = "leq-MF-MFL"; */
+"leq-MF-MFL.title" = "通用";
+
+/* Class = "NSTextFieldCell"; title = "Dest."; ObjectID = "m5m-4U-xAi"; */
+"m5m-4U-xAi.title" = "去向";
+
+/* Class = "NSBox"; title = "Other"; ObjectID = "nG8-0D-7W1"; */
+"nG8-0D-7W1.title" = "其他";
+
+/* Class = "NSBox"; title = "Address"; ObjectID = "obG-yt-Gi8"; */
+"obG-yt-Gi8.title" = "地址";
+
+/* Class = "NSTextFieldCell"; title = "Download"; ObjectID = "tes-yR-PKh"; */
+"tes-yR-PKh.title" = "下载";
+
+/* Class = "NSBox"; title = "Total"; ObjectID = "xB0-fx-J0y"; */
+"xB0-fx-J0y.title" = "总计";

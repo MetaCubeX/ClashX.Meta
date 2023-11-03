@@ -15,13 +15,13 @@ public struct UserDefault<Value: PropertyListValue> {
     let key: String
     let defaultValue: Value
     var userDefaults: UserDefaults
-    
+
     public init(_ key: String, defaultValue: Value, userDefaults: UserDefaults = .standard) {
         self.key = key
         self.defaultValue = defaultValue
         self.userDefaults = userDefaults
     }
-    
+
     public var wrappedValue: Value {
         get {
             return userDefaults.object(forKey: key) as? Value ?? defaultValue
@@ -63,7 +63,6 @@ extension UInt32: PropertyListValue {}
 extension UInt64: PropertyListValue {}
 extension Double: PropertyListValue {}
 extension Float: PropertyListValue {}
-
 
 extension Array: PropertyListValue where Element: PropertyListValue {}
 

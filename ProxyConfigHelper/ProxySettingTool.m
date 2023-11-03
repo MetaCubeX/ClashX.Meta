@@ -29,11 +29,12 @@
 
 - (void)enableProxyWithport:(int)port socksPort:(int)socksPort
                      pacUrl:(NSString *)pacUrl
-            filterInterface:(BOOL)filterInterface  {
+            filterInterface:(BOOL)filterInterface
+                 ignoreList:(NSArray<NSString *>*)ignoreList {
 
     [self applySCNetworkSettingWithRef:^(SCPreferencesRef ref) {
         [ProxySettingTool getDiviceListWithPrefRef:ref filterInterface:filterInterface devices:^(NSString *key, NSDictionary *dict) {
-            [self enableProxySettings:ref interface:key port:port socksPort:socksPort pac:pacUrl];
+            [self enableProxySettings:ref interface:key port:port socksPort:socksPort ignoreList:ignoreList pac:pacUrl];
         }];
     }];
 }
@@ -46,7 +47,7 @@
     }];
 }
 
-- (void)restoreProxySettint:(NSDictionary *)savedInfo
+- (void)restoreProxySetting:(NSDictionary *)savedInfo
                 currentPort:(int)port
            currentSocksPort:(int)socksPort
             filterInterface:(BOOL)filterInterface{
@@ -110,45 +111,9 @@
 }
 
 
-+ (NSString *)getUserHomePath {
-    NSString *userName = [CommonUtils runCommand:@"/usr/bin/stat" args:@[@"-f",@"%Su",@"/dev/console"]];
-    userName = [userName stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-    if (!userName) {
-        return nil;
-    }
-    NSString *path = [NSString stringWithFormat:@"/Users/%@", userName];
-    if([NSFileManager.defaultManager fileExistsAtPath:path]) {
-        return path;
-    }
-    return nil;
-}
-
-
-- (NSArray<NSString *> *)getIgnoreList {
-    NSString *homePath = [ProxySettingTool getUserHomePath];
-    if (homePath.length > 0) {
-        NSString *configPath = [homePath stringByAppendingString:@"/.config/clash/proxyIgnoreList.plist"];
-        if ([NSFileManager.defaultManager fileExistsAtPath:configPath]) {
-            NSArray *arr = [[NSArray alloc] initWithContentsOfFile:configPath];
-            if (arr != nil && arr.count > 0) {
-                return arr;
-            }
-        }
-    }
-    NSArray *ignoreList = @[
-        @"192.168.0.0/16",
-        @"10.0.0.0/8",
-        @"172.16.0.0/12",
-        @"127.0.0.1",
-        @"localhost",
-        @"*.local",
-        @"timestamp.apple.com"
-    ];
-    return ignoreList;
-}
-
 - (NSDictionary *)getProxySetting:(BOOL)enable port:(int) port
-                        socksPort: (int)socksPort pac:(NSString *)pac {
+                        socksPort: (int)socksPort pac:(NSString *)pac
+                       ignoreList:(NSArray<NSString *>*)ignoreList {
     
     NSMutableDictionary *proxySettings = [NSMutableDictionary dictionary];
     
@@ -183,7 +148,7 @@
     }
     
     if (enable) {
-        proxySettings[(__bridge NSString *)kCFNetworkProxiesExceptionsList] = [self getIgnoreList];
+        proxySettings[(__bridge NSString *)kCFNetworkProxiesExceptionsList] = ignoreList;
     } else {
         proxySettings[(__bridge NSString *)kCFNetworkProxiesExceptionsList] = @[];
     }
@@ -202,16 +167,17 @@
                   interface:(NSString *)interfaceKey
                        port:(int) port
                   socksPort:(int) socksPort
+                 ignoreList:(NSArray<NSString *>*)ignoreList
                         pac:(NSString *)pac {
     
-    NSDictionary *proxySettings = [self getProxySetting:YES port:port socksPort:socksPort pac:pac];
+    NSDictionary *proxySettings = [self getProxySetting:YES port:port socksPort:socksPort pac:pac ignoreList:ignoreList];
     [self setProxyConfig:prefs interface:interfaceKey proxySetting:proxySettings];
     
 }
 
 - (void)disableProxySetting:(SCPreferencesRef)prefs
                   interface:(NSString *)interfaceKey {
-    NSDictionary *proxySettings = [self getProxySetting:NO port:0 socksPort:0 pac:nil];
+    NSDictionary *proxySettings = [self getProxySetting:NO port:0 socksPort:0 pac:nil ignoreList:@[]];
     [self setProxyConfig:prefs interface:interfaceKey proxySetting:proxySettings];
 }
 

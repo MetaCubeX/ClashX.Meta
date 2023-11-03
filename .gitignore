@@ -17,3 +17,6 @@ ClashX/goClash/goClash.a
 fastlane/report.xml
 ClashX/Resources/Country.mmdb.gz
 .bundle/config
+*.app/**
+ClashX.app.dSYM.zip
+build_derived_data

@@ -14,7 +14,7 @@ extension PrivilegedHelperManager {
         let bash = """
         #!/bin/bash
         set -e
-        
+
         plistPath=/Library/LaunchDaemons/\(PrivilegedHelperManager.machServiceName).plist
         rm -rf /Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)
         if [ -e ${plistPath} ]; then
@@ -22,10 +22,10 @@ extension PrivilegedHelperManager {
         rm ${plistPath}
         fi
         launchctl remove \(PrivilegedHelperManager.machServiceName) || true
-        
+
         mkdir -p /Library/PrivilegedHelperTools/
         rm -f /Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)
-        
+
         cp "\(appPath)/Contents/Library/LaunchServices/\(PrivilegedHelperManager.machServiceName)" "/Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)"
 
         echo '
@@ -49,10 +49,28 @@ extension PrivilegedHelperManager {
         </dict>
         </plist>
         ' > ${plistPath}
-        
+
         launchctl load -w ${plistPath}
         """
         return bash
+    }
+
+    func runScriptWithRootPermission(script: String) {
+        let tmpPath = FileManager.default.temporaryDirectory.appendingPathComponent(NSUUID().uuidString).appendingPathExtension("sh")
+        do {
+            try script.write(to: tmpPath, atomically: true, encoding: .utf8)
+            let appleScriptStr = "do shell script \"bash \(tmpPath.path) \" with administrator privileges"
+            let appleScript = NSAppleScript(source: appleScriptStr)
+            var dict: NSDictionary?
+            if appleScript?.executeAndReturnError(&dict) == nil {
+                Logger.log("apple script failed")
+            } else {
+                Logger.log("apple script result: \(String(describing: dict))")
+            }
+        } catch let err {
+            Logger.log("legacyInstallHelper create script fail: \(err)")
+        }
+        try? FileManager.default.removeItem(at: tmpPath)
     }
 
     func legacyInstallHelper() {
@@ -61,20 +79,21 @@ extension PrivilegedHelperManager {
             Thread.sleep(forTimeInterval: 1)
         }
         let script = getInstallScript()
-        let tmpPath = FileManager.default.temporaryDirectory.appendingPathComponent(NSUUID().uuidString).appendingPathExtension("sh")
-        do {
-            try script.write(to: tmpPath, atomically: true, encoding: .utf8)
-            let appleScriptStr = "do shell script \"bash \(tmpPath.path) \" with administrator privileges"
-            let appleScript = NSAppleScript(source: appleScriptStr)
-            var dict: NSDictionary?
-            if let _ = appleScript?.executeAndReturnError(&dict) {
-                return
-            } else {
-                Logger.log("apple script fail: \(String(describing: dict))")
-            }
-        } catch let err {
-            Logger.log("legacyInstallHelper create script fail: \(err)")
+        runScriptWithRootPermission(script: script)
+    }
+
+    func removeInstallHelper() {
+        defer {
+            resetConnection()
+            Thread.sleep(forTimeInterval: 5)
         }
-        try? FileManager.default.removeItem(at: tmpPath)
+        let script = """
+        /bin/launchctl remove \(PrivilegedHelperManager.machServiceName) || true
+        /usr/bin/killall -u root -9 \(PrivilegedHelperManager.machServiceName)
+        /bin/rm -rf /Library/LaunchDaemons/\(PrivilegedHelperManager.machServiceName).plist
+        /bin/rm -rf /Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)
+        """
+
+        runScriptWithRootPermission(script: script)
     }
 }

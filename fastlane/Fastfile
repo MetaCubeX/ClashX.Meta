@@ -6,31 +6,23 @@ build_app(
   workspace: "ClashX.xcworkspace",
   scheme: "ClashX",
   export_method: "developer-id",
-  skip_package_pkg: "true",
-  clean: "true"
-)
-
-sh(command: "rm -vfr ~/Library/Developer/Xcode/Archives/*")
-end
-
-lane :beta do
-current_version = get_version_number(
-  target: "ClashX"
-)
-timestamp = Time.now.utc
-new_build_identifier = "%d%02d%02d%02d%02d" % [
-    timestamp.year,
-    timestamp.month,
-    timestamp.day,
-    timestamp.hour,
-    timestamp.min,
-]
-new_version = current_version + "." + new_build_identifier
-increment_build_number_in_plist(
-    build_number: new_version,
-    target: 'ClashX'
+  skip_package_pkg: "false",
+  clean: "true",
+  derived_data_path: "./build_derived_data"
 )
 end
+
+lane :check do
+  build_app(
+    workspace: "ClashX.xcworkspace",
+    scheme: "ClashX",
+    codesigning_identity: "-",
+    export_method: "developer-id",
+    skip_package_pkg: "true",
+    clean: "true",
+    derived_data_path: "./build_derived_data"
+  )
+  end
 
 lane :addKeyChain do
   if is_ci?

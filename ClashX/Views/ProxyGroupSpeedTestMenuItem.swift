@@ -37,6 +37,7 @@ class ProxyGroupSpeedTestMenuItem: NSMenuItem {
         }
     }
 
+    @available(*, unavailable)
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -47,12 +48,12 @@ class ProxyGroupSpeedTestMenuItem: NSMenuItem {
         ApiRequest.getMergedProxyData { [weak self] proxyResp in
             guard let self = self else { return }
             var providers = Set<ClashProxyName>()
-            self.proxyGroup.all?.compactMap{
+            self.proxyGroup.all?.compactMap {
                 proxyResp?.proxiesMap[$0]?.enclosingProvider?.name
-            }.forEach{
+            }.forEach {
                 providers.insert($0)
             }
-            providers.forEach{
+            providers.forEach {
                 ApiRequest.healthCheck(proxy: $0)
             }
         }
@@ -66,7 +67,7 @@ extension ProxyGroupSpeedTestMenuItem: ProxyGroupMenuHighlightDelegate {
     }
 }
 
-fileprivate class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
+private class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
     private let label: NSTextField
 
     init(_ title: String) {
@@ -80,6 +81,7 @@ fileprivate class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
         label.textColor = NSColor.labelColor
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -141,7 +143,7 @@ fileprivate class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
             self.label.stringValue = menu.title
             menu.isEnabled = true
             self.setNeedsDisplay()
-            if providers.count > 0 {
+            if !providers.isEmpty {
                 MenuItemFactory.refreshExistingMenuItems()
             }
         }

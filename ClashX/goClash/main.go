@@ -1,7 +1,15 @@
 package main
 
+/*
+#cgo CFLAGS: -x objective-c
+#cgo LDFLAGS: -framework Foundation
+#import <Foundation/Foundation.h>
+#import "UIHelper.h"
+*/
+import "C"
+
 import (
-	"C"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -10,15 +18,22 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
+	"unsafe"
 
+	"github.com/Dreamacro/clash/component/mmdb"
 	"github.com/Dreamacro/clash/config"
 	"github.com/Dreamacro/clash/constant"
 	"github.com/Dreamacro/clash/hub/executor"
 	"github.com/Dreamacro/clash/hub/route"
 	"github.com/Dreamacro/clash/log"
+	"github.com/Dreamacro/clash/tunnel/statistic"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/phayes/freeport"
 )
+
+var secretOverride string = ""
+var enableIPV6 bool = false
 
 func isAddrValid(addr string) bool {
 	if addr != "" {
@@ -76,41 +91,60 @@ func readConfig(path string) ([]byte, error) {
 	return data, err
 }
 
-
-func parseDefaultConfigThenStart(checkPort, allowLan bool) (*config.Config, error) {
+func getRawCfg() (*config.RawConfig, error) {
 	buf, err := readConfig(constant.Path.Config())
 	if err != nil {
 		return nil, err
 	}
 
-	rawCfg, err := config.UnmarshalRawConfig(buf)
+	return config.UnmarshalRawConfig(buf)
+}
+
+func parseDefaultConfigThenStart(checkPort, allowLan, ipv6 bool, proxyPort uint32, externalController string) (*config.Config, error) {
+	rawCfg, err := getRawCfg()
 	if err != nil {
 		return nil, err
 	}
 
-	if rawCfg.MixedPort == 0 {
-		if rawCfg.Port > 0 {
-			rawCfg.MixedPort = rawCfg.Port
-			rawCfg.Port = 0
-		} else if rawCfg.SocksPort > 0 {
-			rawCfg.MixedPort = rawCfg.SocksPort
-			rawCfg.SocksPort = 0
-		} else {
-			rawCfg.MixedPort = 7890
-		}
-
-		if rawCfg.SocksPort == rawCfg.MixedPort {
-			rawCfg.SocksPort = 0
-		}
-
+	if proxyPort > 0 {
+		rawCfg.MixedPort = int(proxyPort)
 		if rawCfg.Port == rawCfg.MixedPort {
 			rawCfg.Port = 0
 		}
+		if rawCfg.SocksPort == rawCfg.MixedPort {
+			rawCfg.SocksPort = 0
+		}
+	} else {
+		if rawCfg.MixedPort == 0 {
+			if rawCfg.Port > 0 {
+				rawCfg.MixedPort = rawCfg.Port
+				rawCfg.Port = 0
+			} else if rawCfg.SocksPort > 0 {
+				rawCfg.MixedPort = rawCfg.SocksPort
+				rawCfg.SocksPort = 0
+			} else {
+				rawCfg.MixedPort = 7890
+			}
 
+			if rawCfg.SocksPort == rawCfg.MixedPort {
+				rawCfg.SocksPort = 0
+			}
+
+			if rawCfg.Port == rawCfg.MixedPort {
+				rawCfg.Port = 0
+			}
+		}
 	}
-
+	if secretOverride != "" {
+		rawCfg.Secret = secretOverride
+	}
 	rawCfg.ExternalUI = ""
 	rawCfg.Profile.StoreSelected = false
+	enableIPV6 = ipv6
+	rawCfg.IPv6 = ipv6
+	if len(externalController) > 0 {
+		rawCfg.ExternalController = externalController
+	}
 	if checkPort {
 		if !isAddrValid(rawCfg.ExternalController) {
 			port, err := freeport.GetFreePort()
@@ -153,9 +187,56 @@ func verifyClashConfig(content *C.char) *C.char {
 	return C.CString("success")
 }
 
+//export clashSetupLogger
+func clashSetupLogger() {
+	sub := log.Subscribe()
+	go func() {
+		for elm := range sub {
+			log := elm.(log.Event)
+			cs := C.CString(log.Payload)
+			cl := C.CString(log.Type())
+			C.sendLogToUI(cs, cl)
+			C.free(unsafe.Pointer(cs))
+			C.free(unsafe.Pointer(cl))
+		}
+	}()
+}
+
+//export clashSetupTraffic
+func clashSetupTraffic() {
+	go func() {
+		tick := time.NewTicker(time.Second)
+		defer tick.Stop()
+		t := statistic.DefaultManager
+		buf := &bytes.Buffer{}
+		for range tick.C {
+			buf.Reset()
+			up, down := t.Now()
+			C.sendTrafficToUI(C.longlong(up), C.longlong(down))
+		}
+	}()
+}
+
+//export clash_checkSecret
+func clash_checkSecret() *C.char {
+	cfg, err := getRawCfg()
+	if err != nil {
+		return C.CString("")
+	}
+	if cfg.Secret != "" {
+		return C.CString(cfg.Secret)
+	}
+	return C.CString("")
+}
+
+//export clash_setSecret
+func clash_setSecret(secret *C.char) {
+	secretOverride = C.GoString(secret)
+}
+
 //export run
-func run(checkConfig, allowLan bool) *C.char {
-	cfg, err := parseDefaultConfigThenStart(checkConfig, allowLan)
+func run(checkConfig, allowLan, ipv6 bool, portOverride uint32, externalController *C.char) *C.char {
+	cfg, err := parseDefaultConfigThenStart(checkConfig, allowLan, ipv6, portOverride, C.GoString(externalController))
 	if err != nil {
 		return C.CString(err.Error())
 	}
@@ -184,6 +265,7 @@ func clashUpdateConfig(path *C.char) *C.char {
 	if err != nil {
 		return C.CString(err.Error())
 	}
+	cfg.General.IPv6 = enableIPV6
 	executor.ApplyConfig(cfg, false)
 	return C.CString("success")
 }
@@ -212,6 +294,28 @@ func verifyGEOIPDataBase() bool {
 		return false
 	}
 	return true
+}
+
+//export clash_getCountryForIp
+func clash_getCountryForIp(ip *C.char) *C.char {
+	record, _ := mmdb.Instance().Country(net.ParseIP(C.GoString(ip)))
+	if record != nil {
+		return C.CString(record.Country.IsoCode)
+	}
+	return C.CString("")
+}
+
+//export clash_closeAllConnections
+func clash_closeAllConnections() {
+	snapshot := statistic.DefaultManager.Snapshot()
+	for _, c := range snapshot.Connections {
+		c.Close()
+	}
+}
+
+//export clash_getProggressInfo
+func clash_getProggressInfo() *C.char {
+	return C.CString(GetTcpNetList() + GetUDpList())
 }
 
 func main() {

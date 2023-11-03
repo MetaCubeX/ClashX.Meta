@@ -38,7 +38,7 @@ class RemoteConfigManager {
 
     func migrateOldRemoteConfig() {
         if let url = UserDefaults.standard.string(forKey: "kRemoteConfigUrl"),
-            let name = URL(string: url)?.host {
+           let name = URL(string: url)?.host {
             configs.append(RemoteConfigModel(url: url, name: name))
             UserDefaults.standard.removeObject(forKey: "kRemoteConfigUrl")
             saveConfigs()
@@ -146,10 +146,10 @@ class RemoteConfigManager {
         urlRequest.cachePolicy = .reloadIgnoringCacheData
 
         AF.request(urlRequest)
-          .validate()
-          .responseString(encoding: .utf8) { res in
-            complete(try? res.result.get(), res.response?.suggestedFilename)
-        }
+            .validate()
+            .responseString(encoding: .utf8) { res in
+                complete(try? res.result.get(), res.response?.suggestedFilename)
+            }
     }
 
     static func updateConfig(config: RemoteConfigModel, complete: ((String?) -> Void)? = nil) {
@@ -173,9 +173,10 @@ class RemoteConfigManager {
             }
             config.isPlaceHolderName = false
 
-            if iCloudManager.shared.isICloudEnable() {
+            if ICloudManager.shared.useiCloud.value {
                 ConfigFileManager.shared.stopWatchConfigFile()
-            } else if config.name == ConfigManager.selectConfigName {
+            }
+            if config.name == ConfigManager.selectConfigName {
                 ConfigFileManager.shared.pauseForNextChange()
             }
 
@@ -192,8 +193,8 @@ class RemoteConfigManager {
                 }
             }
 
-            if iCloudManager.shared.isICloudEnable() {
-                iCloudManager.shared.getUrl { url in
+            if ICloudManager.shared.useiCloud.value {
+                ICloudManager.shared.getUrl { url in
                     guard let url = url else { return }
                     let saveUrl = url.appendingPathComponent(Paths.configFileName(for: config.name))
                     saveAction(saveUrl.path)
@@ -214,7 +215,7 @@ class RemoteConfigManager {
             return res
         }
     }
-    
+
     static func showAdd() {
         let alertView = NSAlert()
         alertView.addButton(withTitle: NSLocalizedString("OK", comment: ""))

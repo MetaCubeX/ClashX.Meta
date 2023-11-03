@@ -21,16 +21,13 @@ struct SavedProxyModel: Codable {
 
     static func loadsFromUserDefault() -> [SavedProxyModel] {
         if let data = UserDefaults.standard.object(forKey: key) as? Data,
-            let models = try? JSONDecoder().decode([SavedProxyModel].self, from: data) {
+           let models = try? JSONDecoder().decode([SavedProxyModel].self, from: data) {
             var set = Set<String>()
-            let filtered = models.filter({ model in
+            let filtered = models.filter { model in
                 let pass = !set.contains(model.key)
                 set.insert(model.key)
-                if !pass {
-                    print("pass", model)
-                }
                 return pass
-            })
+            }
             return filtered
         }
         return []

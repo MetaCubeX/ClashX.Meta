@@ -1,34 +1,51 @@
 name: ClashX
 
-on: [push]
+on: [ push, workflow_dispatch ]
 
 env:
   FASTLANE_SKIP_UPDATE_CHECK: true
-  DEVELOPER_DIR: /Applications/Xcode_13.1.app/Contents/Developer
 
 jobs:
   build:
-    runs-on: macos-11
+    runs-on: macos-13
     steps:
+
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
     - name: import certs
       run: |
         echo `/usr/bin/xcodebuild -version`
         openssl aes-256-cbc -k  "${{ secrets.ENCRYPTION_SECRET }}" -in ".github/certs/dist.p12.enc" -d -a -out ".github/certs/dist.p12" -md md5
     - name: setup Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
-        go-version: 1.18.x
-    
+        go-version: 1.21.x
+
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
     - name: install deps
       run: |
         bash install_dependency.sh
-    
-    - name: update beta build version
-      if: contains(github.event.head_commit.message, '[beta]') && !startsWith(github.ref, 'refs/tags/')
+
+    - name: update dev build version
+      if: ${{!startsWith(github.ref, 'refs/tags/')}}
       run: |
-        bundle exec fastlane beta
-        bundle exec fastlane run set_info_plist_value path:ClashX/Info.plist key:BETA value:YES
+        tag=`git describe --abbrev=0`.`date '+%m%d%H%M%S'`
+        bundle exec fastlane run increment_build_number_in_plist build_number:"${tag}"  scheme:"ClashX"
+        bundle exec fastlane run increment_version_number_in_plist version_number:"${tag}"  scheme:"ClashX"
+        bundle exec fastlane run set_info_plist_value path:ClashX/Info.plist key:BETA value:true
+
+    - name: update tag build version
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        tag=${GITHUB_REF##*/}
+        bundle exec fastlane run set_info_plist_value path:ClashX/Info.plist key:BETA value:false
+        bundle exec fastlane run increment_build_number_in_plist build_number:"${tag}"  scheme:"ClashX"
+        bundle exec fastlane run increment_version_number_in_plist version_number:"${tag}"  scheme:"ClashX"
 
     - name: build
       env:
@@ -39,24 +56,24 @@ jobs:
         cd ..
         bundle exec fastlane build
         echo "Checking SMJobBless Vailded"
-        python SMJobBlessUtil.py check ClashX.app
+        python3 SMJobBlessUtil.py check ClashX.app
         echo "Check done"
 
     - name: setup node
-      if: startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[appcenter]')
-      uses: actions/setup-node@v1
+      if: startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[beta]')
+      uses: actions/setup-node@v3
       with:
-        node-version: '10.x'
+        node-version: '18.x'
 
     - name: create dmg
-      if: startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[appcenter]')
+      if: startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[beta]')
       run: |
         npm install --global create-dmg
         create-dmg ClashX.app
         mv ClashX*.dmg ClashX.dmg
 
-    - name: notarize 
-      if: startsWith(github.ref, 'refs/tags/')  || contains(github.event.head_commit.message, '[notarize]')
+    - name: notarize
+      if: startsWith(github.ref, 'refs/tags/')  || contains(github.event.head_commit.message, '[beta]')
       env:
         FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
         FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
@@ -64,8 +81,8 @@ jobs:
       run: |
         bundle exec fastlane run notarize package:"./ClashX.dmg" bundle_id:"com.west2online.ClashX" asc_provider:MEWHFZ92DY
 
-    - name: upload to appcenter 
-      if: startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[appcenter]')
+    - name: upload to appcenter
+      if: startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[beta]')
       env:
         APPCENTER_DISTRIBUTE_UPLOAD_BUILD_ONLY: true
         APPCENTER_DISTRIBUTE_DESTINATIONS: Public
@@ -73,6 +90,8 @@ jobs:
         APPCENTER_API_TOKEN: ${{ secrets.APPCENTER_API_TOKEN }}
         APPCENTER_DISTRIBUTE_FILE: ClashX.dmg
         APPCENTER_OWNER_NAME: ${{ secrets.APPCENTER_OWNER_NAME }}
+        APPCENTER_DISTRIBUTE_DSYM: "ClashX.app.dSYM.zip"
+        APPCENTER_DISTRIBUTE_RELEASE_NOTES: ${{ github.event.head_commit.message }}
       run: |
         appversion=`defaults read \`pwd\`/ClashX.app/Contents/Info.plist CFBundleShortVersionString`
         buildVersion=`defaults read \`pwd\`/ClashX.app/Contents/Info.plist CFBundleVersion`
@@ -86,7 +105,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: ClashX.dmg
+        files: |
+            ClashX.app.dSYM.zip
+            ClashX.dmg
         draft: true
         prerelease: true
 

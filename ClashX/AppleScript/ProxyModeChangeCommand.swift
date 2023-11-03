@@ -6,8 +6,8 @@
 //  Copyright © 2022 west2online. All rights reserved.
 //
 
-import Foundation
 import AppKit
+import Foundation
 
 @objc class ProxyModeChangeCommand: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
@@ -31,6 +31,10 @@ import AppKit
             menuItem = delegate.proxyModeGlobalMenuItem
         case .direct:
             menuItem = delegate.proxyModeDirectMenuItem
+        #if PRO_VERSION
+            case .script:
+                menuItem = delegate.proxyModeScriptMenuItem
+        #endif
         }
         delegate.actionSwitchProxyMode(menuItem)
         return nil

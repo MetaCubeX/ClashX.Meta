@@ -1,4 +1,3 @@
-
 import Alamofire
 import AppKit
 import Foundation
@@ -32,13 +31,14 @@ class ClashResourceManager {
         if fileManage.fileExists(atPath: destMMDBPath) {
             let vaild = verifyGEOIPDataBase().toBool()
             let versionChange = AppVersionUtil.hasVersionChanged || AppVersionUtil.isFirstLaunch
-            let customMMDBSet = !Settings.mmdbDownloadUrl.isEmpty
-            if !vaild || (versionChange && customMMDBSet) {
+            if !vaild || versionChange {
+                Logger.log("removing new mmdb file")
                 try? fileManage.removeItem(atPath: destMMDBPath)
             }
         }
 
         if !fileManage.fileExists(atPath: destMMDBPath) {
+            Logger.log("installing new mmdb file")
             if let mmdbUrl = Bundle.main.url(forResource: "Country.mmdb", withExtension: "gz") {
                 do {
                     let data = try Data(contentsOf: mmdbUrl).gunzipped()
@@ -61,15 +61,9 @@ class ClashResourceManager {
 }
 
 extension ClashResourceManager {
-    static func addUpdateMMDBMenuItem(_ menu: inout NSMenu) {
-        let item = NSMenuItem(title: NSLocalizedString("Update GEOIP Database", comment: ""), action: #selector(updateGeoIP), keyEquivalent: "")
-        item.target = self
-        menu.addItem(item)
-    }
-
-    @objc private static func updateGeoIP() {
+    static func updateGeoIP() {
         guard let url = showCustomAlert() else { return }
-        AF.download(url, to:  { (_, _) in
+        AF.download(url, to: { _, _ in
             let path = kConfigFolderPath.appending("/Country.mmdb")
             return (URL(fileURLWithPath: path), .removePreviousFile)
         }).response { res in
@@ -92,13 +86,17 @@ extension ClashResourceManager {
             alert.runModal()
         }
     }
-    
+
     private static func showCustomAlert() -> String? {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Custom your GEOIP MMDB download address.", comment: "")
         let inputView = NSTextField(frame: NSRect(x: 0, y: 0, width: 250, height: 24))
-        inputView.placeholderString =  "https://github.com/Dreamacro/maxmind-geoip/releases/latest/download/Country.mmdb"
-        inputView.stringValue = Settings.mmdbDownloadUrl
+        inputView.placeholderString = Settings.defaultMmdbDownloadUrl
+        if Settings.mmdbDownloadUrl.isEmpty {
+            inputView.stringValue = Settings.defaultMmdbDownloadUrl
+        } else {
+            inputView.stringValue = Settings.mmdbDownloadUrl
+        }
         alert.accessoryView = inputView
         alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))

@@ -11,7 +11,7 @@ import Cocoa
 import Starscream
 import SwiftyJSON
 
-protocol ApiRequestStreamDelegate: class {
+protocol ApiRequestStreamDelegate: AnyObject {
     func didUpdateTraffic(up: Int, down: Int)
     func didGetLog(log: String, level: String)
 }
@@ -36,9 +36,9 @@ class ApiRequest {
         alamoFireManager = Session(configuration: configuration)
     }
 
-    private static func authHeader() -> HTTPHeaders {
+    static func authHeader() -> HTTPHeaders {
         let secret = ConfigManager.shared.overrideSecret ?? ConfigManager.shared.apiSecret
-        return (secret.count > 0) ? ["Authorization": "Bearer \(secret)"] : [:]
+        return (!secret.isEmpty) ? ["Authorization": "Bearer \(secret)"] : [:]
     }
 
     @discardableResult
@@ -77,7 +77,7 @@ class ApiRequest {
         if ConfigManager.shared.overrideApiURL != nil {
             return false
         }
-        return ConfigManager.builtInApiMode
+        return Settings.builtInApiMode
     }
 
     static func requestConfig(completeHandler: @escaping ((ClashConfig) -> Void)) {
@@ -105,18 +105,8 @@ class ApiRequest {
     }
 
     static func requestConfigUpdate(configName: String, callback: @escaping ((ErrorString?) -> Void)) {
-        if iCloudManager.shared.isICloudEnable() {
-            iCloudManager.shared.getUrl { url in
-                guard let url = url else {
-                    callback("icloud error")
-                    return
-                }
-                let configPath = url.appendingPathComponent(Paths.configFileName(for: configName)).path
-                requestConfigUpdate(configPath: configPath, callback: callback)
-            }
-        } else {
-            let filePath = Paths.localConfigPath(for: configName)
-            requestConfigUpdate(configPath: filePath, callback: callback)
+        ConfigManager.getConfigPath(configName: configName) {
+            requestConfigUpdate(configPath: $0, callback: callback)
         }
     }
 
@@ -125,7 +115,7 @@ class ApiRequest {
 
         // DEV MODE: Use API
         if !useDirectApi() {
-            req("/configs", method: .put, parameters: ["Path": configPath], encoding: JSONEncoding.default).responseJSON { res in
+            req("/configs", method: .put, parameters: ["Path": configPath], encoding: JSONEncoding.default).responseData { res in
                 if res.response?.statusCode == 204 {
                     ConfigManager.shared.isRunning = true
                     callback(nil)
@@ -155,7 +145,7 @@ class ApiRequest {
 
     static func updateOutBoundMode(mode: ClashProxyMode, callback: ((Bool) -> Void)? = nil) {
         req("/configs", method: .patch, parameters: ["mode": mode.rawValue], encoding: JSONEncoding.default)
-            .responseJSON { response in
+            .responseData { response in
                 switch response.result {
                 case .success:
                     callback?(true)
@@ -166,7 +156,7 @@ class ApiRequest {
     }
 
     static func updateLogLevel(level: ClashLogLevel, callback: ((Bool) -> Void)? = nil) {
-        req("/configs", method: .patch, parameters: ["log-level": level.rawValue], encoding: JSONEncoding.default).responseJSON(completionHandler: { response in
+        req("/configs", method: .patch, parameters: ["log-level": level.rawValue], encoding: JSONEncoding.default).responseData(completionHandler: { response in
             switch response.result {
             case .success:
                 callback?(true)
@@ -177,7 +167,7 @@ class ApiRequest {
     }
 
     static func requestProxyGroupList(completeHandler: ((ClashProxyResp) -> Void)? = nil) {
-        req("/proxies").responseJSON {
+        req("/proxies").responseData {
             res in
             let proxies = ClashProxyResp(try? res.result.get())
             ApiRequest.shared.proxyRespCache = proxies
@@ -192,7 +182,7 @@ class ApiRequest {
                 case let .success(providerResp):
                     completeHandler?(providerResp)
                 case let .failure(err):
-                    print(err)
+                    Logger.log("\(err)")
                     completeHandler?(ClashProviderResp())
                     assertionFailure()
                 }
@@ -215,7 +205,7 @@ class ApiRequest {
             method: .put,
             parameters: ["name": selectProxy],
             encoding: JSONEncoding.default)
-            .responseJSON { response in
+            .responseData { response in
                 callback(response.response?.statusCode == 204)
             }
     }
@@ -262,8 +252,8 @@ class ApiRequest {
     static func getProxyDelay(proxyName: String, callback: @escaping ((Int) -> Void)) {
         req("/proxies/\(proxyName.encoded)/delay",
             method: .get,
-            parameters: ["timeout": 5000, "url": ConfigManager.shared.benchMarkUrl])
-            .responseJSON { res in
+            parameters: ["timeout": 5000, "url": Settings.benchMarkUrl])
+            .responseData { res in
                 switch res.result {
                 case let .success(value):
                     let json = JSON(value)
@@ -298,8 +288,8 @@ class ApiRequest {
 // MARK: - Connections
 
 extension ApiRequest {
-    static func getConnections(completeHandler: @escaping ([ClashConnectionSnapShot.Connection]) -> Void) {
-        req("/connections").responseDecodable(of: ClashConnectionSnapShot.self) { resp in
+    static func getConnections(completeHandler: @escaping ([ClashConnectionBaseSnapShot.Connection]) -> Void) {
+        req("/connections").responseDecodable(of: ClashConnectionBaseSnapShot.self) { resp in
             switch resp.result {
             case let .success(snapshot):
                 completeHandler(snapshot.connections)
@@ -310,12 +300,88 @@ extension ApiRequest {
         }
     }
 
-    static func closeConnection(_ conn: ClashConnectionSnapShot.Connection) {
-        req("/connections/".appending(conn.id), method: .delete).response { _ in }
+    static func closeConnection(_ id: String) {
+        req("/connections/\(id)", method: .delete).response { _ in }
     }
 
     static func closeAllConnection() {
-        req("/connections", method: .delete).response { _ in }
+        if useDirectApi() {
+            clash_closeAllConnections()
+        } else {
+            req("/connections", method: .delete).response { _ in }
+        }
+    }
+
+    // MARK: - Providers
+
+    struct AllProviders {
+        var proxies = [String]()
+        var rules = [String]()
+    }
+
+    static func requestExternalProviderNames(completeHandler: @escaping (AllProviders) -> Void) {
+        var providers = AllProviders()
+        let group = DispatchGroup()
+        group.enter()
+        ApiRequest.req("/providers/proxies").responseData { resp in
+            switch resp.result {
+            case let .success(res):
+                let json = JSON(res)
+                let provoders = json["providers"].dictionaryValue
+                    .filter { $0.value["vehicleType"] == "HTTP" }.map(\.key)
+                providers.proxies = provoders
+            case let .failure(err):
+                Logger.log(err.localizedDescription, level: .warning)
+            }
+            group.leave()
+        }
+
+        #if PRO_VERSION
+            group.enter()
+            ApiRequest.req("/providers/rules").responseData { resp in
+                switch resp.result {
+                case let .success(res):
+                    let json = JSON(res)
+                    let provoders = json["providers"].dictionaryValue
+                        .filter { $0.value["vehicleType"] == "HTTP" }.map(\.key)
+                    providers.rules = provoders
+                case let .failure(err):
+                    Logger.log(err.localizedDescription, level: .warning)
+                }
+                group.leave()
+            }
+        #endif
+        group.notify(queue: .main) {
+            completeHandler(providers)
+        }
+    }
+
+    enum ProviderType {
+        case proxy
+        case rule
+    }
+
+    static func updateProvider(name: String, type: ProviderType, completeHandler: @escaping (Bool) -> Void) {
+        let url: String
+        switch type {
+        case .proxy:
+            url = "/providers/proxies/\(name.encoded)"
+        case .rule:
+            url = "/providers/rules/\(name.encoded)"
+        }
+        ApiRequest.req(url, method: .put).response { resp in
+            if resp.response?.statusCode == 204 {
+                completeHandler(true)
+            } else {
+                completeHandler(false)
+            }
+        }
+    }
+
+    static func resetFakeIpCache() {
+        ApiRequest.req("/cache/fakeip/flush", method: .post).response { resp in
+            Logger.log("flush fake ip: \(resp.response?.statusCode ?? -1)")
+        }
     }
 }
 
@@ -342,9 +408,13 @@ extension ApiRequest {
     }
 
     private func requestTrafficInfo() {
+        if ApiRequest.useDirectApi() {
+            trafficWebSocket?.disconnect(forceTimeout: 0.5)
+            return
+        }
         trafficWebSocketRetryTimer?.invalidate()
         trafficWebSocketRetryTimer = nil
-        trafficWebSocket?.disconnect(forceTimeout: 0, closeCode: 0)
+        trafficWebSocket?.disconnect(forceTimeout: 0.5)
 
         let socket = WebSocket(url: URL(string: ConfigManager.apiUrl.appending("/traffic"))!)
 
@@ -357,9 +427,13 @@ extension ApiRequest {
     }
 
     private func requestLog() {
+        if ApiRequest.useDirectApi() {
+            loggingWebSocket?.disconnect(forceTimeout: 1)
+            return
+        }
         loggingWebSocketRetryTimer?.invalidate()
         loggingWebSocketRetryTimer = nil
-        loggingWebSocket?.disconnect()
+        loggingWebSocket?.disconnect(forceTimeout: 1)
 
         let uriString = "/logs?level=".appending(ConfigManager.selectLoggingApiLevel.rawValue)
         let socket = WebSocket(url: URL(string: ConfigManager.apiUrl.appending(uriString))!)

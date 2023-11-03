@@ -26,7 +26,6 @@ class ClashStatusTool {
                 }
                 NSApp.terminate(nil)
             }
-           
         }
     }
 }

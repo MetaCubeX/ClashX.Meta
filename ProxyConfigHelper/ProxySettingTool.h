@@ -14,10 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)enableProxyWithport:(int)port socksPort:(int)socksPort
                      pacUrl:(NSString *)pacUrl
-            filterInterface:(BOOL)filterInterFace;
+            filterInterface:(BOOL)filterInterface
+                 ignoreList:(NSArray<NSString *>*)ignoreList;
+
 - (void)disableProxyWithfilterInterface:(BOOL)filterInterFace;
 
-- (void)restoreProxySettint:(NSDictionary *)savedInfo
+- (void)restoreProxySetting:(NSDictionary *)savedInfo
                 currentPort:(int)port
            currentSocksPort:(int)socksPort
             filterInterface:(BOOL)filterInterface;

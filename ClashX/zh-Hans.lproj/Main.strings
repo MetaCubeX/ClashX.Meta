@@ -67,16 +67,13 @@
 /* Class = "NSTextFieldCell"; title = "Text Cell"; ObjectID = "id7-f0-u56"; */
 "id7-f0-u56.title" = "Text Cell";
 
-/* Class = "NSMenuItem"; title = "Show current proxy in menu"; ObjectID = "j9o-36-NTd"; */
-"j9o-36-NTd.title" = "快捷展示策略组策略";
-
 /* Class = "NSMenuItem"; title = "API Connect Error"; ObjectID = "jGT-1M-xJu"; */
 "jGT-1M-xJu.title" = "API Connect Error";
 
 /* Class = "NSMenuItem"; title = "Copy shell command"; ObjectID = "Jmb-PK-rMW"; */
 "Jmb-PK-rMW.title" = "复制终端代理命令";
 
-/* Class = "NSMenuItem"; title = "Config"; ObjectID = "JMV-Dy-CI0"; */
+/* Class = "NSMenuItem"; title = "Configs"; ObjectID = "JMV-Dy-CI0"; */
 "JMV-Dy-CI0.title" = "配置";
 
 /* Class = "NSMenuItem"; title = "WARNING"; ObjectID = "ko2-Ir-DxA"; */
@@ -94,9 +91,6 @@
 /* Class = "NSMenu"; title = "Help"; ObjectID = "ogW-pn-jeR"; */
 "ogW-pn-jeR.title" = "帮助";
 
-/* Class = "NSMenuItem"; title = "Experimental"; ObjectID = "OLP-Uv-at6"; */
-"OLP-Uv-at6.title" = "试验性功能";
-
 /* Class = "NSMenuItem"; title = "Check Update"; ObjectID = "p0T-J8-Emx"; */
 "p0T-J8-Emx.title" = "检查更新";
 
@@ -109,13 +103,7 @@
 /* Class = "NSTextFieldCell"; title = "Text Cell"; ObjectID = "RCv-zz-HKW"; */
 "RCv-zz-HKW.title" = "Text Cell";
 
-/* Class = "NSMenuItem"; title = "Set benchmark url"; ObjectID = "rls-O1-mpQ"; */
-"rls-O1-mpQ.title" = "设置延迟测速链接";
-
-/* Class = "NSMenu"; title = "Experimental"; ObjectID = "sbS-Fj-gxn"; */
-"sbS-Fj-gxn.title" = "试验性功能";
-
-/* Class = "NSMenu"; title = "Config"; ObjectID = "tck-zU-JKQ"; */
+/* Class = "NSMenu"; title = "Configs"; ObjectID = "tck-zU-JKQ"; */
 "tck-zU-JKQ.title" = "配置";
 
 /* Class = "NSTextFieldCell"; title = "Configs"; ObjectID = "tL1-bl-LXd"; */
@@ -129,9 +117,6 @@
 
 /* Class = "NSMenu"; title = "Log level"; ObjectID = "wqo-3T-4qO"; */
 "wqo-3T-4qO.title" = "日志等级";
-
-/* Class = "NSMenuItem"; title = "Use built in api"; ObjectID = "xG5-B4-mlw"; */
-"xG5-B4-mlw.title" = "使用内置接口";
 
 /* Class = "NSMenuItem"; title = "Dashboard"; ObjectID = "XG6-2M-PNi"; */
 "XG6-2M-PNi.title" = "控制台";
@@ -178,10 +163,10 @@
 /* Class = "NSTableColumn"; headerCell.title = "Api Url"; ObjectID = "yO6-uZ-IRv"; */
 "yO6-uZ-IRv.headerCell.title" = "Api Url";
 
-/* Class = "NSMenu"; title = "Remote Controller"; ObjectID = "1He-Eq-fSy"; */
+/* Class = "NSMenu"; title = "Remote controller"; ObjectID = "1He-Eq-fSy"; */
 "1He-Eq-fSy.title" = "远程控制器";
 
-/* Class = "NSMenuItem"; title = "Remote Controller"; ObjectID = "BRR-WK-aeP"; */
+/* Class = "NSMenuItem"; title = "Remote controller"; ObjectID = "BRR-WK-aeP"; */
 "BRR-WK-aeP.title" = "远程控制器";
 
 /* Class = "NSMenuItem"; title = " Manage"; ObjectID = "hlb-KQ-Fdr"; */
@@ -190,5 +175,149 @@
 /* Class = "NSTextFieldCell"; title = "This allows you to control the clash core running in the different machine"; ObjectID = "WkL-aX-66E"; */
 "WkL-aX-66E.title" = "远程控制器允许你控制其他设备上的 Clash 状态。";
 
-/* Class = "NSMenuItem"; title = "Set update Interval"; ObjectID = "h1H-7k-9HS"; */
+/* Class = "NSMenuItem"; title = "Set update interval"; ObjectID = "h1H-7k-9HS"; */
 "h1H-7k-9HS.title" = "设置更新间隔";
+
+/* Class = "NSTabViewController"; title = "Settings"; ObjectID = "LAj-p8-9gd"; */
+"LAj-p8-9gd.title" = "ClashX 设置";
+
+/* Class = "NSTabViewItem"; label = "General"; ObjectID = "Ltt-Vq-Hh1"; */
+"Ltt-Vq-Hh1.label" = "通用";
+
+/* Class = "NSTextFieldCell"; title = "Bypass proxy settings for these Hosts & Domains"; ObjectID = "NPu-V9-f3r"; */
+"NPu-V9-f3r.title" = "忽略这些主机与域的代理设置";
+
+/* Class = "NSButtonCell"; title = "Launch at login"; ObjectID = "dV6-4Z-2SO"; */
+"dV6-4Z-2SO.title" = "开机启动";
+
+/* Class = "NSViewController"; title = "General"; ObjectID = "kma-mp-ncL"; */
+"kma-mp-ncL.title" = "通用";
+
+/* Class = "NSMenuItem"; title = "Settings"; ObjectID = "krh-QF-pqZ"; */
+"krh-QF-pqZ.title" = "更多设置";
+
+/* Class = "NSButtonCell"; title = "Use iCloud to store config files"; ObjectID = "p7q-KN-kIv"; */
+"p7q-KN-kIv.title" = "将配置文件存储在iCloud中";
+
+/* Class = "NSButtonCell"; title = "Reduce notifications"; ObjectID = "jsL-HC-6ne"; */
+"jsL-HC-6ne.title" = "减少通知";
+
+/* Class = "NSTextFieldCell"; title = "Separated by commas(,)"; ObjectID = "sfe-wu-UXp"; */
+"sfe-wu-UXp.title" = "使用英文逗号(,)分隔";
+
+/* Class = "NSButtonCell"; title = "Allow control from lan"; ObjectID = "E8B-e5-K0A"; */
+"E8B-e5-K0A.title" = "允许局域网控制(不推荐)";
+
+/* Class = "NSBox"; title = "Clash Settings (restart app to take effect)"; ObjectID = "bcR-rG-52F"; */
+"bcR-rG-52F.title" = "Clash设置(重启应用生效)";
+
+/* Class = "NSTextFieldCell"; title = "Api Port:"; ObjectID = "mbn-tK-UQa"; */
+"mbn-tK-UQa.title" = "Api 端口";
+
+/* Class = "NSTextFieldCell"; title = "Proxy Port:"; ObjectID = "uUA-LS-Hu8"; */
+"uUA-LS-Hu8.title" = "代理端口";
+
+/* Class = "NSButtonCell"; title = "Reset"; ObjectID = "yXh-2Y-aTS"; */
+"yXh-2Y-aTS.title" = "重置";
+
+/* Class = "NSBox"; title = "Box"; ObjectID = "Gnh-m8-PAz"; */
+"Gnh-m8-PAz.title" = "Box";
+
+/* Class = "NSTextFieldCell"; title = "SSID Suspend"; ObjectID = "F1s-SF-dqX"; */
+"F1s-SF-dqX.title" = "在特定 WiFi SSID 下自动暂停";
+
+/* Class = "NSTextFieldCell"; title = "Separated by commas(,)"; ObjectID = "xnL-ma-vFo"; */
+"xnL-ma-vFo.title" = "使用英文逗号(,)分隔";
+
+/* Class = "NSTabViewItem"; label = "Debug"; ObjectID = "3Om-yT-A83"; */
+"3Om-yT-A83.label" = "调试";
+
+/* Class = "NSBox"; title = "Debug Setting"; ObjectID = "NLT-FZ-48V"; */
+"NLT-FZ-48V.title" = "调试设置";
+
+/* Class = "NSViewController"; title = "Debug"; ObjectID = "kdV-Em-qBi"; */
+"kdV-Em-qBi.title" = "调试";
+
+/* Class = "NSBox"; title = "Mode"; ObjectID = "1d5-NL-UsJ"; */
+"1d5-NL-UsJ.title" = "代理模式";
+
+/* Class = "NSBox"; title = "Other"; ObjectID = "AMT-oc-r8A"; */
+"AMT-oc-r8A.title" = "其他";
+
+/* Class = "NSBox"; title = "Proxy"; ObjectID = "BFE-Qq-B2H"; */
+"BFE-Qq-B2H.title" = "代理设置";
+
+/* Class = "NSViewController"; title = "Global ShortCut"; ObjectID = "wKZ-TE-sf8"; */
+"wKZ-TE-sf8.title" = "全局快捷键";
+
+/* Class = "NSTextFieldCell"; title = "Please ensure to address any potential shortcut conflicts. Global shortcuts take precedence over regular shortcuts."; ObjectID = "GGx-F2-7kE"; */
+"GGx-F2-7kE.title" = "请务必注意处理可能存在的快捷键冲突,全局快捷键将优先于普通快捷键。";
+
+/* Class = "NSButtonCell"; title = "Uninstall Proxy Helper"; ObjectID = "AY0-nP-cGT"; */
+"AY0-nP-cGT.title" = "移除助手程序";
+
+/* Class = "NSTextFieldCell"; title = "Proxy Helper"; ObjectID = "aSG-9A-eeG"; */
+"aSG-9A-eeG.title" = "助手程序";
+
+/* Class = "NSButtonCell"; title = "Open Log Folder"; ObjectID = "afj-4G-usr"; */
+"afj-4G-usr.title" = "打开日志文件夹";
+
+/* Class = "NSTextFieldCell"; title = "Log"; ObjectID = "c01-0L-1SQ"; */
+"c01-0L-1SQ.title" = "日志";
+
+/* Class = "NSButtonCell"; title = "Override Config Setting"; ObjectID = "LW4-cA-3bB"; */
+"LW4-cA-3bB.title" = "覆盖配置文件设置";
+
+/* Class = "NSTextFieldCell"; title = "Api Secret:"; ObjectID = "ckH-Er-PfX"; */
+"ckH-Er-PfX.title" = "Api秘钥";
+
+/* Class = "NSButtonCell"; title = "iCloud"; ObjectID = "URV-fZ-bJf"; */
+"URV-fZ-bJf.title" = "iCloud";
+
+/* Class = "NSButtonCell"; title = "Local"; ObjectID = "YF4-uZ-A0M"; */
+"YF4-uZ-A0M.title" = "本地";
+
+/* Class = "NSTextFieldCell"; title = "Config Folder"; ObjectID = "ZA9-qc-wi4"; */
+"ZA9-qc-wi4.title" = "配置文件夹";
+
+/* Class = "NSButtonCell"; title = "Reset"; ObjectID = "5ws-55-f1g"; */
+"5ws-55-f1g.title" = "重置";
+
+/* Class = "NSTextFieldCell"; title = "App Setting"; ObjectID = "PF0-Gd-XbR"; */
+"PF0-Gd-XbR.title" = "应用配置";
+
+/* Class = "NSMenuItem"; title = "Connection Details"; ObjectID = "v4s-jd-g1N"; */
+"v4s-jd-g1N.title" = "连接查看器";
+
+/* Class = "NSButtonCell"; title = "Use Built-in clash api"; ObjectID = "IET-Bf-hGj"; */
+"IET-Bf-hGj.title" = "使用Clash内置Api";
+
+/* Class = "NSButtonCell"; title = "Revert to previous proxy on proxy disabled"; ObjectID = "JOF-yU-YHc"; */
+"JOF-yU-YHc.title" = "取消代理时还原更早的系统代理设置";
+
+/* Class = "NSTextFieldCell"; title = "Update Channel"; ObjectID = "NLt-OM-k6i"; */
+"NLt-OM-k6i.title" = "更新通道";
+
+/* Class = "NSTextFieldCell"; title = "Geo-IP Datebase"; ObjectID = "OMy-zu-iho"; */
+"OMy-zu-iho.title" = "Geo-IP数据库";
+
+/* Class = "NSTextFieldCell"; title = "Proxy Benchmark Url:"; ObjectID = "e0M-xf-ovR"; */
+"e0M-xf-ovR.title" = "代理延迟测试地址";
+
+/* Class = "NSButtonCell"; title = "Update"; ObjectID = "pHl-C4-fNt"; */
+"pHl-C4-fNt.title" = "更新";
+
+/* Class = "NSMenuItem"; title = "Update external resources"; ObjectID = "9g1-lW-mA8"; */
+"9g1-lW-mA8.title" = "更新外部资源";
+
+/* Class = "NSButtonCell"; title = "Enable IPv6"; ObjectID = "KRm-2U-T4s"; */
+"KRm-2U-T4s.title" = "启用IPv6";
+
+/* Class = "NSMenuItem"; title = "Quit ClashX"; ObjectID = "TsN-g8-OjG"; */
+"TsN-g8-OjG.title" = "退出 ClashX";
+
+/* Class = "NSTextFieldCell"; title = "Crash Log Folder"; ObjectID = "LFb-xY-CNV"; */
+"LFb-xY-CNV.title" = "崩溃日志文件夹";
+
+/* Class = "NSButtonCell"; title = "Open"; ObjectID = "Wci-1w-zlx"; */
+"Wci-1w-zlx.title" = "打开";

@@ -15,6 +15,7 @@ class ConfigManager {
     static let shared = ConfigManager()
     private let disposeBag = DisposeBag()
     var apiPort = "8080"
+    var allowExternalControl = false
     var apiSecret: String = ""
     var overrideApiURL: URL?
     var overrideSecret: String?
@@ -55,8 +56,8 @@ class ConfigManager {
     }
 
     static func watchCurrentConfigFile() {
-        if iCloudManager.shared.isICloudEnable() {
-            iCloudManager.shared.getUrl { url in
+        if ICloudManager.shared.useiCloud.value {
+            ICloudManager.shared.getUrl { url in
                 guard let url = url else { return }
                 let configUrl = url.appendingPathComponent(Paths.configFileName(for: selectConfigName))
                 ConfigFileManager.shared.watchFile(path: configUrl.path)
@@ -77,9 +78,10 @@ class ConfigManager {
         }
     }
 
-    let proxyPortAutoSetObservable = UserDefaults.standard.rx.observe(Bool.self, "proxyPortAutoSet").map({ $0 ?? false })
+    let proxyPortAutoSetObservable = UserDefaults.standard.rx.observe(Bool.self, "proxyPortAutoSet").map { $0 ?? false }
 
     var isProxySetByOtherVariable = BehaviorRelay<Bool>(value: false)
+    var proxyShouldPaused = BehaviorRelay<Bool>(value: false)
 
     var showNetSpeedIndicator: Bool {
         get {
@@ -91,12 +93,6 @@ class ConfigManager {
     }
 
     let showNetSpeedIndicatorObservable = UserDefaults.standard.rx.observe(Bool.self, "showNetSpeedIndicator")
-
-    var benchMarkUrl: String = UserDefaults.standard.string(forKey: "benchMarkUrl") ?? "http://cp.cloudflare.com/generate_204" {
-        didSet {
-            UserDefaults.standard.set(benchMarkUrl, forKey: "benchMarkUrl")
-        }
-    }
 
     static var apiUrl: String {
         if let override = shared.overrideApiURL {
@@ -150,15 +146,18 @@ class ConfigManager {
         }
     }
 
-    static var builtInApiMode = (UserDefaults.standard.object(forKey: "kBuiltInApiMode") as? Bool) ?? true {
-        didSet {
-            UserDefaults.standard.set(builtInApiMode, forKey: "kBuiltInApiMode")
-        }
-    }
-
-    var disableShowCurrentProxyInMenu: Bool = UserDefaults.standard.object(forKey: "kSDisableShowCurrentProxyInMenu") as? Bool ?? !AppDelegate.isAboveMacOS14 {
-        didSet {
-            UserDefaults.standard.set(disableShowCurrentProxyInMenu, forKey: "kSDisableShowCurrentProxyInMenu")
+    static func getConfigPath(configName: String, complete: ((String) -> Void)? = nil) {
+        if ICloudManager.shared.useiCloud.value {
+            ICloudManager.shared.getUrl { url in
+                guard let url = url else {
+                    return
+                }
+                let configPath = url.appendingPathComponent(Paths.configFileName(for: configName)).path
+                complete?(configPath)
+            }
+        } else {
+            let filePath = Paths.localConfigPath(for: configName)
+            complete?(filePath)
         }
     }
 }

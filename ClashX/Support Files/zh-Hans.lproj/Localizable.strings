@@ -1,14 +1,20 @@
 /* No comment provided by engineer. */
+"Active Connections" = "活动连接";
+
+/* No comment provided by engineer. */
 "Add a remote config" = "添加托管配置文件";
 
 /* No comment provided by engineer. */
 "Add a remote control config" = "添加远程控制器配置";
 
 /* No comment provided by engineer. */
-"Apply and Quit" = "应用并退出";
+"All Clients" = "所有客户端";
 
 /* No comment provided by engineer. */
-"Auto Close Connection" = "切换代理时中断连接";
+"All Hosts" = "所有主机名";
+
+/* No comment provided by engineer. */
+"Apply and Quit" = "应用并退出";
 
 /* No comment provided by engineer. */
 "Benchmark" = "延迟测速";
@@ -35,13 +41,37 @@
 "ClashX Start Error!" = "ClashX 启动出错";
 
 /* No comment provided by engineer. */
+"ClashX use a daemon helper to setup your system proxy. Please enable ClashX in the Login Items under the Allow in the Background section and relaunch the app" = "ClashX需要通过后台Daemon进程来设置系统代理，请在\"系统偏好设置->登录项->允许在后台 中\"允许ClashX";
+
+/* No comment provided by engineer. */
+"Click OK to quit the app and apply change." = "确认清理并退出软件";
+
+/* No comment provided by engineer. */
+"Client" = "客户端";
+
+/* No comment provided by engineer. */
+"Close Connection" = "关闭连接";
+
+/* No comment provided by engineer. */
 "Config file have been changed" = "配置文件已被修改";
 
 /* No comment provided by engineer. */
 "Config loading Fail!" = "配置文件加载失败";
 
 /* No comment provided by engineer. */
+"Connecting" = "连接中";
+
+/* No comment provided by engineer. */
+"Copy Shell Command" = "复制终端代理命令";
+
+/* No comment provided by engineer. */
+"Copy Shell Command (External)" = "复制终端代理命令(外部IP)";
+
+/* No comment provided by engineer. */
 "Custom your GEOIP MMDB download address." = "自定义下载地址";
+
+/* No comment provided by engineer. */
+"Date" = "时间";
 
 /* No comment provided by engineer. */
 "Details" = "查看详情";
@@ -50,25 +80,55 @@
 "Direct" = "直连";
 
 /* No comment provided by engineer. */
-"Disable Restore Proxy Setting" = "关闭自动还原之前代理";
+"Direct Mode" = "直接连接";
+
+/* No comment provided by engineer. */
+"Done" = "完成";
+
+/* No comment provided by engineer. */
+"Download" = "下载";
 
 /* No comment provided by engineer. */
 "Download fail" = "下载失败";
 
 /* No comment provided by engineer. */
-"Enhance proxy list render" = "增强渲染代理列表";
+"Download speed" = "下载速率";
+
+/* No comment provided by engineer. */
+"Edit in Text Mode" = "编辑配置";
 
 /* No comment provided by engineer. */
 "fail" = "失败";
 
 /* No comment provided by engineer. */
+"Fail" = "失败";
+
+/* No comment provided by engineer. */
 "Fail:" = "失败：";
+
+/* No comment provided by engineer. */
+"fails: %@" = "失败: %@";
 
 /* No comment provided by engineer. */
 "Global" = "全局";
 
 /* No comment provided by engineer. */
+"Global Mode" = "全局连接";
+
+/* No comment provided by engineer. */
+"Host" = "主机名";
+
+/* No comment provided by engineer. */
+"Hosts" = "主机名";
+
+/* No comment provided by engineer. */
 "hours" = "小时";
+
+/* No comment provided by engineer. */
+"iCloud not available" = "iCloud 不可用";
+
+/* No comment provided by engineer. */
+"If you can not find ClashX in the settings, you can try reset daemon" = "如果在设置里没找到ClashX,可以尝试重置守护程序";
 
 /* No comment provided by engineer. */
 "Install" = "安装";
@@ -82,7 +142,8 @@
 /* No comment provided by engineer. */
 "Load Balance" = "负载均衡";
 
-"Mode" = "模式";
+/* No comment provided by engineer. */
+"Local Clients" = "本地程序";
 
 /* No comment provided by engineer. */
 "Need to Restart the ClashX to Take effect, Please start clashX manually" = "需要重启ClashX生效，请手动启动ClashX";
@@ -91,7 +152,28 @@
 "Never" = "从未";
 
 /* No comment provided by engineer. */
+"Never show again" = "不再提示";
+
+/* No comment provided by engineer. */
 "OK" = "确定";
+
+/* No comment provided by engineer. */
+"Open Connection Details" = "打开连接查看器";
+
+/* No comment provided by engineer. */
+"Open Dashboard" = "打开控制台";
+
+/* No comment provided by engineer. */
+"Open Log" = "打开日志";
+
+/* No comment provided by engineer. */
+"Open Menu" = "打开菜单";
+
+/* No comment provided by engineer. */
+"Open System Login Item Setting" = "打开系统登录项设置";
+
+/* No comment provided by engineer. */
+"Please enable the location service for ClashX to detect your current WiFi network's SSID name and provide the auto-suspend services." = "请允许ClashX使用定位服务来获取当前所连接的WiFi名称从而提供按需暂停服务。";
 
 /* No comment provided by engineer. */
 "Ports Open Fail, Please try to restart ClashX" = "端口打开失败，请尝试重启ClashX";
@@ -109,6 +191,15 @@
 "Quit" = "退出";
 
 /* No comment provided by engineer. */
+"Quit ClashX?" = "退出ClashX?";
+
+/* No comment provided by engineer. */
+"Recent Connections" = "最近连接";
+
+/* No comment provided by engineer. */
+"Reduce alerts if notification permission is disabled" = "在通知权限关闭时减少提示弹窗";
+
+/* No comment provided by engineer. */
 "Reload Config Fail" = "重载配置文件失败";
 
 /* No comment provided by engineer. */
@@ -124,10 +215,19 @@
 "Remote Config Update Fail" = "托管配置文件更新失败";
 
 /* No comment provided by engineer. */
+"Requests" = "请求";
+
+/* No comment provided by engineer. */
+"Reset Daemon" = "重置守护程序";
+
+/* No comment provided by engineer. */
 "ReTest" = "重新测速";
 
 /* No comment provided by engineer. */
 "Rule" = "规则";
+
+/* No comment provided by engineer. */
+"Rule Mode" = "规则判断";
 
 /* No comment provided by engineer. */
 "Script" = "脚本";
@@ -136,10 +236,13 @@
 "Should be a least 1 hour" = "至少需要1小时间隔";
 
 /* No comment provided by engineer. */
-"Show speedTest at top" = "顶端显示测速按钮";
+"Sources" = "来源";
 
 /* No comment provided by engineer. */
 "Stable" = "Stable";
+
+/* No comment provided by engineer. */
+"Status" = "状态";
 
 /* No comment provided by engineer. */
 "Succeed!" = "成功！";
@@ -151,6 +254,9 @@
 "Success!" = "成功！";
 
 /* No comment provided by engineer. */
+"System Proxy" = "设置系统代理";
+
+/* No comment provided by engineer. */
 "System Proxy Changed" = "系统代理设置已修改";
 
 /* No comment provided by engineer. */
@@ -160,10 +266,28 @@
 "Testing" = "测速中";
 
 /* No comment provided by engineer. */
+"The active connections will be interrupted." = "活动的连接将被强制打断。";
+
+/* No comment provided by engineer. */
 "The remote config name is duplicated" = "托管配置文件名称重复";
 
 /* No comment provided by engineer. */
+"The status icon is coverd or hide by other app." = "菜单栏图标被刘海屏遮挡或者被其他app隐藏，请检查菜单栏状态。";
+
+/* No comment provided by engineer. */
 "This version of ClashX contains a break change due to clash core 1.0 released. Check if your config is not working properly." = "由于Clash Core发布1.0版本，使用此版本的 ClashX 可能需要更新配置内容\n前往 https://github.com/Dreamacro/clash/wiki/breaking-changes-in-1.0.0 查看详情";
+
+/* No comment provided by engineer. */
+"total: %d, success: %d" = "共计: %d, 成功: %d";
+
+/* No comment provided by engineer. */
+"Type" = "类型";
+
+/* No comment provided by engineer. */
+"Unknown" = "未知";
+
+/* No comment provided by engineer. */
+"Update external resource complete" = "更新外部资源完成";
 
 /* No comment provided by engineer. */
 "Update GEOIP Database" = "更新IP数据库";
@@ -175,13 +299,10 @@
 "Updating" = "更新中";
 
 /* No comment provided by engineer. */
-"Upgrade Channel" = "更新通道";
+"Upload" = "上传";
 
 /* No comment provided by engineer. */
-"URL is not valid" = "链接不合法";
-
-/* No comment provided by engineer. */
-"Use iCloud" = "使用iCloud";
+"Upload speed" = "上传速率";
 
 /* No comment provided by engineer. */
 "Use reload config to try reconnect." = "使用重载配置文件按钮尝试重新连接";

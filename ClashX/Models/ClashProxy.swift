@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import SwiftyJSON
 
 enum ClashProxyType: String, Codable {
     case urltest = "URLTest"
@@ -24,6 +25,8 @@ enum ClashProxyType: String, Codable {
     case trojan = "Trojan"
     case relay = "Relay"
     case unknown = "Unknown"
+    case wireguard = "Wireguard"
+    case vless = "Vless"
 
     static let proxyGroups: [ClashProxyType] = [.select, .urltest, .fallback, .loadBalance]
 
@@ -57,9 +60,10 @@ typealias ClashProviderName = String
 class ClashProxySpeedHistory: Codable {
     let time: Date
     let delay: Int
+    let meanDelay: Int?
 
-    class hisDateFormaterInstance {
-        static let shared = hisDateFormaterInstance()
+    class HisDateFormaterInstance {
+        static let shared = HisDateFormaterInstance()
         lazy var formater: DateFormatter = {
             var f = DateFormatter()
             f.dateFormat = "HH:mm"
@@ -68,15 +72,20 @@ class ClashProxySpeedHistory: Codable {
     }
 
     lazy var delayDisplay: String = {
-        switch delay {
-        case 0: return NSLocalizedString("fail", comment: "")
-        default: return "\(delay) ms"
+        if let meanDelay, meanDelay > 0 {
+            switch meanDelay {
+            case 0: return NSLocalizedString("fail", comment: "")
+            default: return "\(meanDelay) ms"
+            }
+        } else {
+            switch delay {
+            case 0: return NSLocalizedString("fail", comment: "")
+            default: return "\(delay) ms"
+            }
         }
     }()
 
-    lazy var dateDisplay: String = {
-        return hisDateFormaterInstance.shared.formater.string(from: time)
-    }()
+    lazy var dateDisplay: String = HisDateFormaterInstance.shared.formater.string(from: time)
 
     lazy var displayString: String = "\(dateDisplay) \(delayDisplay)"
 }
@@ -87,8 +96,9 @@ class ClashProxy: Codable {
     let all: [ClashProxyName]?
     let history: [ClashProxySpeedHistory]
     let now: ClashProxyName?
-    weak var enclosingResp: ClashProxyResp? = nil
-    weak var enclosingProvider: ClashProvider? = nil
+    let alive: Bool?
+    weak var enclosingResp: ClashProxyResp?
+    weak var enclosingProvider: ClashProvider?
 
     enum SpeedtestAbleItem {
         case proxy(name: ClashProxyName)
@@ -104,7 +114,7 @@ class ClashProxy: Codable {
         guard let resp = enclosingResp, let allProxys = all else { return [] }
         var proxys = [SpeedtestAbleItem]()
         for proxy in allProxys {
-            if let p = resp.proxiesMap[proxy], !ClashProxyType.isProxyGroup(p) {
+            if let p = resp.proxiesMap[proxy] {
                 if let provider = p.enclosingProvider {
                     proxys.append(.provider(name: p.name, provider: provider.name))
                 } else {
@@ -115,18 +125,16 @@ class ClashProxy: Codable {
         return proxys
     }()
 
-    lazy var isSpeedTestable: Bool = {
-        return speedtestAble.count > 0
-    }()
+    lazy var isSpeedTestable: Bool = !speedtestAble.isEmpty
 
     private enum CodingKeys: String, CodingKey {
-        case type, all, history, now, name
+        case type, all, history, now, name, alive
     }
 
     lazy var maxProxyNameLength: CGFloat = {
         let rect = CGSize(width: CGFloat.greatestFiniteMagnitude, height: 20)
 
-        let lengths = all?.compactMap({ name -> CGFloat in
+        let lengths = all?.compactMap { name -> CGFloat in
             if let length = ClashProxy.nameLengthCachedMap[name] {
                 return length
             }
@@ -139,7 +147,7 @@ class ClashProxy: Codable {
                               attributes: attr).width
             ClashProxy.nameLengthCachedMap[name] = length
             return length
-        })
+        }
         return lengths?.max() ?? 0
     }()
 }
@@ -151,24 +159,22 @@ class ClashProxyResp {
 
     var enclosingProviderResp: ClashProviderResp?
 
-    init(_ data: Any?) {
-        guard
-            let data = data as? [String: [String: Any]],
-            let proxies = data["proxies"]
+    init(_ data: Data?) {
+        guard let data
         else {
             self.proxiesMap = [:]
             self.proxies = []
             return
         }
-
+        let proxies = JSON(data)["proxies"]
         var proxiesModel = [ClashProxy]()
 
         var proxiesMap = [ClashProxyName: ClashProxy]()
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(DateFormatter.js)
-        for value in proxies.values {
-            guard let data = try? JSONSerialization.data(withJSONObject: value, options: .prettyPrinted) else {
+        for value in proxies.dictionaryValue.values {
+            guard let data = try? value.rawData() else {
                 continue
             }
             guard let proxy = try? decoder.decode(ClashProxy.self, from: data) else {
@@ -204,15 +210,11 @@ class ClashProxyResp {
         return map
     }()
 
-    lazy var proxyGroups: [ClashProxy] = {
-        return proxies.filter {
-            ClashProxyType.isProxyGroup($0)
-        }.sorted(by: { proxiesSortMap[$0.name] ?? -1 < proxiesSortMap[$1.name] ?? -1 })
-    }()
+    lazy var proxyGroups: [ClashProxy] = proxies.filter {
+        ClashProxyType.isProxyGroup($0)
+    }.sorted(by: { proxiesSortMap[$0.name] ?? -1 < proxiesSortMap[$1.name] ?? -1 })
 
-    lazy var longestProxyGroupName = {
-        return proxyGroups.max { $1.name.count > $0.name.count }?.name ?? ""
-    }()
+    lazy var longestProxyGroupName = proxyGroups.max { $1.name.count > $0.name.count }?.name ?? ""
 
     lazy var maxProxyNameLength: CGFloat = {
         let rect = CGSize(width: CGFloat.greatestFiniteMagnitude, height: 20)

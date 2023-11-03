@@ -1,5 +1,5 @@
 //
-//  iCloudManager.swift
+//  ICloudManager.swift
 //  ClashX
 //
 //  Created by yicheng on 2020/5/10.
@@ -7,36 +7,44 @@
 //
 
 import Cocoa
+import RxCocoa
+import RxSwift
 
-class iCloudManager {
-    static let shared = iCloudManager()
+class ICloudManager {
+    static let shared = ICloudManager()
     private let queue = DispatchQueue(label: "com.clashx.icloud")
     private var metaQuery: NSMetadataQuery?
     private var enableMenuItem: NSMenuItem?
-    private var icloudAvailable = false {
-        didSet { updateMenuItemStatus() }
+    private(set) var icloudAvailable = false {
+        didSet { useiCloud.accept(userEnableiCloud && icloudAvailable) }
     }
 
-    private var userEnableiCloud: Bool = UserDefaults.standard.bool(forKey: "kUserEnableiCloud") {
-        didSet { UserDefaults.standard.set(userEnableiCloud, forKey: "kUserEnableiCloud") }
+    private var disposeBag = DisposeBag()
+
+    let useiCloud = BehaviorRelay<Bool>(value: false)
+
+    var userEnableiCloud: Bool = UserDefaults.standard.bool(forKey: "kUserEnableiCloud") {
+        didSet {
+            UserDefaults.standard.set(userEnableiCloud, forKey: "kUserEnableiCloud")
+            useiCloud.accept(userEnableiCloud && icloudAvailable)
+        }
     }
 
     func setup() {
         addNotification()
-        icloudAvailable = isICloudAvailable()
-        if isICloudEnable() {
-            checkiCloud()
-        }
-    }
+        useiCloud.distinctUntilChanged().filter { $0 }.subscribe {
+            [weak self] _ in
+            self?.checkiCloud()
+        }.disposed(by: disposeBag)
 
-    func isICloudEnable() -> Bool {
-        return icloudAvailable && userEnableiCloud
+        icloudAvailable = isICloudAvailable()
+        useiCloud.accept(userEnableiCloud && icloudAvailable)
     }
 
     func getConfigFilesList(configs: @escaping (([String]) -> Void)) {
         getUrl { url in
             guard let url = url,
-                let fileURLs = try? FileManager.default.contentsOfDirectory(atPath: url.path) else {
+                  let fileURLs = try? FileManager.default.contentsOfDirectory(atPath: url.path) else {
                 configs([])
                 return
             }
@@ -48,19 +56,16 @@ class iCloudManager {
     }
 
     private func checkiCloud() {
-        if isICloudAvailable() {
-            icloudAvailable = true
-            getUrl { url in
-                guard let url = url else {
-                    self.icloudAvailable = false
-                    return
-                }
-                let files = try? FileManager.default.contentsOfDirectory(atPath: url.path)
-                if let count = files?.count, count == 0 {
-                    let path = Bundle.main.path(forResource: "sampleConfig", ofType: "yaml")!
-                    try? FileManager.default.copyItem(atPath: path, toPath: kDefaultConfigFilePath)
-                    try? FileManager.default.copyItem(atPath: Bundle.main.path(forResource: "sampleConfig", ofType: "yaml")!, toPath: url.appendingPathComponent("config.yaml").path)
-                }
+        getUrl { url in
+            guard let url = url else {
+                self.icloudAvailable = false
+                return
+            }
+            let files = try? FileManager.default.contentsOfDirectory(atPath: url.path)
+            if files?.isEmpty == true {
+                let path = Bundle.main.path(forResource: "sampleConfig", ofType: "yaml")!
+                try? FileManager.default.copyItem(atPath: path, toPath: kDefaultConfigFilePath)
+                try? FileManager.default.copyItem(atPath: Bundle.main.path(forResource: "sampleConfig", ofType: "yaml")!, toPath: url.appendingPathComponent("config.yaml").path)
             }
         }
     }
@@ -86,7 +91,7 @@ class iCloudManager {
                     complete?(url)
                 }
             } catch let err {
-                print(err)
+                Logger.log("\(err)")
                 DispatchQueue.main.async {
                     complete?(nil)
                 }
@@ -101,25 +106,5 @@ class iCloudManager {
 
     @objc func iCloudAccountAvailabilityChanged() {
         icloudAvailable = isICloudAvailable()
-    }
-}
-
-extension iCloudManager {
-    func addEnableMenuItem(_ menu: inout NSMenu) {
-        let item = NSMenuItem(title: NSLocalizedString("Use iCloud", comment: ""), action: #selector(enableMenuItemTap(sender:)), keyEquivalent: "")
-        menu.addItem(item)
-        enableMenuItem = item
-        updateMenuItemStatus()
-    }
-
-    @objc func enableMenuItemTap(sender: NSMenuItem) {
-        userEnableiCloud = !userEnableiCloud
-        updateMenuItemStatus()
-        checkiCloud()
-    }
-
-    func updateMenuItemStatus() {
-        enableMenuItem?.state = isICloudEnable() ? .on : .off
-        enableMenuItem?.target = icloudAvailable ? self : nil
     }
 }

@@ -101,6 +101,7 @@ class ExternalControlAddView: NSView {
         setupView()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -137,11 +138,11 @@ class ExternalControlAddView: NSView {
             nameField.leadingAnchor.constraint(equalTo: urlTextField.leadingAnchor),
             nameLabel.centerYAnchor.constraint(equalTo: nameField.centerYAnchor),
             nameLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
-            nameField.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 5),
+            nameField.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 5)
         ])
     }
 
     func isVaild() -> Bool {
-        return urlTextField.stringValue.isUrlVaild() && nameLabel.stringValue.count > 0
+        return urlTextField.stringValue.isUrlVaild() && !nameLabel.stringValue.isEmpty
     }
 }

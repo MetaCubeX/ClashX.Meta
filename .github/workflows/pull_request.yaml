@@ -1,0 +1,29 @@
+name: ClashX
+
+on: [ pull_request ]
+
+env:
+  FASTLANE_SKIP_UPDATE_CHECK: true
+
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+    - uses: actions/checkout@v3
+        
+    - name: setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.20.x
+
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    - name: install deps
+      run: |
+        bash install_dependency.sh
+    
+    - name: check
+      run: |
+        bundle exec fastlane check

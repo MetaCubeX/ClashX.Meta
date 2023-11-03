@@ -7,7 +7,7 @@
 //
 import AppKit
 
-@objc protocol ProxyGroupMenuHighlightDelegate: class {
+@objc protocol ProxyGroupMenuHighlightDelegate: AnyObject {
     func highlight(item: NSMenuItem?)
 }
 

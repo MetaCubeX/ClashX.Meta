@@ -33,7 +33,7 @@ class EventStream {
             let paths = unsafeBitCast(eventPaths, to: NSArray.self)
 
             var events = [FileEvent]()
-            for i in 0..<Int(numEvents) {
+            for i in 0 ..< Int(numEvents) {
                 let event = FileEvent(path: paths[i] as! String, flags: FileEventFlags(rawValue: eventFlags[i]))
                 events.append(event)
             }

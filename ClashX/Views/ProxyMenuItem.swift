@@ -46,6 +46,7 @@ class ProxyMenuItem: NSMenuItem {
         }
     }
 
+    @available(*, unavailable)
     required init(coder decoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -71,7 +72,11 @@ class ProxyMenuItem: NSMenuItem {
             assertionFailure()
             return
         }
-        updateDelay(info.history.last?.delayDisplay, rawValue: info.history.last?.delay)
+        if info.alive == false {
+            updateDelay(NSLocalizedString("fail", comment: ""), rawValue: 0)
+        } else {
+            updateDelay(info.history.last?.delayDisplay, rawValue: info.history.last?.delay)
+        }
     }
 
     @objc private func proxyGroupInfoUpdate(note: Notification) {
@@ -108,7 +113,7 @@ extension ProxyMenuItem {
     func getAttributedTitle(name: String, delay: String?) -> NSAttributedString {
         let paragraph = NSMutableParagraphStyle()
         paragraph.tabStops = [
-            NSTextTab(textAlignment: .right, location: 65 + maxProxyNameLength, options: [:]),
+            NSTextTab(textAlignment: .right, location: 65 + maxProxyNameLength, options: [:])
         ]
         let proxyName = name.replacingOccurrences(of: "\t", with: " ")
         let str: String
@@ -122,16 +127,16 @@ extension ProxyMenuItem {
             string: str,
             attributes: [
                 NSAttributedString.Key.paragraphStyle: paragraph,
-                NSAttributedString.Key.font: NSFont.menuBarFont(ofSize: 14),
+                NSAttributedString.Key.font: NSFont.menuBarFont(ofSize: 14)
             ]
         )
 
         let hackAttr = [NSAttributedString.Key.font: NSFont.menuBarFont(ofSize: 15)]
-        attributed.addAttributes(hackAttr, range: NSRange(name.utf16.count..<name.utf16.count + 1))
+        attributed.addAttributes(hackAttr, range: NSRange(name.utf16.count ..< name.utf16.count + 1))
 
         if delay != nil {
             let delayAttr = [NSAttributedString.Key.font: NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .regular)]
-            attributed.addAttributes(delayAttr, range: NSRange(name.utf16.count + 1..<str.utf16.count))
+            attributed.addAttributes(delayAttr, range: NSRange(name.utf16.count + 1 ..< str.utf16.count))
         }
         return attributed
     }

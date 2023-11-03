@@ -47,8 +47,9 @@
 //
 
 import Cocoa
+import ServiceManagement
 
-public final class LoginServiceKit: NSObject {
+public enum LoginServiceKit {
     private static var snapshot: (list: LSSharedFileList, items: [LSSharedFileListItem])? {
         guard let list = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() else {
             return nil
@@ -57,6 +58,9 @@ public final class LoginServiceKit: NSObject {
     }
 
     public static func isExistLoginItems(at path: String = Bundle.main.bundlePath) -> Bool {
+        if #available(macOS 13.0, *) {
+            return SMAppService.mainApp.status == .enabled
+        }
         return loginItem(at: path) != nil
     }
 
@@ -65,6 +69,17 @@ public final class LoginServiceKit: NSObject {
         guard isExistLoginItems(at: path) == false else {
             return false
         }
+
+        if #available(macOS 13.0, *) {
+            do {
+                try SMAppService.mainApp.register()
+                return true
+            } catch let err {
+                Logger.log("add loginItem error: \(err.localizedDescription)", level: .error)
+                return false
+            }
+        }
+
         guard let (list, _) = snapshot else {
             return false
         }
@@ -77,6 +92,16 @@ public final class LoginServiceKit: NSObject {
     public static func removeLoginItems(at path: String = Bundle.main.bundlePath) -> Bool {
         guard isExistLoginItems(at: path) == true else {
             return false
+        }
+
+        if #available(macOS 13.0, *) {
+            do {
+                try SMAppService.mainApp.unregister()
+                return true
+            } catch let err {
+                Logger.log("remove loginItem error: \(err.localizedDescription)", level: .error)
+                return false
+            }
         }
         guard let (list, items) = snapshot else {
             return false

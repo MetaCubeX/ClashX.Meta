@@ -22,7 +22,6 @@ translateMethodName = "translate"
 
 [update.normalize]
 path = "./ClashX"
-sourceLocale = "zh-Hans"
 harmonizeWithSource = true
 sortByKeys = true
 

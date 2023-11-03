@@ -15,7 +15,13 @@ class MenuItemBaseView: NSView {
 
     // MARK: Public
 
-    var isHighlighted: Bool = false
+    var isHighlighted: Bool = false {
+        didSet {
+            if isHighlighted != oldValue {
+                setNeedsDisplay()
+            }
+        }
+    }
 
     let effectView: NSVisualEffectView = {
         let effectView = NSVisualEffectView()
@@ -56,6 +62,7 @@ class MenuItemBaseView: NSView {
         setupView()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -127,7 +134,7 @@ class MenuItemBaseView: NSView {
     override func viewDidMoveToSuperview() {
         super.viewDidMoveToSuperview()
         guard autolayout else { return }
-        if #available(macOS 10.15, *) {} else {
+        if #unavailable(macOS 10.15) {
             if let view = superview {
                 view.autoresizingMask = [.width]
             }

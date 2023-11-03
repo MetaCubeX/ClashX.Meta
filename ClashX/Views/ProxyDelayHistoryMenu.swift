@@ -18,6 +18,7 @@ class ProxyDelayHistoryMenu: NSMenu {
         NotificationCenter.default.addObserver(self, selector: #selector(proxyInfoDidUpdate(note:)), name: .proxyUpdate(for: proxy.name), object: nil)
     }
 
+    @available(*, unavailable)
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -35,7 +36,7 @@ class ProxyDelayHistoryMenu: NSMenu {
         let historys = Array(proxy.history.reversed())
         let change = Changeset(previous: currentHistory, current: historys, identifier: { $0.time })
         currentHistory = historys
-        if change.moves.count == 0 && change.mutations.count == 0 {
+        if change.moves.isEmpty && change.mutations.isEmpty {
             change.removals.reversed().forEach { idx in
                 removeItem(at: idx)
             }

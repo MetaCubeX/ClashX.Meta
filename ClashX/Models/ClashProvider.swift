@@ -10,9 +10,7 @@ import Cocoa
 
 class ClashProviderResp: Codable {
     let allProviders: [ClashProxyName: ClashProvider]
-    lazy var providers: [ClashProxyName: ClashProvider] = {
-        return allProviders.filter({ $0.value.vehicleType != .Compatible })
-    }()
+    lazy var providers: [ClashProxyName: ClashProvider] = allProviders.filter { $0.value.vehicleType != .Compatible }
 
     init() {
         allProviders = [:]
