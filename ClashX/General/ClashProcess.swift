@@ -192,7 +192,7 @@ class ClashProcess: NSObject {
 					resolver.reject(StartMetaError.configMissing)
 					return
 				}
-				guard FileManager.default.fileExists(atPath: path) else {
+				if FileManager.default.fileExists(atPath: path) {
 					resolver.fulfill_()
 					return
 				}
