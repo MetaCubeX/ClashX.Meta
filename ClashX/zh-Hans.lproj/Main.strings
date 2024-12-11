@@ -11,7 +11,7 @@
 "3Da-fL-Mzr.title" = "日志等级";
 
 /* Class = "NSMenuItem"; title = "Proxy providers"; ObjectID = "4Jz-gx-7X9"; */
-"4Jz-gx-7X9.title" = "代理 Prividers";
+"4Jz-gx-7X9.title" = "代理 Providers";
 
 /* Class = "NSButtonCell"; title = "Add"; ObjectID = "51K-nB-xLS"; */
 "51K-nB-xLS.title" = "添加";
@@ -62,7 +62,7 @@
 "C79-J5-30z.headerCell.title" = "链接";
 
 /* Class = "NSMenuItem"; title = "Rule providers"; ObjectID = "cJg-BS-yk2"; */
-"cJg-BS-yk2.title" = "规则 Prividers";
+"cJg-BS-yk2.title" = "规则 Providers";
 
 /* Class = "NSMenuItem"; title = "Benchmark"; ObjectID = "COu-UX-bww"; */
 "COu-UX-bww.title" = "延迟测速";
