@@ -176,6 +176,7 @@
 		01F336402AD10D0B0048AF77 /* com.metacubex.ClashX.ProxyConfigHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = F9A7C0692306E874007163C7 /* com.metacubex.ClashX.ProxyConfigHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		01FBC6312B9C2B0800810BFF /* ClashProcess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FBC62F2B9C2B0800810BFF /* ClashProcess.swift */; };
 		491E6203258A424D00313AEF /* CommonUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 491E61FD258A424500313AEF /* CommonUtils.m */; };
+		8B032B8D2CEF5CB900296514 /* UpdateConfigCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B032B8C2CEF5CB900296514 /* UpdateConfigCommand.swift */; };
 		F935B2FA23083EE6009E4D33 /* ProxySettingTool.m in Sources */ = {isa = PBXBuildFile; fileRef = F935B2F923083EE6009E4D33 /* ProxySettingTool.m */; };
 /* End PBXBuildFile section */
 
@@ -361,6 +362,7 @@
 		8A2BBEA627A03ACB0081EBEF /* ProxySetting.sdef */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ProxySetting.sdef; sourceTree = "<group>"; };
 		8ACD21BA27A04C7800BC4632 /* ProxySettingCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxySettingCommand.swift; sourceTree = "<group>"; };
 		8ACD21BC27A04ED500BC4632 /* ProxyModeChangeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModeChangeCommand.swift; sourceTree = "<group>"; };
+		8B032B8C2CEF5CB900296514 /* UpdateConfigCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateConfigCommand.swift; sourceTree = "<group>"; };
 		F910AA23240134AF00116E95 /* ProxyGroupMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyGroupMenu.swift; sourceTree = "<group>"; };
 		F915A4612366ADEF004840BE /* ClashConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClashConnection.swift; sourceTree = "<group>"; };
 		F9203A25236342820020D57D /* AppDelegate+..swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate+..swift"; sourceTree = "<group>"; };
@@ -827,6 +829,7 @@
 				8A2BBEA627A03ACB0081EBEF /* ProxySetting.sdef */,
 				8ACD21BA27A04C7800BC4632 /* ProxySettingCommand.swift */,
 				8ACD21BC27A04ED500BC4632 /* ProxyModeChangeCommand.swift */,
+				8B032B8C2CEF5CB900296514 /* UpdateConfigCommand.swift */,
 			);
 			path = AppleScript;
 			sourceTree = "<group>";
@@ -1130,6 +1133,7 @@
 				01F336192AD10D0B0048AF77 /* UpdateConfigAction.swift in Sources */,
 				01F3361A2AD10D0B0048AF77 /* NSTableView+Reload.swift in Sources */,
 				01F3361B2AD10D0B0048AF77 /* ClashProvider.swift in Sources */,
+				8B032B8D2CEF5CB900296514 /* UpdateConfigCommand.swift in Sources */,
 				01F3361C2AD10D0B0048AF77 /* SettingTabViewController.swift in Sources */,
 				01F3361D2AD10D0B0048AF77 /* ClashRule.swift in Sources */,
 				01F3361E2AD10D0B0048AF77 /* ClashRuleProvider.swift in Sources */,

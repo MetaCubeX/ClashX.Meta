@@ -14,5 +14,8 @@
                 <type type="text"/>
             </direct-parameter>
         </command>
+        <command name="updateConfig" code="clashupc" description="Update config.">
+            <cocoa class="ClashX_Meta.UpdateConfigCommand"/>
+        </command>
     </suite>
 </dictionary>
