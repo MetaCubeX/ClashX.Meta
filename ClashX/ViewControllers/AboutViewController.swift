@@ -12,7 +12,8 @@ class AboutViewController: NSViewController {
     @IBOutlet var versionLabel: NSTextField!
     @IBOutlet var buildTimeLabel: NSTextField!
     @IBOutlet var coreVersionLabel: NSTextField!
-
+    @IBOutlet var hwidLabel: NSTextField!
+    
     lazy var clashCoreVersion: String = {
         return Bundle.main.infoDictionary?["coreVersion"] as? String ?? "unknown"
     }()
@@ -35,10 +36,13 @@ class AboutViewController: NSViewController {
 
         let version = AppVersionUtil.currentVersion
         let build = AppVersionUtil.currentBuild
+        let hwid = RemoteConfigManager.getHardwareUUID()
+        
 
         versionLabel.stringValue = "Version: \(version) (\(build))"
         coreVersionLabel.stringValue = "Meta Core: \(clashCoreVersion)"
         buildTimeLabel.stringValue = "\(commit)-\(branch) \(buildTime)"
+        hwidLabel.stringValue = "HWID: \(hwid)"
     }
 
     override func viewWillAppear() {

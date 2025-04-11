@@ -8,10 +8,16 @@
 
 import Alamofire
 import Cocoa
+import IOKit
+import Foundation
+import Darwin
 
 class RemoteConfigManager {
     var configs: [RemoteConfigModel] = []
     var refreshActivity: NSBackgroundActivityScheduler?
+    
+    private static var cachedHWID: String?
+    private static var cachedDeviceModel: String?
 
     static let shared = RemoteConfigManager()
 
@@ -142,6 +148,13 @@ class RemoteConfigManager {
             return
         }
         urlRequest.cachePolicy = .reloadIgnoringCacheData
+        
+        let deviceHeaders = getDeviceHeaders()
+        for (key, value) in deviceHeaders {
+            urlRequest.addValue(value, forHTTPHeaderField: key)
+        }
+        
+        Logger.log("[getRemoteConfigData] Adding device headers: \(deviceHeaders)", level: .info)
 
         AF.request(urlRequest)
             .validate()
@@ -227,6 +240,58 @@ class RemoteConfigManager {
         }
 		
         return (NSApplication.shared.delegate as? AppDelegate)?.clashProcess.verify(kConfigFolderPath, confFilePath: confPath)
+    }
+    
+    static func getDeviceHeaders() -> [String: String] {
+    
+        let hwid = getHardwareUUID()
+        
+        let processInfo = ProcessInfo.processInfo
+        let osVersion = "\(processInfo.operatingSystemVersion.majorVersion).\(processInfo.operatingSystemVersion.minorVersion).\(processInfo.operatingSystemVersion.patchVersion)"
+        let deviceModel = getDeviceModel()
+        
+        return [
+            "x-hwid": hwid,
+            "x-device-os": "macOS",
+            "x-ver-os": osVersion,
+            "x-device-model": deviceModel
+        ]
+    }
+    
+    static func getHardwareUUID() -> String {
+        if let cachedID = cachedHWID {
+            return cachedID
+        }
+        
+        let platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"))
+        defer { IOObjectRelease(platformExpert) }
+        
+        if let uuid = IORegistryEntryCreateCFProperty(platformExpert, "IOPlatformUUID" as CFString, kCFAllocatorDefault, 0) {
+            if let uuidString = uuid.takeUnretainedValue() as? String {
+                cachedHWID = uuidString
+                return uuidString
+            }
+        }
+        
+        let fallbackUUID = UUID().uuidString
+        cachedHWID = fallbackUUID
+        Logger.log("[Hardware] Could not retrieve device hardware UUID, using generated UUID", level: .warning)
+        return fallbackUUID
+    }
+    
+    static func getDeviceModel() -> String {
+        if let cachedModel = cachedDeviceModel {
+            return cachedModel
+        }
+        
+        var size = 0
+        sysctlbyname("hw.model", nil, &size, nil, 0)
+        var model = [CChar](repeating: 0, count: size)
+        sysctlbyname("hw.model", &model, &size, nil, 0)
+        
+        let modelString = String(cString: model)
+        cachedDeviceModel = modelString
+        return modelString
     }
 
     static func showAdd() {
