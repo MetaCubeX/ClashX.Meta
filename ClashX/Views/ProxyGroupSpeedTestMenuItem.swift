@@ -44,7 +44,39 @@ class ProxyGroupSpeedTestMenuItem: NSMenuItem {
 
     @objc func healthCheck() {
         guard testType == .reTest else { return }
-		ApiRequest.getGroupDelay(groupName: proxyGroup.name) { _ in }
+
+        // Clear existing speed test results for all proxies in this group
+        ApiRequest.getMergedProxyData { [weak self] proxyResp in
+            guard let self = self else { return }
+            var proxiesToClear = [ClashProxyName]()
+
+            // Get all proxy names in this group
+            if let allProxies = self.proxyGroup.all {
+                proxiesToClear.append(contentsOf: allProxies)
+            }
+
+            // Clear speed test results by posting notifications with empty values
+            for proxyName in proxiesToClear {
+                NotificationCenter.default.post(name: .speedTestFinishForProxy,
+                                                object: nil,
+                                                userInfo: ["proxyName": proxyName, "delay": "", "rawValue": 0])
+            }
+
+            // Start actual testing after clearing results
+            ApiRequest.healthCheck(proxy: self.proxyGroup.name)
+            ApiRequest.getMergedProxyData { [weak self] proxyResp in
+                guard let self = self else { return }
+                var providers = Set<ClashProxyName>()
+                self.proxyGroup.all?.compactMap{
+                    proxyResp?.proxiesMap[$0]?.enclosingProvider?.name
+                }.forEach{
+                    providers.insert($0)
+                }
+                providers.forEach{
+                    ApiRequest.healthCheck(proxy: $0)
+                }
+            }
+        }
         menu?.cancelTracking()
     }
 }
@@ -89,10 +121,56 @@ private class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
     private func startBenchmark() {
         guard let group = (enclosingMenuItem as? ProxyGroupSpeedTestMenuItem)?.proxyGroup
         else { return }
+        let testGroup = DispatchGroup()
 
+        var proxies = [ClashProxyName]()
+        var providers = Set<ClashProviderName>()
+        for testable in group.speedtestAble {
+            switch testable {
+            case let .provider(_, provider):
+                providers.insert(provider)
+            case let .proxy(name):
+                proxies.append(name)
+            default:
+                continue
+            }
+        }
+
+        // First, show "Testing" state and disable the menu item
         label.stringValue = NSLocalizedString("Testing", comment: "")
         enclosingMenuItem?.isEnabled = false
         setNeedsDisplay()
+
+        // Then clear existing speed test results for all proxies in this group
+        ApiRequest.getMergedProxyData { [weak self] proxyResp in
+            guard let self = self else { return }
+
+            var proxiesToClear = [ClashProxyName]()
+
+            // Get all proxy names in this group
+            if let allProxies = group.all {
+                proxiesToClear.append(contentsOf: allProxies)
+            }
+
+            // Clear speed test results by posting notifications with empty values
+            for proxyName in proxiesToClear {
+                NotificationCenter.default.post(name: .speedTestFinishForProxy,
+                                                object: nil,
+                                                userInfo: ["proxyName": proxyName, "delay": "", "rawValue": 0])
+            }
+
+            // Start actual testing after clearing results
+            for proxyName in proxies {
+                testGroup.enter()
+                ApiRequest.getProxyDelay(proxyName: proxyName) { delay in
+                    let delayStr = delay == 0 ? NSLocalizedString("fail", comment: "") : "\(delay) ms"
+                    NotificationCenter.default.post(name: .speedTestFinishForProxy,
+                                                    object: nil,
+                                                    userInfo: ["proxyName": proxyName, "delay": delayStr, "rawValue": delay])
+                    testGroup.leave()
+                }
+            }
+        }
 
         ApiRequest.getGroupDelay(groupName: group.name) {
             [weak self] delays in

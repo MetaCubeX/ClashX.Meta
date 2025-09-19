@@ -83,10 +83,18 @@ class ProxyItemView: MenuItemBaseView {
         delayLabel.stringValue = str ?? ""
         needsLayout = true
 
-        guard let delay = value, str != nil else {
+        guard let delay = value, let delayStr = str else {
             delayLabel.layer?.backgroundColor = NSColor.clear.cgColor
             return
         }
+
+        if delayStr.isEmpty {
+            // Testing state - show gray badge
+            delayLabel.stringValue = NSLocalizedString("Testing", comment: "")
+            delayLabel.layer?.backgroundColor = CGColor.testing
+            return
+        }
+
         switch delay {
         case 0:
             delayLabel.layer?.backgroundColor = CGColor.fail
@@ -134,4 +142,5 @@ private extension CGColor {
     static let good = CGColor(red: 30.0 / 255, green: 181.0 / 255, blue: 30.0 / 255, alpha: 1)
     static let meduim = CGColor(red: 1, green: 135.0 / 255, blue: 0, alpha: 1)
     static let fail = CGColor(red: 218.0 / 255, green: 0.0, blue: 3.0 / 255, alpha: 1)
+    static let testing = CGColor(red: 128.0 / 255, green: 128.0 / 255, blue: 128.0 / 255, alpha: 1)
 }
