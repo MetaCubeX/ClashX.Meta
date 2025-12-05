@@ -24,29 +24,22 @@
                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="x4I-nn-92U">
                     <rect key="frame" x="38" y="0.0" width="24" height="22"/>
                     <subviews>
-                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Hlw-Vg-wLD">
+                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="Hlw-Vg-wLD" customClass="CustomTextLabel" customModule="ClashX_Meta" customModuleProvider="target">
                             <rect key="frame" x="-2" y="1" width="28" height="10"/>
-                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="0KB/s" id="Cy5-d1-ldi">
-                                <font key="font" metaFont="system" size="8"/>
-                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                            </textFieldCell>
-                        </textField>
-                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="srp-1R-o7n">
+                        </customView>
+                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="srp-1R-o7n" customClass="CustomTextLabel" customModule="ClashX_Meta" customModuleProvider="target">
                             <rect key="frame" x="-2" y="11" width="28" height="10"/>
-                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="0KB/s" id="oCt-YG-3AI">
-                                <font key="font" metaFont="system" size="8"/>
-                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                            </textFieldCell>
-                        </textField>
+                        </customView>
                     </subviews>
                     <constraints>
                         <constraint firstItem="srp-1R-o7n" firstAttribute="top" secondItem="x4I-nn-92U" secondAttribute="top" constant="1" id="1zQ-0p-x99"/>
                         <constraint firstAttribute="trailing" secondItem="srp-1R-o7n" secondAttribute="trailing" id="Ijz-ec-WpJ"/>
+                        <constraint firstItem="srp-1R-o7n" firstAttribute="height" constant="10" id="hgt-srp-10"/>
+                        <constraint firstItem="srp-1R-o7n" firstAttribute="bottom" secondItem="Hlw-Vg-wLD" secondAttribute="top" constant="0" id="gap-srp-hlw"/>
                         <constraint firstAttribute="bottom" secondItem="Hlw-Vg-wLD" secondAttribute="bottom" constant="1" id="a9D-MM-89v"/>
                         <constraint firstItem="Hlw-Vg-wLD" firstAttribute="leading" secondItem="x4I-nn-92U" secondAttribute="leading" id="i79-Gi-Tfm"/>
                         <constraint firstAttribute="trailing" secondItem="Hlw-Vg-wLD" secondAttribute="trailing" id="maG-ty-KTU"/>
+                        <constraint firstItem="Hlw-Vg-wLD" firstAttribute="height" constant="10" id="hgt-hlw-10"/>
                         <constraint firstItem="srp-1R-o7n" firstAttribute="leading" secondItem="x4I-nn-92U" secondAttribute="leading" id="pgT-Fj-TYZ"/>
                     </constraints>
                 </customView>

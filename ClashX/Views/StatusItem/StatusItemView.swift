@@ -14,8 +14,8 @@ import RxSwift
 class StatusItemView: NSView, StatusItemViewProtocol {
     @IBOutlet var imageView: NSImageView!
 
-    @IBOutlet var uploadSpeedLabel: NSTextField!
-    @IBOutlet var downloadSpeedLabel: NSTextField!
+    @IBOutlet var uploadSpeedLabel: CustomTextLabel!
+    @IBOutlet var downloadSpeedLabel: CustomTextLabel!
     @IBOutlet var speedContainerView: NSView!
 
     var up: Int = 0
@@ -47,6 +47,13 @@ class StatusItemView: NSView, StatusItemViewProtocol {
 
         uploadSpeedLabel.textColor = NSColor.labelColor
         downloadSpeedLabel.textColor = NSColor.labelColor
+
+        uploadSpeedLabel.alignment = .right
+        downloadSpeedLabel.alignment = .right
+
+        // Show initial speed text so the label is not blank before the first update
+        uploadSpeedLabel.text = SpeedUtils.getSpeedString(for: up)
+        downloadSpeedLabel.text = SpeedUtils.getSpeedString(for: down)
     }
 
     func updateSize(width: CGFloat) {
@@ -64,11 +71,11 @@ class StatusItemView: NSView, StatusItemViewProtocol {
     func updateSpeedLabel(up: Int, down: Int) {
         guard !speedContainerView.isHidden else { return }
         if up != self.up {
-            uploadSpeedLabel.stringValue = SpeedUtils.getSpeedString(for: up)
+            uploadSpeedLabel.text = SpeedUtils.getSpeedString(for: up)
             self.up = up
         }
         if down != self.down {
-            downloadSpeedLabel.stringValue = SpeedUtils.getSpeedString(for: down)
+            downloadSpeedLabel.text = SpeedUtils.getSpeedString(for: down)
             self.down = down
         }
     }
