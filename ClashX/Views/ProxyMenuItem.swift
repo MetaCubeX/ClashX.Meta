@@ -95,7 +95,7 @@ class ProxyMenuItem: NSMenuItem {
         }
     }
 
-    private func updateDelay(_ delay: String?, rawValue: Int?) {
+    public func updateDelay(_ delay: String?, rawValue: Int?) {
         if enableShowUsingView {
             (view as? ProxyItemView)?.update(str: delay, value: rawValue)
         } else {

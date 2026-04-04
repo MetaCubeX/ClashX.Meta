@@ -94,27 +94,49 @@ private class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
         enclosingMenuItem?.isEnabled = false
         setNeedsDisplay()
 
-        ApiRequest.getGroupDelay(groupName: group.name) {
-            [weak self] delays in
-            guard let self = self, let menu = self.enclosingMenuItem else { return }
-
-            group.all?.forEach { proxyName in
+        // Create a dispatch group to track all proxy tests
+        let dispatchGroup = DispatchGroup()
+        
+        // Start testing each proxy individually
+        group.all?.forEach { proxyName in
+            dispatchGroup.enter()
+            
+            ApiRequest.getProxyDelay(proxyName: proxyName) { delay in
+                defer { dispatchGroup.leave() }
+                
+                guard let menu = self.enclosingMenuItem else { return }
                 var delayStr = NSLocalizedString("fail", comment: "")
-                var delay = 0
-                if let d = delays[proxyName], d != 0 {
-                    delayStr = "\(d) ms"
-                    delay = d
+                var delayValue = 0
+                if delay != 0 {
+                    delayStr = "\(delay) ms"
+                    delayValue = delay
                 }
 
-                NotificationCenter.default.post(
-                    name: .speedTestFinishForProxy,
-                    object: nil,
-                    userInfo: ["proxyName": proxyName,
-                               "delay": delayStr,
-                               "rawValue": delay])
-
+                // Update UI on main thread
+                DispatchQueue.main.async {
+                    // Update menu items directly
+                    if let proxyMenu = menu.submenu {
+                        for item in proxyMenu.items {
+                            if let proxyItem = item as? ProxyMenuItem, proxyItem.proxyName == proxyName {
+                                proxyItem.updateDelay(delayStr, rawValue: delayValue)
+                            }
+                        }
+                    }
+                    
+                    // Post notification for other observers
+                    NotificationCenter.default.post(
+                        name: .speedTestFinishForProxy,
+                        object: nil,
+                        userInfo: ["proxyName": proxyName,
+                                  "delay": delayStr,
+                                  "rawValue": delayValue])
+                }
             }
+        }
 
+        // When all tests are complete
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self, let menu = self.enclosingMenuItem else { return }
             self.label.stringValue = menu.title
             menu.isEnabled = true
             self.setNeedsDisplay()
