@@ -72,8 +72,8 @@ jobs:
       with:
         name: "ClashX Meta"
         path: |
-          "*.zip"
-          "*.dmg"
+          *.zip
+          *.dmg
 
     - name: load sparkle-repo
       uses: actions/checkout@v4
