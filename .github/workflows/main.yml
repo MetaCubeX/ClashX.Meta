@@ -59,13 +59,19 @@ jobs:
     - name: create zip
       run: ditto -c -k --sequesterRsrc --keepParent archive/ClashX.xcarchive/Products/Applications/ClashX\ Meta.app "ClashX Meta.zip"
 
+    - name: create dmg
+      run: |
+        npm install --global create-dmg
+        create-dmg --overwrite --no-version-in-filename --no-code-sign --dmg-title "ClashX Meta" "archive/ClashX.xcarchive/Products/Applications/ClashX Meta.app" .
 
     - name: upload Artifact
       uses: actions/upload-artifact@v4
       if: "!startsWith(github.ref, 'refs/tags/')"
       with:
-        name: "ClashX Meta.zip"
-        path: "*.zip"
+        name: "ClashX Meta"
+        path: |
+          *.zip
+          *.dmg
 
     - name: load sparkle-repo
       uses: actions/checkout@v4
@@ -127,4 +133,5 @@ jobs:
         generate_release_notes: true
         files: |
           ClashX Meta.zip
+          ClashX Meta.dmg
 
