@@ -161,11 +161,26 @@ class PrivilegedHelperManager {
             reply(false)
             return
         }
-        let helperFileExists = FileManager.default.fileExists(atPath: "/Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)")
+        let installedHelperPath = "/Library/PrivilegedHelperTools/\(PrivilegedHelperManager.machServiceName)"
+        let helperFileExists = FileManager.default.fileExists(atPath: installedHelperPath)
         if !helperFileExists {
             reply(false)
             return
         }
+
+        // Check if the installed helper binary differs from the bundled one.
+        // When the app auto-updates, the bundled helper binary may have changed
+        // but the version string in Info.plist may not have been bumped.
+        // This binary comparison catches those cases so reinstall is triggered
+        // even when CFBundleShortVersionString remains the same.
+        if let bundledData = try? Data(contentsOf: helperURL),
+           let installedData = try? Data(contentsOf: URL(fileURLWithPath: installedHelperPath)),
+           bundledData != installedData {
+            Logger.log("helper binary mismatch, needs reinstall (bundled: \(bundledData.count) bytes, installed: \(installedData.count) bytes)", level: .info)
+            reply(false)
+            return
+        }
+
         let timeout: TimeInterval = helperFileExists ? 15 : 5
         let time = Date()
         
@@ -205,6 +220,7 @@ extension PrivilegedHelperManager {
 
         let result = installHelperDaemon()
         if case .success = result {
+            checkInstall()
             return
         }
         result.alertAction()
