@@ -11,6 +11,7 @@ import Cocoa
 import SwiftyJSON
 import Foundation
 import NIOHTTP1
+import AsyncHTTPClient
 
 protocol ApiRequestStreamDelegate: AnyObject {
     func didUpdateTraffic(up: Int, down: Int) async
@@ -658,7 +659,6 @@ extension ApiRequest {
     @MainActor
     private func streamDidConnect(_ type: StreamType) async {
         streamRetryDelays[type] = 1
-        Logger.log("\(type)Stream did Connect", level: .debug)
 
         if type == .traffic {
             didTrafficStreamEverConnect = true
@@ -703,12 +703,24 @@ extension ApiRequest {
             }
         }
         
-        if let err = error, (err as? HTTPParserError) != .invalidEOFState {
-            Logger.log(err.localizedDescription, level: .error)
+        if let err = error,
+           (err as? HTTPParserError) != .invalidEOFState,
+           !(err is CancellationError) {
+            Logger.log("stream error type=\(type) \(Self.describeStreamError(err))", level: .error)
         }
 
-		Logger.log("\(type)Stream did disconnect", level: .debug)
 		scheduleRetry(for: type)
+	}
+
+	private static func describeStreamError(_ error: Error) -> String {
+		var parts: [String] = ["desc=\(error)"]
+		let ns = error as NSError
+		parts.append("domain=\(ns.domain)")
+		parts.append("code=\(ns.code)")
+		if let http = error as? HTTPClientError {
+			parts.append("httpClientError=\(http)")
+		}
+		return parts.joined(separator: " | ")
 	}
 
 	private func streamDidReceiveMessage(_ type: StreamType, text: String) async {

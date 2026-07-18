@@ -267,6 +267,13 @@ final class PrivilegedHelperManager {
             } else {
                 return .needUpdate
             }
+            // Same CFBundleShortVersionString can still ship different binaries (rebuilds,
+            // arch slice changes, local Debug vs release). Version-only checks skip install
+            // in those cases; compare on-disk content so SMJobBless/legacy install re-runs.
+            if helperBinaryDiffersFromBundle(installed: helperInstalledURL, bundled: helperURL) {
+                Logger.log("helper binary differs from app bundle, need update", level: .info)
+                return .needUpdate
+            }
         } else {
             return .noFound
         }
@@ -297,6 +304,16 @@ final class PrivilegedHelperManager {
             group.cancelAll()
             return status
         }
+    }
+
+    /// Returns true when installed helper bytes differ from the one embedded in the app,
+    /// or either file cannot be read (treat as needing reinstall).
+    private func helperBinaryDiffersFromBundle(installed: URL, bundled: URL) -> Bool {
+        guard let bundledData = try? Data(contentsOf: bundled),
+              let installedData = try? Data(contentsOf: installed) else {
+            return true
+        }
+        return bundledData != installedData
     }
 
     @MainActor

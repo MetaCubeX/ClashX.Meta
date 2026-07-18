@@ -145,11 +145,13 @@ class MetaTask: NSObject {
             ])
         }
 
-        guard let data: Data = try? await run(
+        // SubprocessFoundation DataOutput is not linked in this target; use string output.
+        guard let output: String = try? await run(
             .name("curl"),
             arguments: Arguments(args),
-            output: .data(limit: 65536)
+            output: .string(limit: 65536)
         ).standardOutput,
+              let data = output.data(using: .utf8),
               let str = try? JSONDecoder().decode(MetaCurl.self, from: data),
               (str.hello == "clash.meta" || str.hello == "mihomo") else {
             return false

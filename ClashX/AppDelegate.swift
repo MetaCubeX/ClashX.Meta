@@ -226,13 +226,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 	
     func setupData() {
-        ConfigManager.shared
-            .showNetSpeedIndicatorObservable.skip(1)
-            .bind { _ in
-                Task { @MainActor in
-                    ApiRequest.shared.resetStreamApi(for: .traffic)
-                }
-            }.disposed(by: disposeBag)
+        // Show/hide menu-bar speed is UI-only (StatusItemView.showSpeedContainer).
+        // Do not reset /traffic stream here: cancel+reconnect is unnecessary and was
+        // mis-detected as core crash in streamDidDisconnect.
+        //
+        // ConfigManager.shared
+        //     .showNetSpeedIndicatorObservable.skip(1)
+        //     .bind { _ in
+        //         Task { @MainActor in
+        //             ApiRequest.shared.resetStreamApi(for: .traffic)
+        //         }
+        //     }.disposed(by: disposeBag)
 
         ProxyManager.shared
             .stateDidChange

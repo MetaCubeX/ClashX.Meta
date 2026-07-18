@@ -24,6 +24,21 @@ enum ApiRequestTransport {
     static var requestTimeout: TimeAmount = .seconds(30)
     private static let maxPendingStreamBytes = 1 * 1024 * 1024
     private static let maxStreamLineBytes = 64 * 1024
+
+    /// Dedicated client for /traffic|/logs|/memory chunked streams.
+    /// `timeout.read = nil` means no idle read timeout (sparse /logs must not die at ~90s).
+    /// Overall request still has a long deadline via `execute(..., timeout:)`.
+    private static let streamHTTPClient: HTTPClient = {
+        var configuration = HTTPClient.Configuration()
+        configuration.timeout = .init(
+            connect: .seconds(10),
+            read: nil
+        )
+        return HTTPClient(
+            eventLoopGroupProvider: .singleton,
+            configuration: configuration
+        )
+    }()
     
     // Debug
     static var debugUseHttpApi: Bool = false
@@ -218,7 +233,12 @@ enum ApiRequestTransport {
                     case .failure(let error):
                         throw error
                     case .request(let request):
-                        let response = try await performClientRequest(request, shouldValidate: shouldValidate, timeout: .hours(24))
+                        let response = try await performClientRequest(
+                            request,
+                            shouldValidate: shouldValidate,
+                            timeout: .hours(24),
+                            client: streamHTTPClient
+                        )
 
                         for try await buffer in response.body {
                             if Task.isCancelled {
@@ -358,9 +378,10 @@ enum ApiRequestTransport {
     private static func performClientRequest(
         _ clientRequest: HTTPClientRequest,
         shouldValidate: Bool = false,
-        timeout: TimeAmount? = nil
+        timeout: TimeAmount? = nil,
+        client: HTTPClient = .shared
     ) async throws -> HTTPClientResponse {
-        let response = try await HTTPClient.shared.execute(clientRequest, timeout: timeout ?? requestTimeout)
+        let response = try await client.execute(clientRequest, timeout: timeout ?? requestTimeout)
 
         if shouldValidate && !(200 ..< 300).contains(response.status.code) {
             throw RequestError.statusCode(Int(response.status.code))
