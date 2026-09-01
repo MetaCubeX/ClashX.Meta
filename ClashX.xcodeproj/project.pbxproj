@@ -76,6 +76,7 @@
 		01E908FC2FEE786F00C95A3A /* Subprocess in Frameworks */ = {isa = PBXBuildFile; productRef = 01E908FB2FEE786F00C95A3A /* Subprocess */; };
 		01E908FE2FEE787900C95A3A /* Subprocess in Frameworks */ = {isa = PBXBuildFile; productRef = 01E908FD2FEE787900C95A3A /* Subprocess */; };
 		01E909002FEF838700C95A3A /* ExitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E908FF2FEF838700C95A3A /* ExitManager.swift */; };
+		7C58E581D12527A98FA19314 /* HelperXPCSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5346172328EAF830F478CC79 /* HelperXPCSecurity.swift */; };
 		01EF33602B98D03B00D1DBD9 /* ProxyConfigHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */; };
 		01EF33622B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */; };
 		01EF33642B98D71600D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */; };
@@ -292,6 +293,7 @@
 		01E33AB129B5BF4200FD1006 /* NSColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSColor+Extension.swift"; sourceTree = "<group>"; };
 		01E33AB429B5C5E300FD1006 /* menu_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu_icon@2x.png"; sourceTree = "<group>"; };
 		01E908FF2FEF838700C95A3A /* ExitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitManager.swift; sourceTree = "<group>"; };
+		5346172328EAF830F478CC79 /* HelperXPCSecurity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperXPCSecurity.swift; sourceTree = "<group>"; };
 		01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigHelper.swift; sourceTree = "<group>"; };
 		01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigRemoteProcessProtocol.swift; sourceTree = "<group>"; };
 		01EF58AB2FF55DEC00432213 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
@@ -859,6 +861,7 @@
 				019A239528657A7A00AE5698 /* main.swift */,
 				01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */,
 				013B21FC2F7EC4F9009B30CB /* ProxyConfigHelperXPCTransport.swift */,
+				5346172328EAF830F478CC79 /* HelperXPCSecurity.swift */,
 				01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */,
 				0162E74E2864B819007218A6 /* MetaTask.swift */,
 				01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */,
@@ -1155,6 +1158,7 @@
 			files = (
 				01EF33622B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */,
 				0162E74F2864B819007218A6 /* MetaTask.swift in Sources */,
+				7C58E581D12527A98FA19314 /* HelperXPCSecurity.swift in Sources */,
 				01EF33602B98D03B00D1DBD9 /* ProxyConfigHelper.swift in Sources */,
 				019A239628657A7A00AE5698 /* main.swift in Sources */,
 				013B21FF2F7FB18A009B30CB /* Task+Sleep.swift in Sources */,
