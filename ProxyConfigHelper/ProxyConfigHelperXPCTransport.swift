@@ -141,6 +141,7 @@ enum ProxyConfigHelperMessages {
 		let confPath: String
 		let confFilePath: String
 		let confJSON: String
+		var coreMD5: String = ""
 	}
 
 	struct StopMeta: ProxyConfigHelperXPCMessage {
