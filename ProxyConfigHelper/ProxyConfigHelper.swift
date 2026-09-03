@@ -7,6 +7,7 @@
 
 import Cocoa
 import os.log
+import Security
 
 class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	private typealias RequestHandler = @Sendable (ProxyConfigHelperRequestEnvelope) async throws -> Data
@@ -55,7 +56,8 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	
 	func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		
-		guard isValid(connection: newConnection) else {
+		guard Self.authorize(connection: newConnection) else {
+			os_log("ProxyConfigHelper rejected an unauthorized XPC connection", type: .error)
 			return false
 		}
 		
@@ -77,14 +79,69 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 		return true
 	}
 	
-	private func isValid(connection: NSXPCConnection) -> Bool {
-		guard let app = NSRunningApplication(processIdentifier: connection.processIdentifier),
-			  let bundleIdentifier = app.bundleIdentifier,
-			  bundleIdentifier == "com.metacubex.ClashX.meta"
-		else {
-			return false
+	private static let clientBundleIdentifier = "com.metacubex.ClashX.meta"
+
+	private static func authorize(connection: NSXPCConnection) -> Bool {
+		let requirement = clientCodeSigningRequirement()
+
+		if #available(macOS 13.0, *) {
+			connection.setCodeSigningRequirement(requirement)
+			return true
 		}
-		return true
+
+		return validateByAuditToken(connection, requirement: requirement)
+	}
+
+	private static func clientCodeSigningRequirement() -> String {
+		if let team = ownTeamIdentifier(), !team.isEmpty {
+			return "anchor apple generic and identifier \"\(clientBundleIdentifier)\" and certificate leaf[subject.OU] = \"\(team)\""
+		}
+		os_log("ProxyConfigHelper is not Team-ID signed; using a best-effort client requirement. Sign the app for full protection.", type: .error)
+		return "identifier \"\(clientBundleIdentifier)\""
+	}
+
+	private static func ownTeamIdentifier() -> String? {
+		var codeRef: SecCode?
+		guard SecCodeCopySelf([], &codeRef) == errSecSuccess, let codeRef else { return nil }
+
+		var staticRef: SecStaticCode?
+		guard SecCodeCopyStaticCode(codeRef, [], &staticRef) == errSecSuccess, let staticRef else { return nil }
+
+		var infoRef: CFDictionary?
+		let flags = SecCSFlags(rawValue: UInt32(kSecCSSigningInformation))
+		guard SecCodeCopySigningInformation(staticRef, flags, &infoRef) == errSecSuccess,
+			  let info = infoRef as? [String: Any] else { return nil }
+
+		return info[kSecCodeInfoTeamIdentifier as String] as? String
+	}
+
+	private static func validateByAuditToken(_ connection: NSXPCConnection, requirement: String) -> Bool {
+		guard var token = auditToken(of: connection) else { return false }
+
+		let tokenData = Data(bytes: &token, count: MemoryLayout<audit_token_t>.size)
+		var codeRef: SecCode?
+		let attributes = [kSecGuestAttributeAudit as String: tokenData] as CFDictionary
+		guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &codeRef) == errSecSuccess,
+			  let codeRef else { return false }
+
+		var requirementRef: SecRequirement?
+		guard SecRequirementCreateWithString(requirement as CFString, [], &requirementRef) == errSecSuccess,
+			  let requirementRef else { return false }
+
+		return SecCodeCheckValidity(codeRef, [], requirementRef) == errSecSuccess
+	}
+
+	private static func auditToken(of connection: NSXPCConnection) -> audit_token_t? {
+		let selector = NSSelectorFromString("auditToken")
+		guard connection.responds(to: selector),
+			  let value = connection.value(forKey: "auditToken") as? NSValue else { return nil }
+
+		var token = audit_token_t()
+		withUnsafeMutableBytes(of: &token) { buffer in
+			guard let base = buffer.baseAddress else { return }
+			value.getValue(base, size: buffer.count)
+		}
+		return token
 	}
 	
 }
@@ -215,7 +272,8 @@ private extension ProxyConfigHelper {
         for await value in metaTask.start(message.path,
                                           confPath: message.confPath,
                                           confFilePath: message.confFilePath,
-                                          confJSON: message.confJSON) {
+                                          confJSON: message.confJSON,
+                                          coreMD5: message.coreMD5) {
             result = value
         }
         return result

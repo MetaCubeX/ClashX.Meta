@@ -325,13 +325,16 @@ actor ClashProcess {
 			sessionId: Logger.shared.sessionId
 		).jsonString()
 
+		let coreMD5 = Self.fileMD5(launchPath) ?? ""
+
 		let response: String?
 		do {
 			response = try await PrivilegedHelperManager.shared.request(
 				ProxyConfigHelperMessages.StartMeta(path: launchPath,
 				                                   confPath: kConfigFolderPath,
 				                                   confFilePath: config.path,
-				                                   confJSON: confJSON)
+				                                   confJSON: confJSON,
+				                                   coreMD5: coreMD5)
 			)
 		} catch {
 			Logger.log("helperNotFound, startMeta failed", level: .error)
@@ -474,6 +477,26 @@ actor ClashProcess {
 		}
 
 		return md5 == out.replacingOccurrences(of: "\n", with: "")
+	}
+
+	private static func fileMD5(_ path: String) -> String? {
+		let proc = Process()
+		proc.executableURL = .init(fileURLWithPath: "/sbin/md5")
+		proc.arguments = ["-q", path]
+		let pipe = Pipe()
+		proc.standardOutput = pipe
+		do {
+			try proc.run()
+		} catch {
+			Logger.log("md5 failed. \(error.localizedDescription)", level: .error)
+			return nil
+		}
+		proc.waitUntilExit()
+		guard proc.terminationStatus == 0,
+			  let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) else {
+			return nil
+		}
+		return out.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 	}
 
 	private static func chmodX(_ path: String) -> Bool {

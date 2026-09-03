@@ -6,6 +6,7 @@
 import Cocoa
 import Subprocess
 import System
+import Darwin
 
 private actor StartState {
     var finished = false
@@ -40,6 +41,34 @@ class MetaTask: NSObject {
         }
     }
 
+    private enum PrivilegedPathError: LocalizedError {
+        case unsafeComponent(String)
+        case notRegularFile(String)
+        case md5Mismatch
+        case ioFailed(String)
+
+        var errorDescription: String? {
+            switch self {
+            case let .unsafeComponent(path):
+                return "Refusing to use an unsafe (non root-owned, group/other-writable, or symlinked) path: \(path)"
+            case let .notRegularFile(path):
+                return "Refusing to use a path that is not a regular file: \(path)"
+            case .md5Mismatch:
+                return "Core binary integrity check (MD5) failed."
+            case let .ioFailed(path):
+                return "Failed to create or write a root-owned path: \(path)"
+            }
+        }
+    }
+
+    private static let coreFileName = "com.metacubex.ClashX.ProxyConfigHelper.meta"
+    private static let managedRootDir = "/Library/Application Support/com.metacubex.ClashX.meta"
+    private static var managedCoreDir: String { "\(managedRootDir)/Core" }
+    private static var managedCorePath: String { "\(managedCoreDir)/\(coreFileName)" }
+    private static var managedRunDir: String { "\(managedRootDir)/Run" }
+    private static var managedRunConfigPath: String { "\(managedRunDir)/run_config.yaml" }
+    private static let coreLogRootDir = "/Library/Logs/com.metacubex.ClashX.meta"
+
     struct MetaCurl: Decodable {
         let hello: String
     }
@@ -53,12 +82,23 @@ class MetaTask: NSObject {
 
     private var serverResult: MetaServer?
 
-    private func stdoutLogPath(_ confPath: String) -> String {
-        "\(confPath)/logs/\(serverResult?.sessionId ?? "")/\(kCoreLogName)"
+    private func safeSessionId() -> String {
+        let raw = serverResult?.sessionId ?? ""
+        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
+        let filtered = String(raw.filter { allowed.contains($0) })
+        return filtered.isEmpty ? "session" : filtered
     }
 
-    private func stderrLogPath(_ confPath: String) -> String {
-        "\(confPath)/logs/\(serverResult?.sessionId ?? "")/\(kCoreCrashLogName)"
+    private func coreLogDir() -> String {
+        "\(Self.coreLogRootDir)/\(safeSessionId())"
+    }
+
+    private func stdoutLogPath() -> String {
+        "\(coreLogDir())/\(kCoreLogName)"
+    }
+
+    private func stderrLogPath() -> String {
+        "\(coreLogDir())/\(kCoreCrashLogName)"
     }
 
     // MARK: - Public API
@@ -66,7 +106,8 @@ class MetaTask: NSObject {
     func start(_ path: String,
                confPath: String,
                confFilePath: String,
-               confJSON: String) -> AsyncStream<String> {
+               confJSON: String,
+               coreMD5: String) -> AsyncStream<String> {
         let state = StartState()
 
         return AsyncStream { continuation in
@@ -78,6 +119,7 @@ class MetaTask: NSObject {
                                                  confPath: confPath,
                                                  confFilePath: confFilePath,
                                                  confJSON: confJSON,
+                                                 coreMD5: coreMD5,
                                                  state: state,
                                                  continuation: continuation)
                 } catch let error as StartError {
@@ -186,6 +228,7 @@ class MetaTask: NSObject {
                               confPath: String,
                               confFilePath: String,
                               confJSON: String,
+                              coreMD5: String,
                               state: StartState,
                               continuation: AsyncStream<String>.Continuation) async throws {
 
@@ -201,9 +244,15 @@ class MetaTask: NSObject {
             return result.jsonString()
         }
 
-        let logPath = stdoutLogPath(confPath)
+        let corePath = try installManagedCore(source: path, expectedMD5: coreMD5)
+        let safeConfFilePath = try installManagedConfig(source: confFilePath)
+        try ensureSecureDirectory(Self.managedRunDir)
+        try ensureSecureFile(stdoutLogPath())
+        try ensureSecureFile(stderrLogPath())
 
-        try writePlist(path: path, confPath: confPath, confFilePath: confFilePath)
+        let logPath = stdoutLogPath()
+
+        try writePlist(corePath: corePath, confPath: confPath, confFilePath: safeConfFilePath)
 
         _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
         do {
@@ -283,9 +332,9 @@ class MetaTask: NSObject {
         _ = await timeoutTask.value
     }
 
-    private func writePlist(path: String, confPath: String, confFilePath: String) throws {
+    private func writePlist(corePath: String, confPath: String, confFilePath: String) throws {
         guard let serverResult else { return }
-        var programArguments = [path, "-d", confPath]
+        var programArguments = [corePath, "-d", confPath]
         if !confFilePath.isEmpty {
             programArguments.append(contentsOf: ["-f", confFilePath])
         }
@@ -293,10 +342,10 @@ class MetaTask: NSObject {
         let plist: [String: Any] = [
             "Label": Self.label,
             "ProgramArguments": programArguments,
-            "WorkingDirectory": confPath,
+            "WorkingDirectory": Self.managedRunDir,
             "EnvironmentVariables": ["SAFE_PATHS": serverResult.safePaths],
-            "StandardOutPath": stdoutLogPath(confPath),
-            "StandardErrorPath": stderrLogPath(confPath),
+            "StandardOutPath": stdoutLogPath(),
+            "StandardErrorPath": stderrLogPath(),
             "KeepAlive": false
         ]
 
@@ -305,6 +354,181 @@ class MetaTask: NSObject {
         let fm = FileManager.default
         try? fm.removeItem(atPath: Self.plistPath)
         fm.createFile(atPath: Self.plistPath, contents: data)
+    }
+
+    private func assertSafeRootPath(_ path: String, requireRegularFile: Bool) throws {
+        guard path.hasPrefix("/") else { throw PrivilegedPathError.unsafeComponent(path) }
+        let parts = path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
+        guard !parts.contains(".."), !parts.contains(".") else {
+            throw PrivilegedPathError.unsafeComponent(path)
+        }
+
+        var current = ""
+        for (index, part) in parts.enumerated() {
+            current += "/" + part
+            var st = stat()
+            guard lstat(current, &st) == 0 else {
+                throw PrivilegedPathError.unsafeComponent(current)
+            }
+            let mode = st.st_mode
+            if (mode & S_IFMT) == S_IFLNK {
+                throw PrivilegedPathError.unsafeComponent(current)
+            }
+            if st.st_uid != 0 {
+                throw PrivilegedPathError.unsafeComponent(current)
+            }
+            if (mode & (S_IWGRP | S_IWOTH)) != 0 {
+                throw PrivilegedPathError.unsafeComponent(current)
+            }
+            if index == parts.count - 1, requireRegularFile, (mode & S_IFMT) != S_IFREG {
+                throw PrivilegedPathError.notRegularFile(current)
+            }
+        }
+    }
+
+    private func ensureSecureDirectory(_ path: String) throws {
+        guard path.hasPrefix("/") else { throw PrivilegedPathError.unsafeComponent(path) }
+        let parts = path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
+        guard !parts.contains(".."), !parts.contains(".") else {
+            throw PrivilegedPathError.unsafeComponent(path)
+        }
+
+        var current = ""
+        for part in parts {
+            current += "/" + part
+            var st = stat()
+            if lstat(current, &st) == 0 {
+                let mode = st.st_mode
+                if (mode & S_IFMT) == S_IFLNK || (mode & S_IFMT) != S_IFDIR {
+                    throw PrivilegedPathError.unsafeComponent(current)
+                }
+            } else {
+                guard mkdir(current, mode_t(0o755)) == 0 else {
+                    throw PrivilegedPathError.ioFailed(current)
+                }
+                _ = chown(current, 0, 0)
+                _ = chmod(current, mode_t(0o755))
+            }
+        }
+        try assertSafeRootPath(path, requireRegularFile: false)
+    }
+
+    private func writeSecureFile(_ data: Data, to path: String, mode: mode_t) throws {
+        var st = stat()
+        if lstat(path, &st) == 0 {
+            unlink(path)
+        }
+        let fd = open(path, O_CREAT | O_WRONLY | O_TRUNC | O_NOFOLLOW | O_EXCL, mode)
+        guard fd >= 0 else { throw PrivilegedPathError.ioFailed(path) }
+
+        var ok = true
+        data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
+            guard let base = raw.baseAddress else { ok = raw.count == 0; return }
+            var total = 0
+            while total < raw.count {
+                let n = write(fd, base + total, raw.count - total)
+                if n <= 0 { ok = false; break }
+                total += n
+            }
+        }
+        _ = fchown(fd, 0, 0)
+        _ = fchmod(fd, mode)
+        close(fd)
+
+        guard ok else {
+            unlink(path)
+            throw PrivilegedPathError.ioFailed(path)
+        }
+    }
+
+    private func ensureSecureFile(_ path: String) throws {
+        let dir = (path as NSString).deletingLastPathComponent
+        try ensureSecureDirectory(dir)
+
+        var st = stat()
+        if lstat(path, &st) == 0 {
+            let mode = st.st_mode
+            let unsafe = (mode & S_IFMT) != S_IFREG || st.st_uid != 0 || (mode & (S_IWGRP | S_IWOTH)) != 0
+            if unsafe {
+                unlink(path)
+            } else {
+                try assertSafeRootPath(path, requireRegularFile: true)
+                return
+            }
+        }
+
+        let fd = open(path, O_CREAT | O_WRONLY | O_NOFOLLOW | O_EXCL, mode_t(0o644))
+        guard fd >= 0 else { throw PrivilegedPathError.ioFailed(path) }
+        _ = fchown(fd, 0, 0)
+        _ = fchmod(fd, mode_t(0o644))
+        close(fd)
+
+        try assertSafeRootPath(path, requireRegularFile: true)
+    }
+
+    private func installManagedCore(source: String, expectedMD5: String) throws -> String {
+        let expected = expectedMD5.lowercased()
+        try ensureSecureDirectory(Self.managedCoreDir)
+        let dest = Self.managedCorePath
+
+        if (try? assertSafeRootPath(dest, requireRegularFile: true)) != nil {
+            if expected.isEmpty || Self.fileMD5(dest) == expected {
+                return dest
+            }
+        }
+
+        guard let data = FileManager.default.contents(atPath: source) else {
+            throw PrivilegedPathError.ioFailed(source)
+        }
+
+        let tmp = "\(Self.managedCoreDir)/.\(UUID().uuidString).tmp"
+        try writeSecureFile(data, to: tmp, mode: mode_t(0o755))
+
+        if !expected.isEmpty {
+            guard Self.fileMD5(tmp) == expected else {
+                unlink(tmp)
+                throw PrivilegedPathError.md5Mismatch
+            }
+        }
+
+        guard rename(tmp, dest) == 0 else {
+            unlink(tmp)
+            throw PrivilegedPathError.ioFailed(dest)
+        }
+
+        try assertSafeRootPath(dest, requireRegularFile: true)
+        return dest
+    }
+
+    private func installManagedConfig(source: String) throws -> String {
+        guard !source.isEmpty else { return "" }
+        guard let data = FileManager.default.contents(atPath: source) else {
+            throw PrivilegedPathError.ioFailed(source)
+        }
+        try ensureSecureDirectory(Self.managedRunDir)
+        let dest = Self.managedRunConfigPath
+        try writeSecureFile(data, to: dest, mode: mode_t(0o644))
+        try assertSafeRootPath(dest, requireRegularFile: true)
+        return dest
+    }
+
+    private static func fileMD5(_ path: String) -> String? {
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/sbin/md5")
+        proc.arguments = ["-q", path]
+        let pipe = Pipe()
+        proc.standardOutput = pipe
+        do {
+            try proc.run()
+        } catch {
+            return nil
+        }
+        proc.waitUntilExit()
+        guard proc.terminationStatus == 0,
+              let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) else {
+            return nil
+        }
+        return out.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
     private func readNewLines(from path: String, offset: UInt64) -> (lines: [String], newOffset: UInt64) {
