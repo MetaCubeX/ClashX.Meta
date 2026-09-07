@@ -38,14 +38,17 @@ class Logger {
     private(set) var sessionId = ""
     
     private let coreLog = DDLog()
-    private var cleanupLogTask: Task<Void, Never>?
+
+    var coreLogFolder: String {
+        (try? CoreLogMaintenance.sessionDirectory(sessionID: sessionId)) ?? CoreLogMaintenance.rootDirectory
+    }
 
     var coreLogPath: String {
-        "\(logFolder())/\(kCoreLogName)"
+        "\(coreLogFolder)/\(kCoreLogName)"
     }
 
     var coreCrashLogPath: String {
-        "\(logFolder())/\(kCoreCrashLogName)"
+        "\(coreLogFolder)/\(kCoreCrashLogName)"
     }
 
     private init() {
@@ -76,8 +79,6 @@ class Logger {
         coreLog.removeAllLoggers()
         coreLog.add(newCoreLogger)
         coreFileLogger = newCoreLogger
-        
-        startCleanup()
     }
 
     private func logToLog(_ ddlog: DDLog, msg: String, level: ClashLogLevel) {
@@ -122,9 +123,6 @@ class Logger {
 
         configure(logDirectory: logsDir, sessionId: sessionId)
 
-        FileManager.default.createFile(atPath: coreLogPath, contents: nil)
-        FileManager.default.createFile(atPath: coreCrashLogPath, contents: nil)
-
         cleanupLogDirectories()
     }
     
@@ -142,16 +140,6 @@ class Logger {
 
         for name in sorted[maxCount...] {
             try? FileManager.default.removeItem(atPath: "\(logsRoot)\(name)")
-        }
-    }
-    
-    
-    func startCleanup() {
-        cleanupLogTask = Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(seconds: 5 * 60)
-                try? FileHandle(forWritingTo: URL(fileURLWithPath: coreLogPath)).truncate(atOffset: 0)
-            }
         }
     }
 }

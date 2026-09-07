@@ -9,7 +9,6 @@
 import Cocoa
 import RxCocoa
 import RxSwift
-import Sparkle
 import SwiftyJSON
 import Yams
 
@@ -51,7 +50,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var ruleProvidersMenuItem: NSMenuItem!
     @IBOutlet var snifferMenuItem: NSMenuItem!
     @IBOutlet var flushFakeipCacheMenuItem: NSMenuItem!
-    @IBOutlet var updaterController: SPUStandardUpdaterController?
 
     var disposeBag = DisposeBag()
     var statusItemView: StatusItemViewProtocol!
@@ -61,11 +59,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         Logger.log("applicationWillFinishLaunching")
-
-        #if DEBUG
-            updaterController?.updater.automaticallyChecksForUpdates = false
-            Logger.log("Sparkle auto checks disabled", level: .debug)
-        #endif
 
         signal(SIGPIPE, SIG_IGN)
         // crash recorder
@@ -563,6 +556,16 @@ extension AppDelegate {
         Task {
             ExitManager.shared.requestQuit(force: forceQuit)
         }
+    }
+
+    @IBAction func checkForUpdates(_ sender: Any?) {
+        // App updates stay local in this fork; never initialize an upstream updater.
+        let alert = NSAlert()
+        alert.messageText = NSLocalizedString("You're up to date!", comment: "Local app update status")
+        alert.informativeText = "ClashX Meta \(AppVersionUtil.currentVersion) (\(AppVersionUtil.currentBuild))"
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
+        alert.runModal()
     }
 
     @IBAction func actionMoreSetting(_ sender: Any) {

@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B28F905E07B541DB910FCF4B /* PrivilegedFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5497E8628B72415C870B5AD5 /* PrivilegedFileStore.swift */; };
+		FC2FC2588CE5462BA479FE73 /* PrivilegedFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5497E8628B72415C870B5AD5 /* PrivilegedFileStore.swift */; };
+		853F7D7E98824CB5947E482B /* TrustedCoreStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87546C6737D5409A950A2DF6 /* TrustedCoreStore.swift */; };
+		C8472D19345F4383AD6B84E3 /* TrustedCoreStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87546C6737D5409A950A2DF6 /* TrustedCoreStore.swift */; };
+		C5B80003C7294A97BF0BD2E7 /* CoreLogMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11FC62DED7147BF80DFE5CC /* CoreLogMaintenance.swift */; };
+		BC0C70D0D1F34A4986E49776 /* CoreLogMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11FC62DED7147BF80DFE5CC /* CoreLogMaintenance.swift */; };
+		6990A025699F45ADB5420399 /* TrustedAlphaRelease.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D583A7A9581423EB859A1C6 /* TrustedAlphaRelease.swift */; };
+		249D9924C8D848B4AAA9CBAB /* TrustedAlphaRelease.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D583A7A9581423EB859A1C6 /* TrustedAlphaRelease.swift */; };
+		71CF630BDAD3409B866899E3 /* BundledCoreTrust.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999496A2FCF94F1383C627D9 /* BundledCoreTrust.swift */; };
+		9F87750E04EB48338EFE66CD /* BundledCoreTrust.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999496A2FCF94F1383C627D9 /* BundledCoreTrust.swift */; };
 		0106179F2AF38EFA005C7877 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FEC6682AD9369C00BAD9F5 /* Command.swift */; };
 		01110D9F2FD51EF60015D815 /* meta-rules-dat in Resources */ = {isa = PBXBuildFile; fileRef = 01110D9D2FD51EF60015D815 /* meta-rules-dat */; };
 		01110DA02FD51EF60015D815 /* dashboard in Resources */ = {isa = PBXBuildFile; fileRef = 01110D9E2FD51EF60015D815 /* dashboard */; };
@@ -69,7 +79,6 @@
 		01BCDB1A2C9ECD010028FA94 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAE72C9ECD010028FA94 /* SidebarView.swift */; };
 		01BCDB1B2C9ECD010028FA94 /* SidebarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAE52C9ECD010028FA94 /* SidebarLabel.swift */; };
 		01BCDB1D2C9EE2CF0028FA94 /* ProgressButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDB1C2C9EE2CF0028FA94 /* ProgressButton.swift */; };
-		01BCDB212C9EEE260028FA94 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 01BCDB202C9EEE260028FA94 /* Sparkle */; };
 		01CA6BC12B6A1B3100E386D6 /* MetaServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */; };
 		01CA6BC22B6A1B3100E386D6 /* MetaServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */; };
 		01D567E62AD158B600CDA0AE /* MetaPrefsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D567E22AD158B500CDA0AE /* MetaPrefsViewController.swift */; };
@@ -222,6 +231,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5497E8628B72415C870B5AD5 /* PrivilegedFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedFileStore.swift; sourceTree = "<group>"; };
+		87546C6737D5409A950A2DF6 /* TrustedCoreStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustedCoreStore.swift; sourceTree = "<group>"; };
+		C11FC62DED7147BF80DFE5CC /* CoreLogMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreLogMaintenance.swift; sourceTree = "<group>"; };
+		5D583A7A9581423EB859A1C6 /* TrustedAlphaRelease.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustedAlphaRelease.swift; sourceTree = "<group>"; };
+		999496A2FCF94F1383C627D9 /* BundledCoreTrust.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledCoreTrust.swift; sourceTree = DERIVED_FILE_DIR; };
 		01110D9D2FD51EF60015D815 /* meta-rules-dat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "meta-rules-dat"; sourceTree = "<group>"; };
 		01110D9E2FD51EF60015D815 /* dashboard */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dashboard; sourceTree = "<group>"; };
 		0112DEA92F8B84E50019410B /* HTTPClientResponse+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPClientResponse+.swift"; sourceTree = "<group>"; };
@@ -405,7 +419,6 @@
 				01F336262AD10D0B0048AF77 /* Gzip in Frameworks */,
 				01F336272AD10D0B0048AF77 /* CocoaLumberjackSwift in Frameworks */,
 				01F3362A2AD10D0B0048AF77 /* KeyboardShortcuts in Frameworks */,
-				01BCDB212C9EEE260028FA94 /* Sparkle in Frameworks */,
 				013B21FB2F7E95E0009B30CB /* DGCharts in Frameworks */,
 				01F3362C2AD10D0B0048AF77 /* CocoaLumberjack in Frameworks */,
 				01F3362D2AD10D0B0048AF77 /* Yams in Frameworks */,
@@ -861,6 +874,11 @@
 				013B21FC2F7EC4F9009B30CB /* ProxyConfigHelperXPCTransport.swift */,
 				01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */,
 				0162E74E2864B819007218A6 /* MetaTask.swift */,
+				5497E8628B72415C870B5AD5 /* PrivilegedFileStore.swift */,
+				87546C6737D5409A950A2DF6 /* TrustedCoreStore.swift */,
+				C11FC62DED7147BF80DFE5CC /* CoreLogMaintenance.swift */,
+				5D583A7A9581423EB859A1C6 /* TrustedAlphaRelease.swift */,
+				999496A2FCF94F1383C627D9 /* BundledCoreTrust.swift */,
 				01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */,
 				01BC9ABD2928E5C600F9B177 /* MetaDNS.swift */,
 				F935B2F823083EE6009E4D33 /* ProxySettingTool.h */,
@@ -880,6 +898,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 01F336412AD10D0B0048AF77 /* Build configuration list for PBXNativeTarget "ClashX Meta" */;
 			buildPhases = (
+				F41DB9D2F47B44659824E92C /* Generate Core Trust */,
 				01F335CC2AD10D0B0048AF77 /* Sources */,
 				01F336232AD10D0B0048AF77 /* Frameworks */,
 				01F336312AD10D0B0048AF77 /* Resources */,
@@ -902,7 +921,6 @@
 				01F335C62AD10D0B0048AF77 /* Gzip */,
 				01F335C82AD10D0B0048AF77 /* Yams */,
 				01BCDAB22C9ECB560028FA94 /* SwiftUIIntrospect */,
-				01BCDB202C9EEE260028FA94 /* Sparkle */,
 				013B21FA2F7E95E0009B30CB /* DGCharts */,
 				013B220D2F88A219009B30CB /* AsyncHTTPClient */,
 				01E908FD2FEE787900C95A3A /* Subprocess */,
@@ -915,6 +933,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9A7C06D2306E874007163C7 /* Build configuration list for PBXNativeTarget "com.metacubex.ClashX.ProxyConfigHelper" */;
 			buildPhases = (
+				D0F1EC127EF348679A0C9C37 /* Generate Core Trust */,
 				F9A7C0652306E874007163C7 /* Sources */,
 				F9A7C0662306E874007163C7 /* Frameworks */,
 				F9A7C0672306E874007163C7 /* Copy Files */,
@@ -965,7 +984,6 @@
 				015B977E2A4F30EA00F9FA4D /* XCRemoteSwiftPackageReference "GzipSwift" */,
 				015B97812A4F311300F9FA4D /* XCRemoteSwiftPackageReference "Yams" */,
 				01BCDAB12C9ECB560028FA94 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
-				01BCDB1F2C9EEE260028FA94 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				013B21F92F7E95E0009B30CB /* XCRemoteSwiftPackageReference "Charts" */,
 				013B220C2F88A219009B30CB /* XCRemoteSwiftPackageReference "async-http-client" */,
 				01E908FA2FEE786F00C95A3A /* XCRemoteSwiftPackageReference "swift-subprocess" */,
@@ -1002,6 +1020,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F41DB9D2F47B44659824E92C /* Generate Core Trust */ = {
+            isa = PBXShellScriptBuildPhase;
+            buildActionMask = 2147483647;
+            files = ();
+            inputPaths = ("$(SRCROOT)/scripts/generate-core-trust.sh", "$(SRCROOT)/ClashX/Resources/com.metacubex.ClashX.ProxyConfigHelper.meta.gz");
+            name = "Generate Core Trust";
+            outputPaths = ("$(DERIVED_FILE_DIR)/BundledCoreTrust.swift");
+            runOnlyForDeploymentPostprocessing = 0;
+            shellPath = /bin/bash;
+            shellScript = "/bin/bash \"$SRCROOT/scripts/generate-core-trust.sh\" \"$SRCROOT/ClashX/Resources/com.metacubex.ClashX.ProxyConfigHelper.meta.gz\" \"$DERIVED_FILE_DIR/BundledCoreTrust.swift\"\n";
+        };
+		D0F1EC127EF348679A0C9C37 /* Generate Core Trust */ = {
+            isa = PBXShellScriptBuildPhase;
+            buildActionMask = 2147483647;
+            files = ();
+            inputPaths = ("$(SRCROOT)/scripts/generate-core-trust.sh", "$(SRCROOT)/ClashX/Resources/com.metacubex.ClashX.ProxyConfigHelper.meta.gz");
+            name = "Generate Core Trust";
+            outputPaths = ("$(DERIVED_FILE_DIR)/BundledCoreTrust.swift");
+            runOnlyForDeploymentPostprocessing = 0;
+            shellPath = /bin/bash;
+            shellScript = "/bin/bash \"$SRCROOT/scripts/generate-core-trust.sh\" \"$SRCROOT/ClashX/Resources/com.metacubex.ClashX.ProxyConfigHelper.meta.gz\" \"$DERIVED_FILE_DIR/BundledCoreTrust.swift\"\n";
+        };
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		01F335CC2AD10D0B0048AF77 /* Sources */ = {
@@ -1076,6 +1119,11 @@
 				01F336032AD10D0B0048AF77 /* ProxyGroupMenu.swift in Sources */,
 				01F336042AD10D0B0048AF77 /* MenuItemFactory.swift in Sources */,
 				01F336052AD10D0B0048AF77 /* MetaTask.swift in Sources */,
+				B28F905E07B541DB910FCF4B /* PrivilegedFileStore.swift in Sources */,
+				853F7D7E98824CB5947E482B /* TrustedCoreStore.swift in Sources */,
+				C5B80003C7294A97BF0BD2E7 /* CoreLogMaintenance.swift in Sources */,
+				6990A025699F45ADB5420399 /* TrustedAlphaRelease.swift in Sources */,
+				71CF630BDAD3409B866899E3 /* BundledCoreTrust.swift in Sources */,
 				01BCDB1D2C9EE2CF0028FA94 /* ProgressButton.swift in Sources */,
 				01F336072AD10D0B0048AF77 /* RemoteConfigModel.swift in Sources */,
 				01F336082AD10D0B0048AF77 /* ProxyGroupMenuItemView.swift in Sources */,
@@ -1155,6 +1203,11 @@
 			files = (
 				01EF33622B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */,
 				0162E74F2864B819007218A6 /* MetaTask.swift in Sources */,
+				FC2FC2588CE5462BA479FE73 /* PrivilegedFileStore.swift in Sources */,
+				C8472D19345F4383AD6B84E3 /* TrustedCoreStore.swift in Sources */,
+				BC0C70D0D1F34A4986E49776 /* CoreLogMaintenance.swift in Sources */,
+				249D9924C8D848B4AAA9CBAB /* TrustedAlphaRelease.swift in Sources */,
+				9F87750E04EB48338EFE66CD /* BundledCoreTrust.swift in Sources */,
 				01EF33602B98D03B00D1DBD9 /* ProxyConfigHelper.swift in Sources */,
 				019A239628657A7A00AE5698 /* main.swift in Sources */,
 				013B21FF2F7FB18A009B30CB /* Task+Sleep.swift in Sources */,
@@ -1622,14 +1675,6 @@
 				minimumVersion = 26.0.0;
 			};
 		};
-		01BCDB1F2C9EEE260028FA94 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.4;
-			};
-		};
 		01E908FA2FEE786F00C95A3A /* XCRemoteSwiftPackageReference "swift-subprocess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/swiftlang/swift-subprocess";
@@ -1719,11 +1764,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 01BCDAB12C9ECB560028FA94 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = SwiftUIIntrospect;
-		};
-		01BCDB202C9EEE260028FA94 /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 01BCDB1F2C9EEE260028FA94 /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
 		};
 		01E908FB2FEE786F00C95A3A /* Subprocess */ = {
 			isa = XCSwiftPackageProductDependency;

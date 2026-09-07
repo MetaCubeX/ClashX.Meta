@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import CryptoKit
 import Subprocess
 
 @MainActor
@@ -32,7 +33,7 @@ actor ClashProcess {
 		case stopped, checkingLaunchPath, checkingHelper, preparingConfig, starting, running
 	}
 
-	static let metaCoreMd5 = "WOSHIZIDONGSHENGCHENGDEA"
+	static let metaCoreSHA256 = BundledCoreTrust.sha256
 	private static let metaProcessLabel = "com.metacubex.ClashX.ProxyConfigHelper.meta"
 
 	struct MetaLaunchdStatus {
@@ -103,12 +104,12 @@ actor ClashProcess {
 			return cachedLaunchPath
 		}
 
-		let launchPath = Self.resolveLaunchPath(md5: Self.metaCoreMd5)
+		let launchPath = Self.resolveLaunchPath(sha256: Self.metaCoreSHA256)
 		cachedLaunchPath = launchPath
 		return launchPath
 	}
 
-	private static func resolveLaunchPath(md5: String) -> (path: String?, err: String?) {
+	private static func resolveLaunchPath(sha256: String) -> (path: String?, err: String?) {
 		Logger.log("Get launchPath")
 		
 		guard let alphaCorePath = Paths.alphaCorePath(),
@@ -117,9 +118,10 @@ actor ClashProcess {
 		}
 		
 		if ConfigManager.useAlphaCore {
-			if let _ = verifyCoreFile(alphaCorePath.path) {
+			if (try? TrustedCoreStore.alpha()) != nil {
 				return (alphaCorePath.path, nil)
 			}
+            Logger.log("No verified Alpha core is installed. Using the bundled core; download Alpha again in Settings to migrate the previous installation.", level: .warning)
 		}
 		
 		let fm = FileManager.default
@@ -129,19 +131,15 @@ actor ClashProcess {
 			if let msg = unzipMetaCore() {
 				return (nil, msg)
 			}
-		} else if !validateDefaultCore(md5) {
+		} else if !validateDefaultCore(sha256) {
 			try? fm.removeItem(at: corePath)
 			if let msg = unzipMetaCore() {
 				return (nil, msg)
 			}
 		}
 		
-		if let msg = verifyCoreFile(corePath.path) {
-			Logger.log("version: \(msg.version)")
-		}
-		
-		// validate md5
-		if validateDefaultCore(md5) {
+		// Validate the bundled executable against the digest compiled at build time.
+		if validateDefaultCore(sha256) {
 			return (corePath.path, nil)
 		} else {
 			Logger.log("Failure to verify the internal Meta Core.")
@@ -325,16 +323,19 @@ actor ClashProcess {
 			sessionId: Logger.shared.sessionId
 		).jsonString()
 
-		let coreMD5 = Self.fileMD5(launchPath) ?? ""
+		guard let configData = config.encodedData else {
+            throw StartMetaError.startMetaFailed("Unable to encode the initial configuration.")
+        }
+        let core: ProxyConfigHelperCore = launchPath.hasPrefix(TrustedCoreStore.alphaDirectory + "/") ? .alpha : .bundled
 
 		let response: String?
 		do {
 			response = try await PrivilegedHelperManager.shared.request(
 				ProxyConfigHelperMessages.StartMeta(path: launchPath,
+                                                   core: core,
 				                                   confPath: kConfigFolderPath,
-				                                   confFilePath: config.path,
-				                                   confJSON: confJSON,
-				                                   coreMD5: coreMD5)
+				                                   configData: configData,
+				                                   confJSON: confJSON)
 			)
 		} catch {
 			Logger.log("helperNotFound, startMeta failed", level: .error)
@@ -404,100 +405,13 @@ actor ClashProcess {
 		}
 	}
 
-	static func verifyCoreFile(_ path: String) -> (version: String, date: Date?)? {
-		guard chmodX(path) else { return nil }
-
-		let proc = Process()
-		proc.executableURL = .init(fileURLWithPath: path)
-		proc.arguments = ["-v"]
-		let pipe = Pipe()
-		proc.standardOutput = pipe
-		do {
-			try proc.run()
-		} catch let error {
-			Logger.log(error.localizedDescription)
-			return nil
-		}
-		proc.waitUntilExit()
-		let data = pipe.fileHandleForReading.readDataToEndOfFile()
-
-		guard proc.terminationStatus == 0,
-			  let out = String(data: data, encoding: .utf8) else {
-			return nil
-		}
-
-		Logger.log("verify core path: \(path)")
-		Logger.log("-v out: \(out)")
-		
-		let outs = out
-			.split(separator: "\n")
-			.first {
-				$0.starts(with: "Clash Meta") || $0.starts(with: "Mihomo Meta")
-			}?.split(separator: " ")
-			.map(String.init)
-
-		guard let outs,
-			  outs.count == 13,
-			  (outs[0] == "Clash" || outs[0] == "Mihomo"),
-			  outs[1] == "Meta",
-			  outs[3] == "darwin" else {
-			return nil
-		}
-
-		let version = outs[2]
-
-		let dateString = [outs[7], outs[8], outs[9], outs[10], outs[12]].joined(separator: "-")
-		let f = DateFormatter()
-		f.dateFormat = "E-MMM-d-HH:mm:ss-yyyy"
-		f.timeZone = .init(abbreviation: outs[11])
-		let date = f.date(from: dateString)
-
-		return (version: version, date: date)
-	}
-
-	private static func validateDefaultCore(_ md5: String) -> Bool {
-		guard let path = Paths.defaultCorePath()?.path,
-			  chmodX(path) else { return false }
-
-		#if DEBUG
-			return true
-		#endif
-		let proc = Process()
-		proc.executableURL = .init(fileURLWithPath: "/sbin/md5")
-		proc.arguments = ["-q", path]
-		let pipe = Pipe()
-		proc.standardOutput = pipe
-
-		try? proc.run()
-		proc.waitUntilExit()
-		let data = pipe.fileHandleForReading.readDataToEndOfFile()
-		guard proc.terminationStatus == 0,
-			  let out = String(data: data, encoding: .utf8) else {
-			return false
-		}
-
-		return md5 == out.replacingOccurrences(of: "\n", with: "")
-	}
-
-	private static func fileMD5(_ path: String) -> String? {
-		let proc = Process()
-		proc.executableURL = .init(fileURLWithPath: "/sbin/md5")
-		proc.arguments = ["-q", path]
-		let pipe = Pipe()
-		proc.standardOutput = pipe
-		do {
-			try proc.run()
-		} catch {
-			Logger.log("md5 failed. \(error.localizedDescription)", level: .error)
-			return nil
-		}
-		proc.waitUntilExit()
-		guard proc.terminationStatus == 0,
-			  let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) else {
-			return nil
-		}
-		return out.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-	}
+    private static func validateDefaultCore(_ expectedSHA256: String) -> Bool {
+        guard PrivilegedDirectory.isSHA256(expectedSHA256),
+              let path = Paths.defaultCorePath()?.path,
+              let data = try? PrivilegedDirectory.readSource(path, limit: TrustedCoreStore.maximumCoreSize),
+              PrivilegedDirectory.sha256(data) == expectedSHA256 else { return false }
+        return chmodX(path)
+    }
 
 	private static func chmodX(_ path: String) -> Bool {
 		let proc = Process()
@@ -515,9 +429,9 @@ actor ClashProcess {
 	
 // MARK: verify config file
 	
-	static func verify(_ confPath: String, confFilePath: String, md5: String = ClashProcess.metaCoreMd5) -> String? {
+	static func verify(_ confPath: String, confFilePath: String, sha256: String = ClashProcess.metaCoreSHA256) -> String? {
 		do {
-			guard let path = resolveLaunchPath(md5: md5).path else { return nil }
+			guard let path = resolveLaunchPath(sha256: sha256).path else { return nil }
 			
 			let proc = Process()
 			proc.executableURL = .init(fileURLWithPath: path)

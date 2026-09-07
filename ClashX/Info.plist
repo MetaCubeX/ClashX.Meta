@@ -128,11 +128,5 @@
 		<key>com.west2online.ClashX.ProxyConfigHelper</key>
 		<string>anchor apple generic and identifier &quot;com.metacubex.ClashX.ProxyConfigHelper&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = MEWHFZ92DY)</string>
 	</dict>
-	<key>SUDisallowSelectChannel</key>
-	<false/>
-	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/MetaCubeX/clashX.meta/refs/heads/sparkle/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>Jhu0RI5Vp02om6JhxYnFewD82GCV8v7U05toMFXb+7U=</string>
 </dict>
 </plist>
