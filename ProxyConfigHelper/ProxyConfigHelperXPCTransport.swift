@@ -36,6 +36,23 @@ enum ProxyConfigHelperXPCError: LocalizedError, Sendable {
 
 struct ProxyConfigHelperExplicitSuccess: Codable, Sendable {}
 
+struct ProxyConfigHelperCapabilities: Codable, Sendable {
+    let protocolVersion: Int
+    let helperVersion: String
+    let helperBuild: String
+    let capabilities: [String]
+}
+
+enum ProxyConfigHelperCore: String, Codable, Sendable {
+    case bundled
+    case alpha
+}
+
+struct ProxyConfigHelperAlphaInfo: Codable, Sendable {
+    let version: String
+    let path: String
+}
+
 struct ProxyConfigHelperPropertyList: Codable, Sendable {
 	let data: Data
 
@@ -128,18 +145,34 @@ enum ProxyConfigHelperMessages {
 		typealias Response = String
 	}
 
+    struct GetCapabilities: ProxyConfigHelperXPCMessage {
+        static let kind = "getCapabilities"
+        typealias Response = ProxyConfigHelperCapabilities
+    }
+
+    struct GetAlphaInfo: ProxyConfigHelperXPCMessage {
+        static let kind = "getAlphaInfo"
+        typealias Response = ProxyConfigHelperAlphaInfo?
+    }
+
+    struct UpdateAlphaCore: ProxyConfigHelperXPCMessage {
+        static let kind = "updateAlphaCore"
+        typealias Response = ProxyConfigHelperAlphaInfo
+    }
+
 	struct GetUsedPorts: ProxyConfigHelperXPCMessage {
 		static let kind = "getUsedPorts"
 		typealias Response = String?
 	}
 
 	struct StartMeta: ProxyConfigHelperXPCMessage {
-		static let kind = "startMeta"
+		static let kind = "startMetaV2"
 		typealias Response = String?
 
 		let path: String
+		let core: ProxyConfigHelperCore
 		let confPath: String
-		let confFilePath: String
+		let configData: Data
 		let confJSON: String
 	}
 

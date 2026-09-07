@@ -7,6 +7,7 @@
 
 import Cocoa
 import os.log
+import Security
 
 class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	private typealias RequestHandler = @Sendable (ProxyConfigHelperRequestEnvelope) async throws -> Data
@@ -30,6 +31,9 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	private var connections = [NSXPCConnection]()
 	private var shouldQuitCheckInterval = 2.0
 	private var shouldQuit = false
+    private var coreOperationInProgress = false
+    private var maintainingCore = false
+    private var alphaUpdateTask: Task<TrustedAlphaPayload, Error>?
 	private lazy var requestHandlers = makeRequestHandlers()
 	
 	private let metaTask = MetaTask()
@@ -45,7 +49,7 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	func run() {
 		listener.resume()
 		os_log("ProxyConfigHelper running")
-		while !shouldQuit {
+		while !shouldQuit || coreOperationInProgress || maintainingCore {
 			RunLoop.current.run(until: Date(timeIntervalSinceNow: shouldQuitCheckInterval))
 		 }
 	}
@@ -55,7 +59,8 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	
 	func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		
-		guard isValid(connection: newConnection) else {
+		guard Self.authorize(connection: newConnection) else {
+			os_log("ProxyConfigHelper rejected an unauthorized XPC connection", type: .error)
 			return false
 		}
 		
@@ -72,19 +77,75 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 		}
 		
 		connections.append(newConnection)
+		shouldQuit = false
 		newConnection.resume()
 		
 		return true
 	}
 	
-	private func isValid(connection: NSXPCConnection) -> Bool {
-		guard let app = NSRunningApplication(processIdentifier: connection.processIdentifier),
-			  let bundleIdentifier = app.bundleIdentifier,
-			  bundleIdentifier == "com.metacubex.ClashX.meta"
-		else {
-			return false
+	private static let clientBundleIdentifier = "com.metacubex.ClashX.meta"
+
+	private static func authorize(connection: NSXPCConnection) -> Bool {
+		let requirement = clientCodeSigningRequirement()
+
+		if #available(macOS 13.0, *) {
+			connection.setCodeSigningRequirement(requirement)
+			return true
 		}
-		return true
+
+		return validateByAuditToken(connection, requirement: requirement)
+	}
+
+	private static func clientCodeSigningRequirement() -> String {
+		if let team = ownTeamIdentifier(), !team.isEmpty {
+			return "anchor apple generic and identifier \"\(clientBundleIdentifier)\" and certificate leaf[subject.OU] = \"\(team)\""
+		}
+		os_log("ProxyConfigHelper is not Team-ID signed; using a best-effort client requirement. Sign the app for full protection.", type: .error)
+		return "identifier \"\(clientBundleIdentifier)\""
+	}
+
+	private static func ownTeamIdentifier() -> String? {
+		var codeRef: SecCode?
+		guard SecCodeCopySelf([], &codeRef) == errSecSuccess, let codeRef else { return nil }
+
+		var staticRef: SecStaticCode?
+		guard SecCodeCopyStaticCode(codeRef, [], &staticRef) == errSecSuccess, let staticRef else { return nil }
+
+		var infoRef: CFDictionary?
+		let flags = SecCSFlags(rawValue: UInt32(kSecCSSigningInformation))
+		guard SecCodeCopySigningInformation(staticRef, flags, &infoRef) == errSecSuccess,
+			  let info = infoRef as? [String: Any] else { return nil }
+
+		return info[kSecCodeInfoTeamIdentifier as String] as? String
+	}
+
+	private static func validateByAuditToken(_ connection: NSXPCConnection, requirement: String) -> Bool {
+		guard var token = auditToken(of: connection) else { return false }
+
+		let tokenData = Data(bytes: &token, count: MemoryLayout<audit_token_t>.size)
+		var codeRef: SecCode?
+		let attributes = [kSecGuestAttributeAudit as String: tokenData] as CFDictionary
+		guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &codeRef) == errSecSuccess,
+			  let codeRef else { return false }
+
+		var requirementRef: SecRequirement?
+		guard SecRequirementCreateWithString(requirement as CFString, [], &requirementRef) == errSecSuccess,
+			  let requirementRef else { return false }
+
+		return SecCodeCheckValidity(codeRef, [], requirementRef) == errSecSuccess
+	}
+
+	private static func auditToken(of connection: NSXPCConnection) -> audit_token_t? {
+		let selector = NSSelectorFromString("auditToken")
+		guard connection.responds(to: selector),
+			  let value = connection.value(forKey: "auditToken") as? NSValue else { return nil }
+
+		var token = audit_token_t()
+		withUnsafeMutableBytes(of: &token) { buffer in
+			guard let base = buffer.baseAddress else { return }
+			value.getValue(base, size: buffer.count)
+		}
+		return token
 	}
 	
 }
@@ -112,21 +173,31 @@ private extension ProxyConfigHelper {
             await helperVersion()
 		}
 
+        store.register(ProxyConfigHelperMessages.GetCapabilities.self) { [unowned self] _ in
+            await helperCapabilities()
+        }
+        store.register(ProxyConfigHelperMessages.GetAlphaInfo.self) { [unowned self] _ in
+            await installedAlpha()
+        }
+        store.register(ProxyConfigHelperMessages.UpdateAlphaCore.self) { [unowned self] _ in
+            try await updateAlpha()
+        }
+
 		store.register(ProxyConfigHelperMessages.GetUsedPorts.self) { [unowned self] _ in
 			await getUsedPorts()
 		}
 
 		store.register(ProxyConfigHelperMessages.StartMeta.self) { [unowned self] message in
-			await startMeta(message)
+			try await startMeta(message)
 		}
 
 		store.register(ProxyConfigHelperMessages.StopMeta.self) { [unowned self] _ in
-			await stopMeta()
+			try await stopMeta()
 			return ProxyConfigHelperExplicitSuccess()
 		}
 
 		store.register(ProxyConfigHelperMessages.TerminateExistingMeta.self) { [unowned self] _ in
-			return await terminateExistingMeta()
+			return try await terminateExistingMeta()
 		}
 
 		store.register(ProxyConfigHelperMessages.UpdateTun.self) { [unowned self] message in
@@ -159,6 +230,7 @@ private extension ProxyConfigHelper {
 	}
 
 	func handleRequest(_ data: Data) async throws -> Data {
+		guard data.count <= 8 * 1024 * 1024 else { throw ProxyConfigHelperXPCError.invalidRequestEnvelope }
 		let envelope = try ProxyConfigHelperXPCCodec.decodeRequestEnvelope(from: data)
 		guard let handler = requestHandlers[envelope.kind] else {
 			throw ProxyConfigHelperXPCError.unexpectedMessage(envelope.kind)
@@ -170,6 +242,45 @@ private extension ProxyConfigHelper {
 	func helperVersion() -> String {
 		Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
 	}
+
+    @MainActor
+    func helperCapabilities() -> ProxyConfigHelperCapabilities {
+        ProxyConfigHelperCapabilities(protocolVersion: 2, helperVersion: helperVersion(),
+            helperBuild: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown",
+            capabilities: ["trusted-core-sha256", "private-run-config", "managed-core-logs"])
+    }
+
+    @MainActor
+    func installedAlpha() -> ProxyConfigHelperAlphaInfo? {
+        guard !coreOperationInProgress, let installed = try? TrustedCoreStore.alpha() else { return nil }
+        return ProxyConfigHelperAlphaInfo(version: installed.receipt.version, path: installed.path)
+    }
+
+    private enum CoreOperationError: LocalizedError {
+        case busy
+        var errorDescription: String? { "Another core operation is in progress. Try again when it finishes." }
+    }
+
+    @MainActor
+    func updateAlpha() async throws -> ProxyConfigHelperAlphaInfo {
+        guard !coreOperationInProgress else { throw CoreOperationError.busy }
+        coreOperationInProgress = true
+        let download = Task { try await TrustedAlphaRelease.fetch() }
+        alphaUpdateTask = download
+        defer { alphaUpdateTask = nil; coreOperationInProgress = false }
+        let payload = try await download.value
+        guard !download.isCancelled else { throw CancellationError() }
+        let installed = try TrustedCoreStore.installAlpha(payload)
+        return ProxyConfigHelperAlphaInfo(version: installed.version, path: try TrustedCoreStore.alphaInfo().path)
+    }
+
+    @MainActor
+    func waitForCoreOperation() async throws {
+        while coreOperationInProgress {
+            alphaUpdateTask?.cancel()
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
+    }
 
 	@MainActor
 	func enableProxy(_ message: ProxyConfigHelperMessages.EnableProxy) -> String? {
@@ -207,28 +318,43 @@ private extension ProxyConfigHelper {
 	}
 
 	@MainActor
-    func startMeta(_ message: ProxyConfigHelperMessages.StartMeta) async -> String? {
-        if await terminateExistingMeta() {
+    func startMeta(_ message: ProxyConfigHelperMessages.StartMeta) async throws -> String? {
+        guard !coreOperationInProgress else { throw CoreOperationError.busy }
+        coreOperationInProgress = true
+        defer { coreOperationInProgress = false }
+        if await metaTask.terminateExistingMeta() {
             try? await Task.sleep(seconds: 1)
         }
         var result: String?
         for await value in metaTask.start(message.path,
                                           confPath: message.confPath,
-                                          confFilePath: message.confFilePath,
-                                          confJSON: message.confJSON) {
+                                          configData: message.configData,
+                                          confJSON: message.confJSON,
+                                          core: message.core) {
             result = value
         }
+        maintainingCore = result.flatMap { $0.data(using: .utf8) }.flatMap { try? JSONDecoder().decode(MetaServer.self, from: $0) } != nil
+        if !maintainingCore { await metaTask.stop() }
         return result
 	}
 
 	@MainActor
-	func stopMeta() async {
-		await metaTask.stop()
+	func stopMeta() async throws {
+        try await waitForCoreOperation()
+        coreOperationInProgress = true
+        defer { coreOperationInProgress = false }
+        await metaTask.stop()
+        maintainingCore = false
 	}
 
 	@MainActor
-	func terminateExistingMeta() async -> Bool {
-		return await metaTask.terminateExistingMeta()
+	func terminateExistingMeta() async throws -> Bool {
+        try await waitForCoreOperation()
+        coreOperationInProgress = true
+        defer { coreOperationInProgress = false }
+        let result = await metaTask.terminateExistingMeta()
+        maintainingCore = false
+        return result
 	}
 
 	@MainActor
