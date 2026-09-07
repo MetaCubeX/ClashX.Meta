@@ -10,7 +10,7 @@ import Darwin
 
 private actor StartState {
     var finished = false
-    var logs = [String]()
+    private var logs = ""
 
     func markFinished() -> Bool {
         guard !finished else { return false }
@@ -21,53 +21,32 @@ private actor StartState {
     var isFinished: Bool { finished }
 
     func appendLogs(_ items: [String]) {
-        logs.append(contentsOf: items)
+        logs += items.joined(separator: "\n") + "\n"
+        if logs.count > 65_536 { logs = String(logs.suffix(65_536)) }
     }
 
     func logsString() -> String {
-        logs.joined(separator: "\n")
+        logs
     }
 }
 
 class MetaTask: NSObject {
     private enum StartError: LocalizedError {
         case invalidConfig
+        case launchFailed
 
         var errorDescription: String? {
             switch self {
             case .invalidConfig:
                 return "Can't decode config file."
+            case .launchFailed:
+                return "launchd could not load or start the verified core."
             }
         }
     }
 
-    private enum PrivilegedPathError: LocalizedError {
-        case unsafeComponent(String)
-        case notRegularFile(String)
-        case md5Mismatch
-        case ioFailed(String)
-
-        var errorDescription: String? {
-            switch self {
-            case let .unsafeComponent(path):
-                return "Refusing to use an unsafe (non root-owned, group/other-writable, or symlinked) path: \(path)"
-            case let .notRegularFile(path):
-                return "Refusing to use a path that is not a regular file: \(path)"
-            case .md5Mismatch:
-                return "Core binary integrity check (MD5) failed."
-            case let .ioFailed(path):
-                return "Failed to create or write a root-owned path: \(path)"
-            }
-        }
-    }
-
-    private static let coreFileName = "com.metacubex.ClashX.ProxyConfigHelper.meta"
-    private static let managedRootDir = "/Library/Application Support/com.metacubex.ClashX.meta"
-    private static var managedCoreDir: String { "\(managedRootDir)/Core" }
-    private static var managedCorePath: String { "\(managedCoreDir)/\(coreFileName)" }
-    private static var managedRunDir: String { "\(managedRootDir)/Run" }
-    private static var managedRunConfigPath: String { "\(managedRunDir)/run_config.yaml" }
-    private static let coreLogRootDir = "/Library/Logs/com.metacubex.ClashX.meta"
+    private static let managedRunDir = TrustedCoreStore.runDirectory
+    private let logMaintenance = CoreLogMaintenance()
 
     struct MetaCurl: Decodable {
         let hello: String
@@ -83,14 +62,11 @@ class MetaTask: NSObject {
     private var serverResult: MetaServer?
 
     private func safeSessionId() -> String {
-        let raw = serverResult?.sessionId ?? ""
-        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
-        let filtered = String(raw.filter { allowed.contains($0) })
-        return filtered.isEmpty ? "session" : filtered
+        serverResult?.sessionId ?? ""
     }
 
     private func coreLogDir() -> String {
-        "\(Self.coreLogRootDir)/\(safeSessionId())"
+        "\(CoreLogMaintenance.rootDirectory)/\(safeSessionId())"
     }
 
     private func stdoutLogPath() -> String {
@@ -105,9 +81,9 @@ class MetaTask: NSObject {
 
     func start(_ path: String,
                confPath: String,
-               confFilePath: String,
+               configData: Data,
                confJSON: String,
-               coreMD5: String) -> AsyncStream<String> {
+               core: ProxyConfigHelperCore) -> AsyncStream<String> {
         let state = StartState()
 
         return AsyncStream { continuation in
@@ -117,9 +93,9 @@ class MetaTask: NSObject {
                 do {
                     try await self?.startProcess(path,
                                                  confPath: confPath,
-                                                 confFilePath: confFilePath,
+                                                 configData: configData,
                                                  confJSON: confJSON,
-                                                 coreMD5: coreMD5,
+                                                 core: core,
                                                  state: state,
                                                  continuation: continuation)
                 } catch let error as StartError {
@@ -138,7 +114,8 @@ class MetaTask: NSObject {
     func stop() async {
         _ = try? await run(.name("launchctl"), arguments: ["stop", Self.label], output: .discarded)
         _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
-        try? FileManager.default.removeItem(atPath: Self.plistPath)
+        logMaintenance.stop()
+        try? PrivilegedDirectory.open(Self.plistDir).remove(Self.plistFileName)
     }
 
     @discardableResult
@@ -153,9 +130,10 @@ class MetaTask: NSObject {
         if isLoaded {
             _ = try? await run(.name("launchctl"), arguments: ["stop", Self.label], output: .discarded)
             _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
-            try? FileManager.default.removeItem(atPath: Self.plistPath)
+            try? PrivilegedDirectory.open(Self.plistDir).remove(Self.plistFileName)
         }
         _ = try? await run(.name("killall"), arguments: ["com.metacubex.ClashX.ProxyConfigHelper.meta"], output: .discarded)
+        logMaintenance.stop()
         return isLoaded
     }
 
@@ -179,24 +157,30 @@ class MetaTask: NSObject {
     }
 
     func testExternalController(_ server: MetaServer) async -> Bool {
-        var args = [server.externalController]
-        if server.secret != "" {
-            args.append(contentsOf: [
-                "--header",
-                "Authorization: Bearer \(server.secret)"
-            ])
-        }
-
-        guard let data: Data = try? await run(
-            .name("curl"),
-            arguments: Arguments(args),
-            output: .data(limit: 65536)
-        ).standardOutput,
-              let str = try? JSONDecoder().decode(MetaCurl.self, from: data),
-              (str.hello == "clash.meta" || str.hello == "mihomo") else {
-            return false
-        }
-        return true
+        guard let address = URLComponents(string: "http://" + server.externalController),
+              address.scheme == "http", address.host == "127.0.0.1",
+              let port = address.port, (1...65535).contains(port),
+              address.user == nil, address.password == nil,
+              address.path.isEmpty, address.query == nil, address.fragment == nil,
+              let url = address.url, server.secret.utf8.count <= 4096,
+              !server.secret.contains("\r"), !server.secret.contains("\n") else { return false }
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 2)
+        if !server.secret.isEmpty { request.setValue("Bearer " + server.secret, forHTTPHeaderField: "Authorization") }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.connectionProxyDictionary = [:]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        do {
+            let (bytes, response) = try await session.bytes(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return false }
+            var data = Data()
+            for try await byte in bytes {
+                guard data.count < 4096 else { return false }
+                data.append(byte)
+            }
+            let result = try JSONDecoder().decode(MetaCurl.self, from: data)
+            return result.hello == "clash.meta" || result.hello == "mihomo"
+        } catch { return false }
     }
 
     func formatMsg(_ msg: String) -> String {
@@ -226,9 +210,9 @@ class MetaTask: NSObject {
 
     private func startProcess(_ path: String,
                               confPath: String,
-                              confFilePath: String,
+                              configData: Data,
                               confJSON: String,
-                              coreMD5: String,
+                              core: ProxyConfigHelperCore,
                               state: StartState,
                               continuation: AsyncStream<String>.Continuation) async throws {
 
@@ -244,11 +228,20 @@ class MetaTask: NSObject {
             return result.jsonString()
         }
 
-        let corePath = try installManagedCore(source: path, expectedMD5: coreMD5)
-        let safeConfFilePath = try installManagedConfig(source: confFilePath)
-        try ensureSecureDirectory(Self.managedRunDir)
-        try ensureSecureFile(stdoutLogPath())
-        try ensureSecureFile(stderrLogPath())
+        guard confPath.hasPrefix("/"), !confPath.utf8.contains(0), confPath.utf8.count <= 4096 else {
+            throw PrivilegedFileError.unsafePath(confPath)
+        }
+        let sessionDirectory = try CoreLogMaintenance.sessionDirectory(sessionID: result.sessionId)
+        let corePath: String
+        switch core {
+        case .bundled: corePath = try TrustedCoreStore.bundled(source: path)
+        case .alpha: corePath = try TrustedCoreStore.alpha().path
+        }
+        let safeConfFilePath = try TrustedCoreStore.writeConfig(configData)
+        let logDirectory = try PrivilegedDirectory.open(sessionDirectory, create: true)
+        try logDirectory.ensureLog(kCoreLogName)
+        try logDirectory.ensureLog(kCoreCrashLogName)
+        try logMaintenance.start(sessionID: result.sessionId)
 
         let logPath = stdoutLogPath()
 
@@ -256,8 +249,10 @@ class MetaTask: NSObject {
 
         _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
         do {
-            _ = try await run(.name("launchctl"), arguments: ["load", Self.plistPath], output: .discarded)
-            _ = try await run(.name("launchctl"), arguments: ["start", Self.label], output: .discarded)
+            let loaded = try await run(.path("/bin/launchctl"), arguments: ["load", Self.plistPath], output: .discarded)
+            guard loaded.terminationStatus.isSuccess else { throw StartError.launchFailed }
+            let started = try await run(.path("/bin/launchctl"), arguments: ["start", Self.label], output: .discarded)
+            guard started.terminationStatus.isSuccess else { throw StartError.launchFailed }
         } catch {
             guard await state.markFinished() else { return }
             continuation.yield("Start meta error: \(error.localizedDescription).")
@@ -323,7 +318,7 @@ class MetaTask: NSObject {
             try? await Task.sleep(seconds: 30)
             guard await state.markFinished() else { return }
             let logs = await state.logsString()
-            continuation.yield(encodeServerResult(with: logs))
+            continuation.yield("The core did not become ready within 30 seconds.\n" + logs)
             continuation.finish()
         }
 
@@ -351,184 +346,8 @@ class MetaTask: NSObject {
 
         let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
 
-        let fm = FileManager.default
-        try? fm.removeItem(atPath: Self.plistPath)
-        fm.createFile(atPath: Self.plistPath, contents: data)
-    }
-
-    private func assertSafeRootPath(_ path: String, requireRegularFile: Bool) throws {
-        guard path.hasPrefix("/") else { throw PrivilegedPathError.unsafeComponent(path) }
-        let parts = path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
-        guard !parts.contains(".."), !parts.contains(".") else {
-            throw PrivilegedPathError.unsafeComponent(path)
-        }
-
-        var current = ""
-        for (index, part) in parts.enumerated() {
-            current += "/" + part
-            var st = stat()
-            guard lstat(current, &st) == 0 else {
-                throw PrivilegedPathError.unsafeComponent(current)
-            }
-            let mode = st.st_mode
-            if (mode & S_IFMT) == S_IFLNK {
-                throw PrivilegedPathError.unsafeComponent(current)
-            }
-            if st.st_uid != 0 {
-                throw PrivilegedPathError.unsafeComponent(current)
-            }
-            if (mode & (S_IWGRP | S_IWOTH)) != 0 {
-                throw PrivilegedPathError.unsafeComponent(current)
-            }
-            if index == parts.count - 1, requireRegularFile, (mode & S_IFMT) != S_IFREG {
-                throw PrivilegedPathError.notRegularFile(current)
-            }
-        }
-    }
-
-    private func ensureSecureDirectory(_ path: String) throws {
-        guard path.hasPrefix("/") else { throw PrivilegedPathError.unsafeComponent(path) }
-        let parts = path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
-        guard !parts.contains(".."), !parts.contains(".") else {
-            throw PrivilegedPathError.unsafeComponent(path)
-        }
-
-        var current = ""
-        for part in parts {
-            current += "/" + part
-            var st = stat()
-            if lstat(current, &st) == 0 {
-                let mode = st.st_mode
-                if (mode & S_IFMT) == S_IFLNK || (mode & S_IFMT) != S_IFDIR {
-                    throw PrivilegedPathError.unsafeComponent(current)
-                }
-            } else {
-                guard mkdir(current, mode_t(0o755)) == 0 else {
-                    throw PrivilegedPathError.ioFailed(current)
-                }
-                _ = chown(current, 0, 0)
-                _ = chmod(current, mode_t(0o755))
-            }
-        }
-        try assertSafeRootPath(path, requireRegularFile: false)
-    }
-
-    private func writeSecureFile(_ data: Data, to path: String, mode: mode_t) throws {
-        var st = stat()
-        if lstat(path, &st) == 0 {
-            unlink(path)
-        }
-        let fd = open(path, O_CREAT | O_WRONLY | O_TRUNC | O_NOFOLLOW | O_EXCL, mode)
-        guard fd >= 0 else { throw PrivilegedPathError.ioFailed(path) }
-
-        var ok = true
-        data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
-            guard let base = raw.baseAddress else { ok = raw.count == 0; return }
-            var total = 0
-            while total < raw.count {
-                let n = write(fd, base + total, raw.count - total)
-                if n <= 0 { ok = false; break }
-                total += n
-            }
-        }
-        _ = fchown(fd, 0, 0)
-        _ = fchmod(fd, mode)
-        close(fd)
-
-        guard ok else {
-            unlink(path)
-            throw PrivilegedPathError.ioFailed(path)
-        }
-    }
-
-    private func ensureSecureFile(_ path: String) throws {
-        let dir = (path as NSString).deletingLastPathComponent
-        try ensureSecureDirectory(dir)
-
-        var st = stat()
-        if lstat(path, &st) == 0 {
-            let mode = st.st_mode
-            let unsafe = (mode & S_IFMT) != S_IFREG || st.st_uid != 0 || (mode & (S_IWGRP | S_IWOTH)) != 0
-            if unsafe {
-                unlink(path)
-            } else {
-                try assertSafeRootPath(path, requireRegularFile: true)
-                return
-            }
-        }
-
-        let fd = open(path, O_CREAT | O_WRONLY | O_NOFOLLOW | O_EXCL, mode_t(0o644))
-        guard fd >= 0 else { throw PrivilegedPathError.ioFailed(path) }
-        _ = fchown(fd, 0, 0)
-        _ = fchmod(fd, mode_t(0o644))
-        close(fd)
-
-        try assertSafeRootPath(path, requireRegularFile: true)
-    }
-
-    private func installManagedCore(source: String, expectedMD5: String) throws -> String {
-        let expected = expectedMD5.lowercased()
-        try ensureSecureDirectory(Self.managedCoreDir)
-        let dest = Self.managedCorePath
-
-        if (try? assertSafeRootPath(dest, requireRegularFile: true)) != nil {
-            if expected.isEmpty || Self.fileMD5(dest) == expected {
-                return dest
-            }
-        }
-
-        guard let data = FileManager.default.contents(atPath: source) else {
-            throw PrivilegedPathError.ioFailed(source)
-        }
-
-        let tmp = "\(Self.managedCoreDir)/.\(UUID().uuidString).tmp"
-        try writeSecureFile(data, to: tmp, mode: mode_t(0o755))
-
-        if !expected.isEmpty {
-            guard Self.fileMD5(tmp) == expected else {
-                unlink(tmp)
-                throw PrivilegedPathError.md5Mismatch
-            }
-        }
-
-        guard rename(tmp, dest) == 0 else {
-            unlink(tmp)
-            throw PrivilegedPathError.ioFailed(dest)
-        }
-
-        try assertSafeRootPath(dest, requireRegularFile: true)
-        return dest
-    }
-
-    private func installManagedConfig(source: String) throws -> String {
-        guard !source.isEmpty else { return "" }
-        guard let data = FileManager.default.contents(atPath: source) else {
-            throw PrivilegedPathError.ioFailed(source)
-        }
-        try ensureSecureDirectory(Self.managedRunDir)
-        let dest = Self.managedRunConfigPath
-        try writeSecureFile(data, to: dest, mode: mode_t(0o644))
-        try assertSafeRootPath(dest, requireRegularFile: true)
-        return dest
-    }
-
-    private static func fileMD5(_ path: String) -> String? {
-        let proc = Process()
-        proc.executableURL = URL(fileURLWithPath: "/sbin/md5")
-        proc.arguments = ["-q", path]
-        let pipe = Pipe()
-        proc.standardOutput = pipe
-        do {
-            try proc.run()
-        } catch {
-            return nil
-        }
-        proc.waitUntilExit()
-        guard proc.terminationStatus == 0,
-              let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) else {
-            return nil
-        }
-        return out.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let directory = try PrivilegedDirectory.open(Self.plistDir)
+        try directory.write(data, name: Self.plistFileName, mode: 0o644)
     }
 
     private func readNewLines(from path: String, offset: UInt64) -> (lines: [String], newOffset: UInt64) {

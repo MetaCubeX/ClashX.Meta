@@ -737,7 +737,6 @@
                         <outlet property="socksPortMenuItem" destination="Uy1-g8-r6Q" id="NiI-Gy-9Sa"/>
                         <outlet property="statusMenu" destination="Afa-lD-EbR" id="cov-E9-WrO"/>
                         <outlet property="tunModeMenuItem" destination="ZoW-Ax-rde" id="ep1-C4-irW"/>
-                        <outlet property="updaterController" destination="fth-rt-saN" id="gNy-Qw-U1z"/>
                     </connections>
                 </customObject>
                 <menu id="Afa-lD-EbR">
@@ -939,7 +938,7 @@
                                     <menuItem title="Check Update" id="p0T-J8-Emx">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                         <connections>
-                                            <action selector="checkForUpdates:" target="fth-rt-saN" id="lpG-w8-ucv"/>
+                                            <action selector="checkForUpdates:" target="Voe-Tx-rLC" id="lpG-w8-ucv"/>
                                         </connections>
                                     </menuItem>
                                     <menuItem title="Log level" id="3Da-fL-Mzr">
@@ -1029,7 +1028,6 @@
                     </items>
                 </menu>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-                <customObject id="fth-rt-saN" customClass="SPUStandardUpdaterController"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController representsSharedInstance="YES" id="dwS-am-r7H"/>
             </objects>

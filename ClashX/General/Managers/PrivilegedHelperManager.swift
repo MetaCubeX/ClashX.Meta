@@ -19,6 +19,7 @@ final class PrivilegedHelperManager {
         case remote(String)
         case codec(Error)
         case timedOut
+        case updateRequired
 
         var errorDescription: String? {
             switch self {
@@ -30,6 +31,8 @@ final class PrivilegedHelperManager {
                 return error.localizedDescription
             case .timedOut:
                 return "The privileged helper request timed out."
+            case .updateRequired:
+                return "The privileged helper must be updated before privileged operations can continue."
             }
         }
     }
@@ -54,6 +57,12 @@ final class PrivilegedHelperManager {
     private var connection: NSXPCConnection?
     private var _helper: ProxyConfigRemoteProcessProtocol?
     private let requestTimeout: TimeInterval = 15
+    private static let minimumHelperVersion = "1.25"
+    private static let minimumHelperBuild = 33
+    private static let requiredProtocolVersion = 2
+    private static let requiredCapabilities: Set<String> = [
+        "trusted-core-sha256", "private-run-config", "managed-core-logs"
+    ]
 
     static let machServiceName = "com.metacubex.ClashX.ProxyConfigHelper"
     static let shared = PrivilegedHelperManager()
@@ -62,33 +71,38 @@ final class PrivilegedHelperManager {
         case installed
         case noFound
         case needUpdate
+        case incompatible
     }
 
 	// MARK: Public API
 
     func request<Message: ProxyConfigHelperXPCMessage>(_ message: Message) async throws -> Message.Response {
-        try await performAsyncRequest(message)
+        try await performValidatedRequest(message)
     }
 
     func request<Message>(_ message: Message) async throws where Message: ProxyConfigHelperXPCMessage, Message.Response == ProxyConfigHelperExplicitSuccess {
-        _ = try await performAsyncRequest(message) as ProxyConfigHelperExplicitSuccess
+        _ = try await performValidatedRequest(message) as ProxyConfigHelperExplicitSuccess
     }
 
     @MainActor
     func checkInstall() async {
         Logger.log("checkInstall", level: .debug)
+        isHelperCheckFinishedRelay.accept(false)
+        cancelInstallCheck = false
         let status = await getHelperStatus()
         Logger.log("check result: \(status)", level: .debug)
 
         switch status {
         case .noFound:
-            await resolveRequiresApprovalIfNeeded()
+            guard await resolveRequiresApprovalIfNeeded() else { return }
             fallthrough
         case .needUpdate:
             Logger.log("need to install helper", level: .debug)
             await notifyInstall()
         case .installed:
             isHelperCheckFinishedRelay.accept(true)
+        case .incompatible:
+            NSAlert.alert(with: "This app cannot use the bundled or installed privileged helper. Update the app before continuing.")
         }
     }
 
@@ -165,9 +179,13 @@ final class PrivilegedHelperManager {
             Logger.log("XPC Connection Invalidated")
             self?.resetHelper(invalidate: false)
         }
-        connection.interruptionHandler = { [weak self] in
+        connection.interruptionHandler = { [weak self, weak connection] in
             Logger.log("XPC Connection Interrupted")
-            self?.resetHelper(invalidate: false)
+            // A checked proxy must not reconnect to a different helper instance.
+            connection?.invalidate()
+            if self?.connection === connection {
+                self?.resetHelper(invalidate: false)
+            }
         }
         connection.resume()
 
@@ -186,8 +204,60 @@ final class PrivilegedHelperManager {
         return helper
     }
 
-    private func performAsyncRequest<Message: ProxyConfigHelperXPCMessage>(_ message: Message) async throws -> Message.Response {
+    private func performValidatedRequest<Message: ProxyConfigHelperXPCMessage>(_ message: Message) async throws -> Message.Response {
         let helper = try helperProxy()
+        if Message.kind != ProxyConfigHelperMessages.GetVersion.kind,
+           Message.kind != ProxyConfigHelperMessages.GetCapabilities.kind {
+            _ = try await validateRunningHelper(helper)
+        }
+        return try await performAsyncRequest(message, using: helper)
+    }
+
+    private func validateRunningHelper(_ helper: ProxyConfigRemoteProcessProtocol) async throws -> ProxyConfigHelperCapabilities {
+        let version = try await performAsyncRequest(ProxyConfigHelperMessages.GetVersion(), using: helper)
+        guard Self.isSupportedVersion(version) else {
+            throw AsyncHelperError.updateRequired
+        }
+
+        let capabilities: ProxyConfigHelperCapabilities
+        do {
+            capabilities = try await performAsyncRequest(ProxyConfigHelperMessages.GetCapabilities(), using: helper)
+        } catch {
+            throw AsyncHelperError.updateRequired
+        }
+        guard capabilities.helperVersion == version,
+              Self.isSupportedRelease(version: capabilities.helperVersion, build: capabilities.helperBuild),
+              capabilities.protocolVersion == Self.requiredProtocolVersion,
+              Self.requiredCapabilities.isSubset(of: Set(capabilities.capabilities)) else {
+            throw AsyncHelperError.updateRequired
+        }
+        return capabilities
+    }
+
+    private static func isSupportedVersion(_ version: String) -> Bool {
+        let components = version.split(separator: ".", omittingEmptySubsequences: false)
+        guard !components.isEmpty,
+              components.allSatisfy({ !$0.isEmpty && $0.utf8.allSatisfy { (48...57).contains($0) } }) else {
+            return false
+        }
+        return version.compare(minimumHelperVersion, options: .numeric) != .orderedAscending
+    }
+
+    private static func isSupportedRelease(version: String, build: String) -> Bool {
+        guard let buildNumber = Int(build), buildNumber >= minimumHelperBuild else { return false }
+        return isSupportedVersion(version)
+    }
+
+    private func performAsyncRequest<Message: ProxyConfigHelperXPCMessage>(_ message: Message,
+                                                                         using helper: ProxyConfigRemoteProcessProtocol) async throws -> Message.Response {
+        let timeout: TimeInterval
+        switch Message.kind {
+        case ProxyConfigHelperMessages.UpdateAlphaCore.kind: timeout = 240
+        case ProxyConfigHelperMessages.StartMeta.kind,
+             ProxyConfigHelperMessages.StopMeta.kind,
+             ProxyConfigHelperMessages.TerminateExistingMeta.kind: timeout = 45
+        default: timeout = requestTimeout
+        }
 
         let requestData: Data
         do {
@@ -232,9 +302,9 @@ final class PrivilegedHelperManager {
                 }
             }
 
-            timeoutTask = Task { [requestTimeout] in
+            timeoutTask = Task {
                 do {
-                    try await Task.sleep(seconds: requestTimeout)
+                    try await Task.sleep(seconds: timeout)
                 } catch {
                     return
                 }
@@ -252,59 +322,56 @@ final class PrivilegedHelperManager {
         let helperURL = helperBundleURL()
         guard
             let helperBundleInfo = CFBundleCopyInfoDictionaryForURL(helperURL as CFURL) as? [String: Any],
-            let helperVersion = helperBundleInfo["CFBundleShortVersionString"] as? String else {
+            let helperVersion = helperBundleInfo["CFBundleShortVersionString"] as? String,
+            let helperBuild = helperBundleInfo["CFBundleVersion"] as? String,
+            Self.isSupportedRelease(version: helperVersion, build: helperBuild) else {
             Logger.log("check helper status fail")
-            return .noFound
+            return .incompatible
         }
         
         let helperInstalledURL = helperInstalledURL()
+        var installedIsNewer = false
         
         if FileManager.default.fileExists(atPath: helperInstalledURL.path) {
-            if let info = CFBundleCopyInfoDictionaryForURL(helperInstalledURL as CFURL) as? [String: Any],
-               let version = info["CFBundleShortVersionString"] as? String,
-               version == helperVersion {
-                Logger.log("helper version CFBundleShortVersionString \(version)", level: .debug)
-            } else {
+            guard let info = CFBundleCopyInfoDictionaryForURL(helperInstalledURL as CFURL) as? [String: Any],
+                  let version = info["CFBundleShortVersionString"] as? String,
+                  let build = info["CFBundleVersion"] as? String else {
                 return .needUpdate
             }
+            installedIsNewer = version.compare(helperVersion, options: .numeric) == .orderedDescending
+                || build.compare(helperBuild, options: .numeric) == .orderedDescending
+            guard Self.isSupportedRelease(version: version, build: build),
+                  version.compare(helperVersion, options: .numeric) != .orderedAscending,
+                  build.compare(helperBuild, options: .numeric) != .orderedAscending else {
+                return installedIsNewer ? .incompatible : .needUpdate
+            }
+            Logger.log("installed helper version \(version) build \(build)", level: .debug)
         } else {
             return .noFound
         }
         
-        let timeout: TimeInterval = 15
-        let time = Date()
-        return await withTaskGroup(of: HelperStatus.self, returning: HelperStatus.self) { group in
-            group.addTask {
-                try? await Task.sleep(seconds: timeout)
-                Logger.log("check helper timeout time: \(timeout)")
-                return .noFound
+        resetHelper(invalidate: true)
+        do {
+            let capabilities = try await validateRunningHelper(try helperProxy())
+            guard capabilities.helperVersion.compare(helperVersion, options: .numeric) != .orderedAscending,
+                  capabilities.helperBuild.compare(helperBuild, options: .numeric) != .orderedAscending else {
+                return installedIsNewer ? .incompatible : .needUpdate
             }
-
-            group.addTask {
-                do {
-                    let installedHelperVersion: String = try await self.request(ProxyConfigHelperMessages.GetVersion())
-                    Logger.log("helper version \(installedHelperVersion) require version \(helperVersion)", level: .debug)
-                    let versionMatch = installedHelperVersion == helperVersion
-                    let interval = Date().timeIntervalSince(time)
-                    Logger.log("check helper using time: \(interval)")
-                    return versionMatch ? .installed : .needUpdate
-                } catch {
-                    return .noFound
-                }
-            }
-
-            let status = await group.next() ?? .noFound
-            group.cancelAll()
-            return status
+            Logger.log("running helper version \(capabilities.helperVersion) build \(capabilities.helperBuild), protocol \(capabilities.protocolVersion)", level: .debug)
+            return .installed
+        } catch AsyncHelperError.updateRequired {
+            return installedIsNewer ? .incompatible : .needUpdate
+        } catch {
+            return installedIsNewer ? .incompatible : .noFound
         }
     }
 
     @MainActor
-    private func resolveRequiresApprovalIfNeeded() async {
-        guard #available(macOS 13, *) else { return }
+    private func resolveRequiresApprovalIfNeeded() async -> Bool {
+        guard #available(macOS 13, *) else { return true }
 
         let status = SMAppService.statusForLegacyPlist(at: launchDaemonPlistURL())
-        guard status == .requiresApproval else { return }
+        guard status == .requiresApproval else { return true }
 
         let alert = NSAlert()
         let notice = NSLocalizedString("ClashX use a daemon helper to setup your system proxy. Please enable ClashX in the Login Items under the Allow in the Background section and relaunch the app", comment: "")
@@ -314,8 +381,15 @@ final class PrivilegedHelperManager {
         alert.addButton(withTitle: NSLocalizedString("Reset Daemon", comment: ""))
         if alert.runModal() == .alertFirstButtonReturn {
             SMAppService.openSystemSettingsLoginItems()
+            return false
         } else {
-            await removeInstallHelper()
+            do {
+                try await removeInstallHelper()
+                return true
+            } catch {
+                showInstallationError(error)
+                return false
+            }
         }
     }
 
@@ -344,22 +418,42 @@ extension PrivilegedHelperManager {
         }
 
         if useLegacyInstall {
-            await legacyInstallHelper()
-            if !cancelInstallCheck {
-                await checkInstall()
+            do {
+                try await legacyInstallHelper()
+                await finishInstallation()
+            } catch {
+                showInstallationError(error)
             }
             return
         }
 
         let result = installHelperDaemon()
         if case .success = result {
+            await finishInstallation()
             return
         }
         result.alertAction()
         NSAlert.alert(with: result.alertContent)
-        if !cancelInstallCheck {
-            await checkInstall()
+    }
+
+    @MainActor
+    private func finishInstallation() async {
+        resetHelper(invalidate: true)
+        if case .installed = await getHelperStatus() {
+            isHelperCheckFinishedRelay.accept(true)
+        } else {
+            isHelperCheckFinishedRelay.accept(false)
+            resetHelper(invalidate: true)
+            NSAlert.alert(with: AsyncHelperError.updateRequired.localizedDescription)
         }
+    }
+
+    @MainActor
+    private func showInstallationError(_ error: Error) {
+        isHelperCheckFinishedRelay.accept(false)
+        resetHelper(invalidate: true)
+        if case HelperInstallationError.cancelled = error { return }
+        NSAlert.alert(with: error.localizedDescription)
     }
 
     private func showInstallHelperAlert() -> Bool {
@@ -378,7 +472,8 @@ extension PrivilegedHelperManager {
             return true
         case .alertThirdButtonReturn:
             cancelInstallCheck = true
-            isHelperCheckFinishedRelay.accept(true)
+            isHelperCheckFinishedRelay.accept(false)
+            resetHelper(invalidate: true)
             Logger.log("cancelInstallCheck = true", level: .error)
             return true
         default:
