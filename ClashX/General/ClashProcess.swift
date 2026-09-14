@@ -32,7 +32,7 @@ actor ClashProcess {
 		case stopped, checkingLaunchPath, checkingHelper, preparingConfig, starting, running
 	}
 
-	static let metaCoreMd5 = "WOSHIZIDONGSHENGCHENGDEA"
+	static let metaCoreMd5 = "6ea258dd6e5d739a4b1a1ada0f5b5575"
 	private static let metaProcessLabel = "com.metacubex.ClashX.ProxyConfigHelper.meta"
 
 	struct MetaLaunchdStatus {
@@ -511,14 +511,11 @@ actor ClashProcess {
 			}
 			let pipe = Pipe()
 			proc.standardOutput = pipe
+			proc.standardError = pipe
 			
 			proc.arguments = args
 			try proc.run()
 			proc.waitUntilExit()
-			
-			guard proc.terminationStatus == 0 else {
-				return "Test failed, status \(proc.terminationStatus)"
-			}
 			
 			let data = pipe.fileHandleForReading.readDataToEndOfFile()
 			guard let string = String(data: data, encoding: String.Encoding.utf8) else {

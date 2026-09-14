@@ -145,12 +145,15 @@ class MetaTask: NSObject {
             ])
         }
 
-        guard let data: Data = try? await run(
+        guard let output: String = try? await run(
             .name("curl"),
             arguments: Arguments(args),
-            output: .data(limit: 65536)
+            output: .string(limit: 65536)
         ).standardOutput,
-              let str = try? JSONDecoder().decode(MetaCurl.self, from: data),
+              let str = try? JSONDecoder().decode(
+                  MetaCurl.self,
+                  from: Data(output.utf8)
+              ),
               (str.hello == "clash.meta" || str.hello == "mihomo") else {
             return false
         }
@@ -202,6 +205,12 @@ class MetaTask: NSObject {
         }
 
         let logPath = stdoutLogPath(confPath)
+
+        // The meta core runs as a root LaunchDaemon. If launchd has to create
+        // the log directory tree itself, the dirs end up root-owned and the
+        // app (running as the user) can no longer write clashx.log into them.
+        // Create the tree first and hand ownership back to the app user.
+        repairLogDirectoryOwnership(confPath: confPath)
 
         try writePlist(path: path, confPath: confPath, confFilePath: confFilePath)
 
@@ -281,6 +290,39 @@ class MetaTask: NSObject {
         _ = await logReaderTask.value
         _ = await pollingTask.value
         _ = await timeoutTask.value
+    }
+
+    /// `confPath` lives in the app user's home directory and is owned by that
+    /// user. Mirror that ownership onto the log dirs so the app can create
+    /// and write its log files next to the core logs written by root.
+    private func repairLogDirectoryOwnership(confPath: String) {
+        let fm = FileManager.default
+
+        guard let attrs = try? fm.attributesOfItem(atPath: confPath),
+              let uid = (attrs[.ownerAccountID] as? NSNumber)?.uint32Value,
+              let gid = (attrs[.groupOwnerAccountID] as? NSNumber)?.uint32Value,
+              uid != 0 else { return }
+
+        let logsDir = "\(confPath)/logs"
+        let sessionDir = (stdoutLogPath(confPath) as NSString).deletingLastPathComponent
+
+        for dir in [logsDir, sessionDir] {
+            if !fm.fileExists(atPath: dir) {
+                try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            }
+            chown(dir, uid, gid)
+            chmod(dir, 0o755)
+        }
+
+        // Heal older root-owned session dirs so the app can read/clean them.
+        guard let children = try? fm.contentsOfDirectory(atPath: logsDir) else { return }
+        for child in children {
+            let path = "\(logsDir)/\(child)"
+            var isDir: ObjCBool = false
+            guard fm.fileExists(atPath: path, isDirectory: &isDir), isDir.boolValue else { continue }
+            chown(path, uid, gid)
+            chmod(path, 0o755)
+        }
     }
 
     private func writePlist(path: String, confPath: String, confFilePath: String) throws {

@@ -85,14 +85,16 @@ extension RemoteConfigViewController {
                  defaultName: String? = nil,
                  name: String? = nil,
                  allowAlt: Bool = false,
-                 ageSecretKey: String? = nil) {
+                 ageSecretKey: String? = nil,
+                 userAgent: String? = nil) {
         let alertView = NSAlert()
         alertView.addButton(withTitle: NSLocalizedString("OK", comment: ""))
         alertView.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
         alertView.messageText = NSLocalizedString("Add a remote config", comment: "")
         let remoteConfigInputView = RemoteConfigAddView.createFromNib()
         if let defaultUrl = defaultUrl {
-            remoteConfigInputView.setUrl(string: defaultUrl, name: name, defaultName: defaultName)
+            remoteConfigInputView.setUrl(string: defaultUrl, name: name, defaultName: defaultName,
+                                         ageSecretKey: ageSecretKey, userAgent: userAgent)
         }
         alertView.accessoryView = remoteConfigInputView
         let response = alertView.runModal()
@@ -110,6 +112,7 @@ extension RemoteConfigViewController {
         let isPlaceHolderName = remoteConfigInputView.getConfigName().1
         let configUrl = remoteConfigInputView.getUrlString()
         let ageSecretKey = remoteConfigInputView.getAgeSecretKey()
+        let userAgent = remoteConfigInputView.getUserAgent()
         
         if let existed = RemoteConfigManager.shared.configs.first(where: { $0.name == configName }) {
             guard allowAlt else {
@@ -118,13 +121,15 @@ extension RemoteConfigViewController {
             }
             existed.url = configUrl
             existed.ageSecretKey = ageSecretKey
+            existed.userAgent = userAgent
             latestAddedConfig = existed
             requestUpdate(config: existed)
         } else {
             let remoteConfig = RemoteConfigModel(url: configUrl,
                                                  name: configName,
                                                  updateTime: nil,
-                                                 ageSecretKey: ageSecretKey)
+                                                 ageSecretKey: ageSecretKey,
+                                                 userAgent: userAgent)
             remoteConfig.isPlaceHolderName = !isPlaceHolderName
             RemoteConfigManager.shared.configs.append(remoteConfig)
             requestUpdate(config: remoteConfig)
@@ -180,13 +185,15 @@ extension RemoteConfigViewController: NSTableViewDelegate {
                     defaultName: config.name,
                     name: nil,
                     allowAlt: true,
-                    ageSecretKey: config.ageSecretKey)
+                    ageSecretKey: config.ageSecretKey,
+                    userAgent: config.userAgent)
         } else {
             showAdd(defaultUrl: config.url,
                     defaultName: nil,
                     name: config.name,
                     allowAlt: true,
-                    ageSecretKey: config.ageSecretKey)
+                    ageSecretKey: config.ageSecretKey,
+                    userAgent: config.userAgent)
         }
     }
 }
@@ -228,6 +235,7 @@ class RemoteConfigAddView: NSView, NibLoadable {
     @IBOutlet private var urlTextField: NSTextField!
     @IBOutlet private var configNameTextField: NSTextField!
     @IBOutlet var ageSecretTextField: NSTextField!
+    @IBOutlet var userAgentTextField: NSTextField!
     
     func getUrlString() -> String {
         urlTextField.stringValue
@@ -239,6 +247,13 @@ class RemoteConfigAddView: NSView, NibLoadable {
             return nil
         }
         return str
+    }
+
+    /// Custom User-Agent for downloading this subscription.
+    /// Returns nil when empty, so the default UA will be used.
+    func getUserAgent() -> String? {
+        let str = userAgentTextField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        return str.isEmpty ? nil : str
     }
 
     /// Get the config name
@@ -257,7 +272,8 @@ class RemoteConfigAddView: NSView, NibLoadable {
     func setUrl(string: String,
                 name: String? = nil,
                 defaultName: String?,
-                ageSecretKey: String? = nil) {
+                ageSecretKey: String? = nil,
+                userAgent: String? = nil) {
         urlTextField.stringValue = string
 
         if let name = name, !name.isEmpty {
@@ -270,6 +286,10 @@ class RemoteConfigAddView: NSView, NibLoadable {
         
         if let key = ageSecretKey, !key.isEmpty {
             ageSecretTextField.stringValue = key
+        }
+
+        if let ua = userAgent, !ua.isEmpty {
+            userAgentTextField.stringValue = ua
         }
 
         if name == nil && defaultName == nil {
