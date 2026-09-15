@@ -54,11 +54,10 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	// MARK: - NSXPCListenerDelegate
 	
 	func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
-		
-		guard isValid(connection: newConnection) else {
+		guard HelperXPCSecurity.isValid(processIdentifier: newConnection.processIdentifier) else {
 			return false
 		}
-		
+
 		newConnection.exportedInterface = NSXPCInterface(with: ProxyConfigRemoteProcessProtocol.self)
 		newConnection.exportedObject = self
 		newConnection.invalidationHandler = {
@@ -74,16 +73,6 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 		connections.append(newConnection)
 		newConnection.resume()
 		
-		return true
-	}
-	
-	private func isValid(connection: NSXPCConnection) -> Bool {
-		guard let app = NSRunningApplication(processIdentifier: connection.processIdentifier),
-			  let bundleIdentifier = app.bundleIdentifier,
-			  bundleIdentifier == "com.metacubex.ClashX.meta"
-		else {
-			return false
-		}
 		return true
 	}
 	
