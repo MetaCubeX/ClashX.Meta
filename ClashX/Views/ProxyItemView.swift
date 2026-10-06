@@ -128,6 +128,15 @@ class ProxyItemView: MenuItemBaseView {
     override var cells: [NSCell?] {
         return [nameLabel.cell, imageView?.cell]
     }
+
+    override func updateLabelColors(highlighted: Bool, enabled: Bool) {
+        // delayLabel keeps its white-on-pill color, never touched here
+        if highlighted {
+            nameLabel.textColor = NSColor.alternateSelectedControlTextColor
+        } else {
+            nameLabel.textColor = enabled ? NSColor.labelColor : NSColor.placeholderTextColor
+        }
+    }
 }
 
 private extension CGColor {

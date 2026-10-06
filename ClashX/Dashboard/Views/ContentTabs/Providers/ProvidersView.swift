@@ -5,113 +5,144 @@
 //
 
 import SwiftUI
-@_spi(Advanced) import SwiftUIIntrospect
 
 struct ProvidersView: View {
-	@ObservedObject var providerStorage = DBProviderStorage()
-	
-	@State private var searchString = ProxiesSearchString()
-	
-	@StateObject private var hideProxyNames = HideProxyNames()
-	
-    var body: some View {
-		NavigationView {
-			listView
-			EmptyView()
+	enum Mode {
+		case proxy
+		case rule
+	}
+
+	@EnvironmentObject var providerStorage: DBProviderStorage
+	@EnvironmentObject var hideProxyNames: HideProxyNames
+	@State private var columnWidths = RuleProviderColumnWidths(providers: [])
+	@State private var proxyColumnWidths = ProxyProviderColumnWidths(providers: [])
+
+	var mode: Mode = .rule
+
+	var httpRuleProviders: [DBRuleProvider] {
+		guard mode == .rule else { return [] }
+		return providerStorage.ruleProviders.filter({ $0.vehicleType == .HTTP })
+	}
+
+	var inlineRuleProviders: [DBRuleProvider] {
+		guard mode == .rule else { return [] }
+		return providerStorage.ruleProviders.filter({ $0.vehicleType == .Inline })
+	}
+
+	var body: some View {
+		Group {
+			if mode == .rule {
+				ruleProvidersView
+			} else {
+				proxyProvidersView
+			}
 		}
-        .background(Color("SwiftUI Colors/WindowBackgroundColor"))
-		.onReceive(NotificationCenter.default.publisher(for: .toolbarSearchString)) {
-			guard let string = $0.userInfo?["String"] as? String else { return }
-			searchString.string = string
+		.onReceive(NotificationCenter.default.publisher(for: .ruleProvidersUpdated)) { _ in
+			Task { await loadRuleProviders() }
 		}
-		.onReceive(NotificationCenter.default.publisher(for: .hideNames)) {
-			guard let hide = $0.userInfo?["hide"] as? Bool else { return }
-			hideProxyNames.hide = hide
+		.onReceive(NotificationCenter.default.publisher(for: .proxyProvidersUpdated)) { _ in
+			Task { await loadProxyProviders() }
 		}
-		.environmentObject(searchString)
 		.task {
 			await loadProviders()
 		}
-		.environmentObject(hideProxyNames)
-    }
-	
-	var listView: some View {
-		List {
-            let httpProxyProviders = providerStorage.proxyProviders.filter({ $0.vehicleType == .HTTP })
-            let inlineProxyProviders = providerStorage.proxyProviders.filter({ $0.vehicleType == .Inline })
-            
-            let httpRuleProviders = providerStorage.ruleProviders.filter({ $0.vehicleType == .HTTP })
-            let inlineRuleProviders = providerStorage.ruleProviders.filter({ $0.vehicleType == .Inline })
-            
-            if httpProxyProviders.isEmpty,
-               httpRuleProviders.isEmpty,
-               inlineRuleProviders.isEmpty {
-				Text("Empty")
-					.padding()
-			} else {
-				Section() {
-					if !httpProxyProviders.isEmpty {
-						ProxyProvidersRowView(providerStorage: providerStorage)
-					}
-					if !httpRuleProviders.isEmpty {
-                        RuleProvidersRowView(providerStorage: providerStorage, vehicleType: .HTTP)
-					}
-                    if !inlineRuleProviders.isEmpty {
-                        RuleProvidersRowView(providerStorage: providerStorage, vehicleType: .Inline)
-                    }
-				} header: {
-					Text("Providers")
-				}
-			}
-			
-            if httpProxyProviders.count > 0 {
-				Text("")
-				Section() {
-					ForEach(httpProxyProviders,id: \.id) {
-						ProviderRowView(proxyProvider: $0)
-					}
-				} header: {
-					Text("Proxy Provider")
-				}
-			}
-            
-            if inlineProxyProviders.count > 0 {
-                Text("")
-                Section() {
-                    ForEach(inlineProxyProviders,id: \.id) {
-                        ProviderRowView(proxyProvider: $0)
-                    }
-                } header: {
-                    Text("Proxy Provider Inline")
-                }
-            }
-		}
-		.introspect(.table, on: .macOS(.v12...)) {
-			$0.refusesFirstResponder = true
-			$0.doubleAction = nil
-		}
-		.listStyle(.plain)
 	}
-	
+
+	private var ruleProvidersView: some View {
+		ScrollView {
+			if httpRuleProviders.isEmpty && inlineRuleProviders.isEmpty {
+				Text("Empty")
+					.foregroundColor(.secondary)
+					.padding(DashboardTheme.spacingPage)
+			} else {
+				let providers = httpRuleProviders + inlineRuleProviders
+				VStack(spacing: 0) {
+				ForEach(Array(providers.enumerated()), id: \.element.name) { index, provider in
+					RuleProviderView(index: index + 1, columnWidths: columnWidths, provider: provider)
+						if index < providers.count - 1 {
+							Divider()
+								.opacity(0.3)
+						}
+					}
+				}
+				.clipShape(RoundedRectangle(cornerRadius: DashboardTheme.cardCornerRadius))
+				.overlay(
+					RoundedRectangle(cornerRadius: DashboardTheme.cardCornerRadius)
+						.stroke(DashboardTheme.cardBorder, lineWidth: DashboardTheme.cardBorderWidth)
+				)
+				.padding(DashboardTheme.spacingPage)
+			}
+		}
+		.background(DashboardTheme.pageBackground)
+	}
+
+	private var proxyProvidersView: some View {
+		ScrollView {
+			if httpProxyProviders.isEmpty && inlineProxyProviders.isEmpty {
+				Text("Empty")
+					.foregroundColor(.secondary)
+					.padding(DashboardTheme.spacingPage)
+			} else {
+				let providers = httpProxyProviders + inlineProxyProviders
+				VStack(spacing: 0) {
+					ForEach(Array(providers.enumerated()), id: \.element.name) { index, provider in
+						ProviderRowView(index: index + 1, columnWidths: proxyColumnWidths, proxyProvider: provider)
+						if index < providers.count - 1 {
+							Divider()
+								.opacity(0.3)
+						}
+					}
+				}
+				.clipShape(RoundedRectangle(cornerRadius: DashboardTheme.cardCornerRadius))
+				.overlay(
+					RoundedRectangle(cornerRadius: DashboardTheme.cardCornerRadius)
+						.stroke(DashboardTheme.cardBorder, lineWidth: DashboardTheme.cardBorderWidth)
+				)
+				.padding(DashboardTheme.spacingPage)
+			}
+		}
+		.background(DashboardTheme.pageBackground)
+	}
+
+	private var httpProxyProviders: [DBProxyProvider] {
+		providerStorage.proxyProviders.filter({ $0.vehicleType == .HTTP })
+	}
+
+	private var inlineProxyProviders: [DBProxyProvider] {
+		providerStorage.proxyProviders.filter({ $0.vehicleType == .Inline })
+	}
+
 	@MainActor
 	func loadProviders() async {
+		if mode != .rule {
+			await loadProxyProviders()
+		}
+		if mode == .rule {
+			await loadRuleProviders()
+		}
+	}
+
+	@MainActor
+	func loadProxyProviders() async {
 		let proxyResp = await ApiRequest.requestProxyProviderList()
-		providerStorage.proxyProviders = proxyResp.allProviders.values.sorted {
+		let providers = proxyResp.allProviders.values
+			.filter { $0.vehicleType == .HTTP || $0.vehicleType == .Inline }
+			.sorted {
 			$0.name < $1.name
 		}
 		.map(DBProxyProvider.init)
-
-		let ruleResp = await ApiRequest.requestRuleProviderList()
-            providerStorage.ruleProviders = ruleResp.allProviders.values.sorted {
-                $0.name < $1.name
-            }
-            .map(DBRuleProvider.init)
+		proxyColumnWidths = ProxyProviderColumnWidths(providers: providers)
+		providerStorage.proxyProviders = providers
 	}
-	
-}
 
-//struct ProvidersView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ProvidersView()
-//    }
-//}
+	@MainActor
+	func loadRuleProviders() async {
+		let ruleResp = await ApiRequest.requestRuleProviderList()
+		let providers = ruleResp.allProviders.values.sorted {
+			$0.name < $1.name
+		}
+		.map(DBRuleProvider.init)
+		columnWidths = RuleProviderColumnWidths(providers: providers)
+		providerStorage.ruleProviders = providers
+	}
+}

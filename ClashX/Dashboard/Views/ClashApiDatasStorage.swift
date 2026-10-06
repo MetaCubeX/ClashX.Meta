@@ -19,16 +19,16 @@ class ClashApiDatasStorage: NSObject, ObservableObject {
 
 	private var pendingTraffic: (up: Int, down: Int)?
 	private var pendingLogs = [(level: String, log: String)]()
-	private var pendingMemory: String?
 	private var uiUpdateTask: Task<Void, Never>?
 
 	override init() {
 		super.init()
-		uiUpdateTask = Task { [weak self] in
+		uiUpdateTask = Task { @MainActor [weak self] in
+			let clock = ContinuousClock()
 			while !Task.isCancelled {
-				try? await Task.sleep(seconds: 1)
+				try? await clock.sleep(for: .seconds(1))
 				guard let self else { return }
-                flushPendingUpdates()
+				self.flushPendingUpdates()
 			}
 		}
 	}
@@ -43,6 +43,18 @@ class ClashApiDatasStorage: NSObject, ObservableObject {
 		if needsStreamStart {
 			ApiRequestStream.shared.resetStreamApis()
 		}
+	}
+
+	// Seed history from ApiRequestStream so the dashboard opens with recent data instead of zeros
+	func seedHistoryFromStore() {
+		let store = ApiRequestStream.shared.trafficHistoryStore
+		overviewData.downloadHistories = store.down
+		overviewData.uploadHistories = store.up
+		overviewData.memoryHistories = store.memory.map(CGFloat.init)
+		if let memory = store.latestMemory {
+			overviewData.memory = Self.memoryFormatter.string(fromByteCount: memory)
+		}
+		Logger.log("seed memory history: first=\(store.memory.first ?? -1) last=\(store.memory.last ?? -1) count=\(store.memory.count)", level: .debug)
 	}
 }
 
@@ -59,8 +71,7 @@ extension ClashApiDatasStorage: ApiRequestStreamDelegate {
 	}
 	
 	func didUpdateMemory(memory: Int64) async {
-        let memoryString = Self.memoryFormatter.string(fromByteCount: memory)
-        enqueueMemory(memoryString)
+		// Store handles sampling and history; nothing to do here
 	}
 
 	func enqueueTrafficUpdate(up: Int, down: Int) {
@@ -69,10 +80,6 @@ extension ClashApiDatasStorage: ApiRequestStreamDelegate {
 
 	func enqueueLog(level: String, log: String) {
 		pendingLogs.append((level: level, log: log))
-	}
-
-	func enqueueMemory(_ value: String) {
-		pendingMemory = value
 	}
 
 	func flushPendingUpdates() {
@@ -91,20 +98,30 @@ extension ClashApiDatasStorage: ApiRequestStreamDelegate {
 			}
 		}
 
-		if let memory = pendingMemory {
-			if overviewData.memory != memory {
-				overviewData.memory = memory
-			}
-			pendingMemory = nil
+		// Sync history straight from the store; all sampling happens there.
+		// Skip identical values so idle sessions don't invalidate cards every tick.
+		let store = ApiRequestStream.shared.trafficHistoryStore
+		let down = store.down
+		if overviewData.downloadHistories != down { overviewData.downloadHistories = down }
+		let up = store.up
+		if overviewData.uploadHistories != up { overviewData.uploadHistories = up }
+		let memoryHistory = store.memory.map(CGFloat.init)
+		if overviewData.memoryHistories != memoryHistory { overviewData.memoryHistories = memoryHistory }
+		if let memory = store.latestMemory {
+			let text = Self.memoryFormatter.string(fromByteCount: memory)
+			if overviewData.memory != text { overviewData.memory = text }
 		}
 	}
 	
 }
 
-fileprivate let TrafficHistoryLimit = 120
+fileprivate let TrafficHistoryLimit = 30
+fileprivate let MemoryHistoryLimit = 15
 
 class ClashOverviewData: ObservableObject, Identifiable {
 	let id = UUID().uuidString
+
+	private static let memoryFormatter = ByteCountFormatter()
 	
 	@Published var uploadString = "N/A"
 	@Published var downloadString = "N/A"
@@ -118,55 +135,29 @@ class ClashOverviewData: ObservableObject, Identifiable {
 	
 	@Published var downloadHistories = [CGFloat](repeating: 0, count: TrafficHistoryLimit)
 	@Published var uploadHistories = [CGFloat](repeating: 0, count: TrafficHistoryLimit)
-	
+	@Published var memoryHistories = [CGFloat](repeating: 0, count: MemoryHistoryLimit)
+
 	var down: Int = 0 {
 		didSet {
-			downloadString = getSpeedString(for: down)
-			downloadHistories.append(CGFloat(down))
-			
-			if downloadHistories.count > TrafficHistoryLimit {
-				downloadHistories.removeFirst()
-			}
+			downloadString = ByteFormat.rate(down)
 		}
 	}
-	
+
 	var up: Int = 0 {
 		didSet {
-			uploadString = getSpeedString(for: up)
-			uploadHistories.append(CGFloat(up))
-			
-			if uploadHistories.count > TrafficHistoryLimit {
-				uploadHistories.removeFirst()
-			}
+			uploadString = ByteFormat.rate(up)
 		}
 	}
-	
+
 	var downTotal: Int = 0 {
 		didSet {
-			downloadTotal = getSpeedString(for: downTotal).replacingOccurrences(of: "/s", with: "")
+			downloadTotal = ByteFormat.total(Int64(downTotal))
 		}
 	}
-	
+
 	var upTotal: Int = 0 {
 		didSet {
-			uploadTotal = getSpeedString(for: upTotal).replacingOccurrences(of: "/s", with: "")
-		}
-	}
-	
-	func getSpeedString(for byte: Int) -> String {
-		let kb = byte / 1000
-		if kb < 1000 {
-			return  "\(kb)KB/s"
-		} else {
-			let mb = Double(kb) / 1000
-			if mb >= 100 {
-				if mb >= 1000 {
-					return String(format: "%.1fGB/s", mb/1000)
-				}
-				return String(format: "%.1fMB/s", mb)
-			} else {
-				return String(format: "%.2fMB/s", mb)
-			}
+			uploadTotal = ByteFormat.total(Int64(upTotal))
 		}
 	}
 }
@@ -208,6 +199,74 @@ class ClashLogStorage: ObservableObject {
 	}
 }
 
+@MainActor
 class ClashConnsStorage: ObservableObject {
+	static let maxClosedConnections = 200
+
 	@Published var conns = [DBConnection]()
+	/// Closed connections, newest first, capped at `maxClosedConnections`.
+	@Published private(set) var closedConns = [DBConnection]()
+	/// While paused all processing is skipped (aligned with upstream yacd); the next resume diffs across the whole gap.
+	@Published var isPaused = false
+
+	/// Last applied snapshot; the closed-detection diff runs against this.
+	private var trackedConns = [DBConnection]()
+
+    /// Nonisolated so an empty instance can be built from nonisolated contexts (e.g. EnvironmentKey.defaultValue).
+    nonisolated init() {}
+
+	func apply(_ snapshot: DBConnectionSnapShot) {
+		guard !isPaused else { return }
+		defer { trackedConns = snapshot.connections }
+
+		let activeIDs = Set(snapshot.connections.map(\.id))
+		let newlyClosed = trackedConns.filter { !activeIDs.contains($0.id) }
+		if !newlyClosed.isEmpty {
+			var seen = Set(newlyClosed.map(\.id))
+			var merged = newlyClosed
+			for old in closedConns where seen.insert(old.id).inserted {
+				merged.append(old)
+			}
+			closedConns = Array(merged.prefix(Self.maxClosedConnections))
+		}
+
+		conns = snapshot.connections
+	}
+
+	func reset() {
+		conns.removeAll()
+		closedConns.removeAll()
+		trackedConns.removeAll()
+	}
+}
+
+extension ClashConnsStorage {
+	/// Unique sorted source IPs across active + closed connections.
+	var allSourceIPs: [String] {
+		var set = Set(conns.map(\.metadata.sourceIP))
+		set.formUnion(closedConns.map(\.metadata.sourceIP))
+		return set.filter { !$0.isEmpty }.sorted()
+	}
+}
+
+extension DBConnection {
+	/// Keyword + source IP filter matching the table's filter keys.
+	func matches(keyword: String, sourceIP: String) -> Bool {
+		if !sourceIP.isEmpty, metadata.sourceIP != sourceIP { return false }
+		let trimmed = keyword.trimmingCharacters(in: .whitespaces)
+		guard !trimmed.isEmpty else { return true }
+		let key = trimmed.lowercased()
+		let candidates: [String] = [
+			metadata.host,
+			metadata.sniffHost,
+			metadata.process,
+			chains.reversed().joined(separator: "/"),
+			rulePayload.isEmpty ? rule : "\(rule) :: \(rulePayload)",
+			"\(metadata.sourceIP):\(metadata.sourcePort)",
+			metadata.remoteDestination,
+			metadata.destinationIP,
+			"\(metadata.type)(\(metadata.network))",
+		]
+		return candidates.contains { $0.lowercased().contains(key) }
+	}
 }

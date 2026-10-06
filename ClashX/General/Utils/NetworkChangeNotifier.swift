@@ -43,51 +43,101 @@ class NetworkChangeNotifier {
         }
     }
 
-    static func start() async {
-        try? await Task.sleep(seconds: 0.5)
-        Thread {
-            startProxiesWatch()
-        }.start()
-        Thread {
-            startIPChangeWatch()
-        }.start()
+    // MARK: - SCDynamicStore via DispatchQueue (no CFRunLoopRun)
+
+    private static let proxyQueue = DispatchQueue(label: "com.clashx.proxy.networknotification", qos: .utility)
+    private static let ipQueue = DispatchQueue(label: "com.clashx.ipv4.networknotification", qos: .utility)
+    private static var proxyStore: SCDynamicStore?
+    private static var ipStore: SCDynamicStore?
+    private static var proxyDebounceWork: DispatchWorkItem?
+    private static var ipDebounceWork: DispatchWorkItem?
+    // Verification counters
+    private static var proxyRawCount = 0
+    private static var proxyPostCount = 0
+    private static var ipRawCount = 0
+    private static var ipPostCount = 0
+
+    static func start() {
+        guard proxyStore == nil, ipStore == nil else { return }
+        Logger.log("[Notifier] start proxy/ip stores (utility qos)", level: .info)
+        let proxyCallback: SCDynamicStoreCallBack = { _, _, _ in
+            NetworkChangeNotifier.handleProxyStoreChange()
+        }
+        if let store = SCDynamicStoreCreate(nil, "com.clashx.proxy.networknotification" as CFString, proxyCallback, nil) {
+            SCDynamicStoreSetNotificationKeys(store, nil, ["State:/Network/Global/Proxies" as CFString] as CFArray)
+            SCDynamicStoreSetDispatchQueue(store, proxyQueue)
+            proxyStore = store
+        } else {
+            Logger.log("Failed to create SCDynamicStore for Proxies", level: .warning)
+        }
+        let ipCallback: SCDynamicStoreCallBack = { _, _, _ in
+            NetworkChangeNotifier.handleIPStoreChange()
+        }
+        if let store = SCDynamicStoreCreate(nil, "com.clashx.ipv4.networknotification" as CFString, ipCallback, nil) {
+            SCDynamicStoreSetNotificationKeys(store, nil, ["State:/Network/Global/IPv4" as CFString] as CFArray)
+            SCDynamicStoreSetDispatchQueue(store, ipQueue)
+            ipStore = store
+        } else {
+            Logger.log("Failed to create SCDynamicStore for IPv4", level: .warning)
+        }
     }
 
-    private static func startProxiesWatch() {
-        NSWorkspace.shared.notificationCenter.addObserver(
-            self, selector: #selector(onWakeNote(note:)),
-            name: NSWorkspace.didWakeNotification, object: nil
-        )
+    static func stop() {
+        if let store = proxyStore {
+            SCDynamicStoreSetNotificationKeys(store, nil, nil)
+            SCDynamicStoreSetDispatchQueue(store, nil)
+        }
+        if let store = ipStore {
+            SCDynamicStoreSetNotificationKeys(store, nil, nil)
+            SCDynamicStoreSetDispatchQueue(store, nil)
+        }
+        proxyQueue.sync {
+            proxyDebounceWork?.cancel()
+            proxyDebounceWork = nil
+        }
+        ipQueue.sync {
+            ipDebounceWork?.cancel()
+            ipDebounceWork = nil
+        }
+        proxyStore = nil
+        ipStore = nil
+        Logger.log("[Notifier] stop", level: .info)
+    }
 
-        let changed: SCDynamicStoreCallBack = { _, _, _ in
+    private static func handleProxyStoreChange() {
+        // Already on proxyQueue via SCDynamicStoreSetDispatchQueue
+        proxyRawCount += 1
+        proxyDebounceWork?.cancel()
+        var work: DispatchWorkItem!
+        work = DispatchWorkItem {
+            proxyPostCount += 1
+            let coalesced = proxyRawCount - proxyPostCount
+            if coalesced > 0 {
+                Logger.log("[Notifier] proxy coalesced \(coalesced) raw=\(proxyRawCount) → POST #\(proxyPostCount)", level: .info)
+            }
             NotificationCenter.default.post(name: .systemNetworkStatusDidChange, object: nil)
+            if proxyDebounceWork === work { proxyDebounceWork = nil }
         }
-        var dynamicContext = SCDynamicStoreContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
-        let dcAddress = withUnsafeMutablePointer(to: &dynamicContext) { UnsafeMutablePointer<SCDynamicStoreContext>($0) }
-
-        if let dynamicStore = SCDynamicStoreCreate(kCFAllocatorDefault, "com.clashx.proxy.networknotification" as CFString, changed, dcAddress) {
-            let keysArray = ["State:/Network/Global/Proxies" as CFString] as CFArray
-            SCDynamicStoreSetNotificationKeys(dynamicStore, nil, keysArray)
-            let loop = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, dynamicStore, 0)
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), loop, .defaultMode)
-            CFRunLoopRun()
-        }
+        proxyDebounceWork = work
+        proxyQueue.asyncAfter(deadline: .now() + .milliseconds(200), execute: work)
     }
 
-    private static func startIPChangeWatch() {
-        let changed: SCDynamicStoreCallBack = { _, _, _ in
+    private static func handleIPStoreChange() {
+        // Already on ipQueue
+        ipRawCount += 1
+        ipDebounceWork?.cancel()
+        var work: DispatchWorkItem!
+        work = DispatchWorkItem {
+            ipPostCount += 1
+            let coalesced = ipRawCount - ipPostCount
+            if coalesced > 0 {
+                Logger.log("[Notifier] ip coalesced \(coalesced) raw=\(ipRawCount) → POST #\(ipPostCount)", level: .info)
+            }
             NotificationCenter.default.post(name: .systemNetworkStatusIPUpdate, object: nil)
+            if ipDebounceWork === work { ipDebounceWork = nil }
         }
-        var dynamicContext = SCDynamicStoreContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
-        let dcAddress = withUnsafeMutablePointer(to: &dynamicContext) { UnsafeMutablePointer<SCDynamicStoreContext>($0) }
-
-        if let dynamicStore = SCDynamicStoreCreate(kCFAllocatorDefault, "com.clashx.ipv4.networknotification" as CFString, changed, dcAddress) {
-            let keysArray = ["State:/Network/Global/IPv4" as CFString] as CFArray
-            SCDynamicStoreSetNotificationKeys(dynamicStore, nil, keysArray)
-            let loop = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, dynamicStore, 0)
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), loop, .defaultMode)
-            CFRunLoopRun()
-        }
+        ipDebounceWork = work
+        ipQueue.asyncAfter(deadline: .now() + .milliseconds(200), execute: work)
     }
 
     @objc static func onWakeNote(note: NSNotification) {

@@ -17,7 +17,7 @@ struct LogsTableView<Item: Hashable>: NSViewRepresentable {
 	
 	var data: [Item]
 	var filterString: String
-    var logFilter: DashboardViewContoller.LogFilter
+	var logFilter: DashboardToolbarState.LogFilter
 	
 	class NonRespondingScrollView: NSScrollView {
 		override var acceptsFirstResponder: Bool { false }

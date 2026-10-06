@@ -9,22 +9,22 @@
 import Cocoa
 
 extension DateFormatter {
-    static var js: DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: NSCalendar.Identifier.ISO8601.rawValue)
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SZ"
-        return dateFormatter
-    }
+    static let js: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: NSCalendar.Identifier.ISO8601.rawValue)
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SZ"
+        return f
+    }()
 
-    static var simple: DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM-dd HH:mm:ss"
-        return dateFormatter
-    }
+    static let simple: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MM-dd HH:mm:ss"
+        return f
+    }()
 
-    static var provider: DateFormatter {
+    static let provider: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZZ"
         return f
-    }
+    }()
 }

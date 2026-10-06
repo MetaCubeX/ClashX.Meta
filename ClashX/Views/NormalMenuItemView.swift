@@ -17,7 +17,7 @@ class NormalMenuItemView: MenuItemBaseView {
     }()
 
     init(_ title: String, rightArrow: Bool) {
-        label = NSTextField(labelWithString: title)
+        label = VibrancyTextField(labelWithString: title)
         label.font = type(of: self).labelFont
         label.sizeToFit()
         let rect = NSRect(x: 0, y: 0, width: label.bounds.width + 40 + arrowLabel.bounds.width, height: 20)

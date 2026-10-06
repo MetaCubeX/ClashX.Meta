@@ -21,6 +21,9 @@ protocol ApiRequestStreamDelegate: AnyObject {
 final class ApiRequestStream {
 	static let shared = ApiRequestStream()
 
+	// App-level traffic/memory history so the dashboard opens with recent data instead of zeros
+	@MainActor lazy var trafficHistoryStore = TrafficHistoryStore()
+
 	enum StreamType: CaseIterable {
 		case traffic, logging, memory
 	}
@@ -190,11 +193,17 @@ final class ApiRequestStream {
 		observers = remaining
 	}
 
+	@MainActor
 	private func notifyStreamStatusChanged() async {
+		if !ConfigManager.shared.kernelState.isOperational {
+			trafficHistoryStore.reset()
+		}
 		await forEachObserver { await $0.streamStatusChanged() }
 	}
 
+	@MainActor
 	private func notifyTrafficUpdate(up: Int, down: Int) async {
+		trafficHistoryStore.appendTraffic(up: up, down: down)
 		await forEachObserver { await $0.didUpdateTraffic(up: up, down: down) }
 	}
 
@@ -202,7 +211,9 @@ final class ApiRequestStream {
 		await forEachObserver { await $0.didGetLog(log: log, level: level) }
 	}
 
+	@MainActor
 	private func notifyMemoryUpdate(memory: Int64) async {
+		trafficHistoryStore.appendMemory(memory)
 		await forEachObserver { await $0.didUpdateMemory(memory: memory) }
 	}
 
@@ -227,6 +238,11 @@ final class ApiRequestStream {
 		}
 
 		Logger.log("\(type)Stream did disconnect", level: .debug)
+
+		// A dropped traffic/memory stream means the core stopped; history is stale
+		if type == .traffic || type == .memory {
+			trafficHistoryStore.reset()
+		}
 
 		if type == .logging {
 			await verifyCoreHealthAfterStreamDisconnect()

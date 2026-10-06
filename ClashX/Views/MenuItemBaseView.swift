@@ -125,10 +125,24 @@ class MenuItemBaseView: NSView {
 
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        labels.forEach { $0.textColor = (enclosingMenuItem?.isEnabled ?? true) ? NSColor.labelColor : NSColor.placeholderTextColor }
-        let highlighted = isHighlighted && (enclosingMenuItem?.isEnabled ?? false)
+        syncMenuAppearance()
+        let enabled = enclosingMenuItem?.isEnabled ?? true
+        let highlighted = isHighlighted && enabled
+        updateLabelColors(highlighted: highlighted, enabled: enabled)
         setHighlighted(highlighted)
         cells.forEach { $0?.backgroundStyle = isHighlighted ? .emphasized : .normal }
+    }
+
+    /// Subclasses override this to own their text colors. Default covers the
+    /// common single-color case (`labels`).
+    /// macOS 26 has no NSVisualEffectView carrier, backgroundStyle alone
+    /// does not reliably invert flat (allowsVibrancy=false) text, so set it explicitly.
+    func updateLabelColors(highlighted: Bool, enabled: Bool) {
+        if highlighted {
+            labels.forEach { $0.textColor = NSColor.alternateSelectedControlTextColor }
+        } else {
+            labels.forEach { $0.textColor = enabled ? NSColor.labelColor : NSColor.placeholderTextColor }
+        }
     }
 
     override func viewWillMove(toWindow newWindow: NSWindow?) {
@@ -136,6 +150,7 @@ class MenuItemBaseView: NSView {
         if let newWindow = newWindow, !newWindow.isKeyWindow {
             newWindow.becomeKey()
         }
+        syncMenuAppearance(fallbackWindow: newWindow)
         updateTrackingAreas()
     }
 
@@ -165,5 +180,38 @@ class MenuItemBaseView: NSView {
         } else {
             (effectView as? NSVisualEffectView)?.material = isHighlighted ? .selection : .popover
         }
+    }
+
+    /// On macOS 26 the menu content is a plain clear NSView, so flat
+    /// (allowsVibrancy=false) labels must resolve labelColor against the menu
+    /// window's appearance. Otherwise a light appearance resolves to black on a
+    /// dark translucent menu, while emoji color-glyphs stay visible.
+    /// Appearance is synced for every NSTextField in the hierarchy so subclasses
+    /// don't need to expose their labels for this.
+    private func syncMenuAppearance(fallbackWindow: NSWindow? = nil) {
+        if #available(macOS 26, *) {
+            let source = fallbackWindow?.effectiveAppearance ?? window?.effectiveAppearance
+            guard let source else { return }
+            if effectView.appearance !== source {
+                effectView.appearance = source
+            }
+            for label in allMenuTextFields() where label.appearance !== source {
+                label.appearance = source
+            }
+        }
+    }
+
+    private func allMenuTextFields() -> [NSTextField] {
+        var out: [NSTextField] = []
+        func visit(_ view: NSView) {
+            for sub in view.subviews {
+                if let field = sub as? NSTextField {
+                    out.append(field)
+                }
+                visit(sub)
+            }
+        }
+        visit(self)
+        return out
     }
 }

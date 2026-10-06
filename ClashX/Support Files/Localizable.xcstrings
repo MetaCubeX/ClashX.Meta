@@ -1,2956 +1,3290 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "You're up to date!" : {
-      "comment" : "Local app update status",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已是最新版本"
+  "sourceLanguage": "en",
+  "strings": {
+    "You're up to date!": {
+      "comment": "Local app update status",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已是最新版本"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已是最新版本"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已是最新版本"
           }
         }
       }
     },
-    "" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : ""
+    "": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : ""
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
           }
         }
       }
     },
-    " ago" : {
-      "comment" : "Provider update time title",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "前"
+    " ago": {
+      "comment": "Provider update time title",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "前"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前"
           }
         }
       }
     },
-    "[TFO]" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "[TFO]"
+    "%lld": {},
+    "%lld nodes": {},
+    "%lld rules": {},
+    "API": {},
+    "Active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "活动"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "[TFO]"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "活動"
           }
         }
       }
     },
-    "%lld" : {
-
-    },
-    "%lld rules" : {
-
-    },
-    "Active Connections" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Active Connections"
+    "Active Connections": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Connections"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活动连接"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "活动连接"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活動連線"
+          }
+        }
+      }
+    },
+    "Add a remote config": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加托管配置文件"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "活動連線"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加託管配置文件"
           }
         }
       }
     },
-    "Add a remote config" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加托管配置文件"
+    "Add a remote control config": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加远程控制器配置"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加託管配置文件"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加遠程控制器配置"
           }
         }
       }
     },
-    "Add a remote control config" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加远程控制器配置"
+    "All": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "全部"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加遠程控制器配置"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "全部"
           }
         }
       }
     },
-    "Allow LAN" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "允许局域网"
+    "Allow LAN": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许局域网"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "允許區域網路"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允許區域網路"
           }
         }
       }
     },
-    "Alpha Meta core Warning" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "If you don't know what you're doing, never turn this switch on.\nRunning Meta Core without any authentication under 'su' privileges may damage your mac."
+    "Alpha Meta core Warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you don't know what you're doing, never turn this switch on.\nRunning Meta Core without any authentication under 'su' privileges may damage your mac."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果你不知道你在做什么, 请绝对不要打开这个开关.\n在 'su' 权限下运行未经验证的 Meta 核心, 可能损坏你的 mac."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "如果你不知道你在做什么, 请绝对不要打开这个开关.\n在 'su' 权限下运行未经验证的 Meta 核心, 可能损坏你的 mac."
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alpha Meta 核心警告"
+          }
+        }
+      }
+    },
+    "Apply and Quit": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用并退出"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alpha Meta 核心警告"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "應用並退出"
           }
         }
       }
     },
-    "Apply and Quit" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "应用并退出"
+    "Benchmark": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延迟测速"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "應用並退出"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延遲測速"
           }
         }
       }
     },
-    "Benchmark" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延迟测速"
+    "Benchmark Finished!": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延迟测速完成"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延遲測速"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延遲測速完成"
           }
         }
       }
     },
-    "Benchmark Finished!" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延迟测速完成"
+    "Benchmark has begun, please wait.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延迟测速开始，请稍候"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延遲測速完成"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延遲測速開始，請稍候"
           }
         }
       }
     },
-    "Benchmark has begun, please wait." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延迟测速开始，请稍候"
+    "Benchmark is processing, please wait.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延迟测速正在进行中，请稍候。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延遲測速開始，請稍候"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延遲測速正在進行中，請稍候。"
           }
         }
       }
     },
-    "Benchmark is processing, please wait." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延迟测速正在进行中，请稍候。"
+    "Cancel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "延遲測速正在進行中，請稍候。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }
     },
-    "Cancel" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消"
+    "Chain": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "链路"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鏈路"
           }
         }
       }
     },
-    "Chain" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "链路"
+    "ClashX Start Error!": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX 启动出错"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鏈路"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX 啟動出錯"
           }
         }
       }
     },
-    "ClashX fail to create ~/.config/clash.meta folder. Please check privileges or manually create folder and restart ClashX." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX fail to create ~/.config/clash.meta folder. Please check privileges or manually create folder and restart ClashX."
+    "ClashX fail to create ~/.config/clash.meta folder. Please check privileges or manually create folder and restart ClashX.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX fail to create ~/.config/clash.meta folder. Please check privileges or manually create folder and restart ClashX."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX 无法创建 ~/.config/clash.meta 文件夹。请检查权限或手动创建文件夹后重启 ClashX。"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX 无法创建 ~/.config/clash.meta 文件夹。请检查权限或手动创建文件夹后重启 ClashX。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX 無法建立 ~/.config/clash.meta 資料夾。請檢查權限或手動建立資料夾後重新啟動 ClashX。"
+          }
+        }
+      }
+    },
+    "ClashX needs to install/update a helper tool with administrator privileges, otherwise ClashX won't be able to configure system proxy.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX 需要使用管理员权限安装/更新一个帮助程序，否则 ClashX 将无法设置系统代理。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX 無法建立 ~/.config/clash.meta 資料夾。請檢查權限或手動建立資料夾後重新啟動 ClashX。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX 需要使用管理員權限安裝/更新一個幫助程序，否則 ClashX 將無法設定系統代理。"
           }
         }
       }
     },
-    "ClashX needs to install/update a helper tool with administrator privileges, otherwise ClashX won't be able to configure system proxy." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX 需要使用管理员权限安装/更新一个帮助程序，否则 ClashX 将无法设置系统代理。"
+    "ClashX use a daemon helper to setup your system proxy. Please enable ClashX in the Login Items under the Allow in the Background section and relaunch the app": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX需要通过后台Daemon进程来设置系统代理，请在\"系统偏好设置->登录项->允许在后台 中\"允许ClashX"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX 需要使用管理員權限安裝/更新一個幫助程序，否則 ClashX 將無法設定系統代理。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ClashX需要通過後台Daemon進程來設定系統代理，請在\"系統偏好設定->登錄項->允許在後台 中\"允許ClashX"
           }
         }
       }
     },
-    "ClashX Start Error!" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX 启动出错"
+    "Click OK to quit the app and apply change.": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认清理并退出软件"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX 啟動出錯"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認清理併退出軟件"
           }
         }
       }
     },
-    "ClashX use a daemon helper to setup your system proxy. Please enable ClashX in the Login Items under the Allow in the Background section and relaunch the app" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX需要通过后台Daemon进程来设置系统代理，请在\"系统偏好设置->登录项->允许在后台 中\"允许ClashX"
+    "Client": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "客户端"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ClashX需要通過後台Daemon進程來設定系統代理，請在\"系統偏好設定->登錄項->允許在後台 中\"允許ClashX"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "客戶端"
           }
         }
       }
     },
-    "Click OK to quit the app and apply change." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "确认清理并退出软件"
+    "Closed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "已断开"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確認清理併退出軟件"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "已斷線"
           }
         }
       }
     },
-    "Client" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Client"
+    "Config": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "客户端"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
           }
+        }
+      }
+    },
+    "Config file have been changed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置文件已被修改"
+          }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "客戶端"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置文件已被修改"
           }
         }
       }
     },
-    "Config" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置"
+    "Config loading Fail!": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置文件加载失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置文件加載失敗"
           }
         }
       }
     },
-    "Config file have been changed" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件已被修改"
+    "Connecting": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接中"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件已被修改"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連接中"
           }
         }
       }
     },
-    "Config loading Fail!" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件加载失败"
+    "Connection Type": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件加載失敗"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接类型"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線類型"
+          }
+        }
+      }
+    },
+    "Connection lost. Retrying automatically.": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接丢失，正在自动重试。"
           }
         }
       }
     },
-    "Connecting" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接中"
+    "Connections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接数"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "連接中"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線數"
           }
         }
       }
     },
-    "Connection lost. Retrying automatically." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接丢失，正在自动重试。"
+    "Conns": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線"
           }
         }
       }
     },
-    "Connection Type" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Type"
+    "Continue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接类型"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續"
+          }
+        }
+      }
+    },
+    "Copy API address": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制 API 地址"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "連線類型"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "複製 API 位址"
           }
         }
       }
     },
-    "Conns" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接"
+    "Copy Shell Command": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制终端代理命令"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "連線"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "複製終端代理命令"
           }
         }
       }
     },
-    "Continue" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "继续"
+    "Copy Shell Command (External)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制终端代理命令(外部IP)"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "繼續"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "複製終端代理命令(外部IP)"
           }
         }
       }
     },
-    "Copy Shell Command" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "复制终端代理命令"
+    "Copy terminal proxy command": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "复制终端代理命令"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "複製終端代理命令"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "複製終端代理命令"
           }
         }
       }
     },
-    "Copy Shell Command (External)" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "复制终端代理命令(外部IP)"
+    "Core": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内核版本"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "複製終端代理命令(外部IP)"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "內核版本"
+          }
+        }
+      }
+    },
+    "Core Disconnected": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核心已断开连接"
           }
         }
       }
     },
-    "Core Disconnected" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "核心已断开连接"
+    "Core Process Crashed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核心进程已崩溃"
           }
         }
       }
     },
-    "Core Process Crashed" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "核心进程已崩溃"
+    "Create age config file failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create age config file failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建 age 配置文件失败"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立 age 配置檔案失敗"
           }
         }
       }
     },
-    "Create age config file failed" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create age config file failed"
+    "Current SSID is in the auto-suspend list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 SSID 在自动暂停列表中。"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "创建 age 配置文件失败"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前 SSID 在自動暫停清單中。"
+          }
+        }
+      }
+    },
+    "Custom your GEOIP MMDB download address.": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义下载地址"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "建立 age 配置檔案失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定義下載地址"
           }
         }
       }
     },
-    "Current SSID is in the auto-suspend list." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前 SSID 在自动暂停列表中。"
+    "DL": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目前 SSID 在自動暫停清單中。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行"
           }
         }
       }
     },
-    "Custom your GEOIP MMDB download address." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自定义下载地址"
+    "DL Speed": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载速度"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自定義下載地址"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載速度"
           }
         }
       }
     },
-    "Date" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Date"
+    "Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "时间"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时间"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
           }
         }
       }
     },
-    "Decrypt config fail" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Decrypt config fail"
+    "Decrypt config fail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decrypt config fail"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解密配置失败"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解密配置失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解密配置失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解密配置失敗"
           }
         }
       }
     },
-    "Destination IP" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目标 IP"
+    "Destination IP": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目标 IP"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目標 IP"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目標 IP"
           }
         }
       }
     },
-    "Details" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Details"
+    "Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看详情"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看详情"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看詳情"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看詳情"
           }
         }
       }
     },
-    "Device Name" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "设备名称"
+    "Device Name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备名称"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "裝置名稱"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "裝置名稱"
           }
         }
       }
     },
-    "Direct" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "直连"
+    "Direct": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直连"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "直連"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直連"
           }
         }
       }
     },
-    "Direct Mode" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "直接连接"
+    "Direct Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接连接"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "直接連接"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接連接"
           }
         }
       }
     },
-    "DL" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下行"
+    "Do you want to enable the proxy anyway? This override will be cleared when you switch WiFi or restart ClashX.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍要启用代理吗？当你切换 WiFi 或重启 ClashX 时，此覆盖将被清除。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下行"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍要啟用代理嗎？當你切換 WiFi 或重新啟動 ClashX 時，此覆寫會被清除。"
           }
         }
       }
     },
-    "DL Speed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载速度"
+    "Done": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載速度"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         }
       }
     },
-    "Do you want to enable the proxy anyway? This override will be cleared when you switch WiFi or restart ClashX." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "仍要启用代理吗？当你切换 WiFi 或重启 ClashX 时，此覆盖将被清除。"
+    "Down": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "仍要啟用代理嗎？當你切換 WiFi 或重新啟動 ClashX 時，此覆寫會被清除。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載"
           }
         }
       }
     },
-    "Done" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
+    "Download": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载速度"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載速度"
           }
         }
       }
     },
-    "Down" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载"
+    "Download Meta core": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载 Meta 内核"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載 Meta 核心"
           }
         }
       }
     },
-    "Download" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Download"
+    "Download Total": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "总下载"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "總下載"
           }
+        }
+      }
+    },
+    "Download fail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载失败"
+          }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載失敗"
           }
         }
       }
     },
-    "Download fail" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载失败"
+    "Edit in Text Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑配置"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯配置"
           }
         }
       }
     },
-    "Download Meta core" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载 Meta 内核"
+    "Empty": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載 Meta 核心"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空"
           }
         }
       }
     },
-    "Download Total" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载总量"
+    "Enable Anyway": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍然启用"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載總量"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍然啟用"
           }
         }
       }
     },
-    "Edit in Text Mode" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "编辑配置"
+    "Enable TUN Device": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用 TUN 设备"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "編輯配置"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "啟用 TUN 裝置"
           }
         }
       }
     },
-    "Empty" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "空"
+    "Enhance proxy list render": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "增强代理列表渲染"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "空"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "增強代理列表渲染"
           }
         }
       }
     },
-    "Enable Anyway" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "仍然启用"
+    "Expire": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到期"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "仍然啟用"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到期"
           }
         }
       }
     },
-    "Enable TUN Device" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "启用 TUN 设备"
+    "Expire: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到期：%@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "啟用 TUN 裝置"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到期：%@"
           }
         }
       }
     },
-    "Enhance proxy list render" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "增强代理列表渲染"
+    "Fail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "增強代理列表渲染"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗"
           }
         }
       }
     },
-    "Expire" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "到期"
+    "Fail:": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失败："
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "到期"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗："
           }
         }
       }
     },
-    "Expire: %@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "到期：%@"
+    "FakeIP": {},
+    "Flush dns cache": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除 DNS 缓存"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "到期：%@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除 DNS 快取"
           }
         }
       }
     },
-    "fail" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失败"
+    "GEO Databases": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GEO 数据库"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GEO 資料庫"
           }
         }
       }
     },
-    "Fail" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失败"
+    "Global": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全局"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全局"
           }
         }
       }
     },
-    "Fail:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失败："
+    "Global Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全局连接"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失敗："
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全局連接"
           }
         }
       }
     },
-    "fails: %@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失败: %@"
+    "Good luck to you  🙃": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "祝你好运  🙃"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失敗: %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "祝你好運  🙃"
           }
         }
       }
     },
-    "FakeIP" : {
-
+    "HTTP(S)": {},
+    "Health Check": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "健康检查"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "健康檢查"
+          }
+        }
+      }
     },
-    "Flush dns cache" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清除 DNS 缓存"
+    "Hide Names": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏节点名"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清除 DNS 快取"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隱藏節點名"
           }
         }
       }
     },
-    "GEO Databases" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "GEO 数据库"
+    "Host": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机名"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "GEO 資料庫"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主機名"
           }
         }
       }
     },
-    "Global" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全局"
+    "Hosts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hosts"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全局"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机名"
           }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主機名"
+          }
         }
       }
     },
-    "Global Mode" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全局连接"
+    "Http Port": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP 端口"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全局連接"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP 埠"
           }
         }
       }
     },
-    "Good luck to you  🙃" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "祝你好运  🙃"
+    "If you can not find ClashX in the settings, you can try reset daemon": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果在设置里没找到ClashX,可以尝试重置守护程序"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "祝你好運  🙃"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果在設定裡沒找到ClashX,可以嘗試重置守護程序"
           }
         }
       }
     },
-    "Health Check" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "健康检查"
+    "Install": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "健康檢查"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安裝"
           }
         }
       }
     },
-    "Host" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Host"
+    "Interface Name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口名称"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主机名"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "介面名稱"
+          }
+        }
+      }
+    },
+    "Invalid input": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入不合法"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主機名"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入不合法"
           }
         }
       }
     },
-    "Hosts" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hosts"
+    "Legacy Install": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传统安装"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主机名"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳統安裝"
+          }
+        }
+      }
+    },
+    "Level": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "级别"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主機名"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "級別"
           }
         }
       }
     },
-    "hours" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "小时"
+    "Load Balance": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "负载均衡"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "小時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "負載均衡"
           }
         }
       }
     },
-    "Http Port" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HTTP 端口"
+    "Load decrypted config failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load decrypted config failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载解密后的配置失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HTTP 埠"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入解密後的配置失敗"
           }
         }
       }
     },
-    "iCloud not available" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 不可用"
+    "Log": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 不可用"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌"
           }
         }
       }
     },
-    "If you can not find ClashX in the settings, you can try reset daemon" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "如果在设置里没找到ClashX,可以尝试重置守护程序"
+    "Log Filter": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志过滤"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "如果在設定裡沒找到ClashX,可以嘗試重置守護程序"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌過濾"
           }
         }
       }
     },
-    "Install" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "安装"
+    "Log Level": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志级别"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "安裝"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌級別"
           }
         }
       }
     },
-    "Interface Name" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "接口名称"
+    "Log system crashed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志系统崩溃。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "介面名稱"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌系統崩潰。"
           }
         }
       }
     },
-    "Invalid input" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "输入不合法"
+    "Logs": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "輸入不合法"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌"
           }
         }
       }
     },
-    "ipv6" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "IPv6"
+    "Memory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内存"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "IPv6"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記憶體"
           }
         }
       }
     },
-    "Legacy Install" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "传统安装"
+    "Memory Usage": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内存占用"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "傳統安裝"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記憶體用量"
           }
         }
       }
     },
-    "Level" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "级别"
+    "Mihomo": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mihomo"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "級別"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mihomo"
           }
         }
       }
     },
-    "Load Balance" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "负载均衡"
+    "Mixed Port": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "混合端口"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "負載均衡"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "混合埠"
           }
         }
       }
     },
-    "Load decrypted config failed" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Load decrypted config failed"
+    "Need to Restart the ClashX to Take effect, Please start clashX manually": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要重启ClashX生效，请手动启动ClashX"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加载解密后的配置失败"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要重啟ClashX生效，請手動啟動ClashX"
           }
+        }
+      }
+    },
+    "Network": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络状态"
+          }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "載入解密後的配置失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網路狀態"
           }
         }
       }
     },
-    "Log" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日志"
+    "Never": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从未"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日誌"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從未"
           }
         }
       }
     },
-    "Log Level" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日志级别"
+    "Never show again": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不再提示"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日誌級別"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不再提示"
           }
         }
       }
     },
-    "Log system crashed." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日志系统崩溃。"
+    "OK": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日誌系統崩潰。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定"
           }
         }
       }
     },
-    "Logs" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日志"
+    "Open Connection Details": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开连接查看器"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日誌"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開連接查看器"
           }
         }
       }
     },
-    "Memory Usage" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "内存占用"
+    "Open Dashboard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开控制台"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "記憶體用量"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開控制台"
           }
         }
       }
     },
-    "Mihomo" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mihomo"
+    "Open Log": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开日志"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mihomo"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開日誌"
           }
         }
       }
     },
-    "Mixed Port" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "混合端口"
+    "Open Menu": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开菜单"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "混合埠"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開菜單"
           }
         }
       }
     },
-    "Need to Restart the ClashX to Take effect, Please start clashX manually" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要重启ClashX生效，请手动启动ClashX"
+    "Open System Login Item Setting": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开系统登录项设置"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要重啟ClashX生效，請手動啟動ClashX"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開系統登錄項設定"
           }
         }
       }
     },
-    "Never" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从未"
+    "Overview": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概览"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從未"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概覽"
           }
         }
       }
     },
-    "Never show again" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不再提示"
+    "Pause Refresh": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "暂停刷新"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不再提示"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "暫停重新整理"
           }
         }
       }
     },
-    "none" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无"
+    "Please enable the location service for ClashX to detect your current WiFi network's SSID name and provide the auto-suspend services.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请允许ClashX使用定位服务来获取当前所连接的WiFi名称从而提供按需暂停服务。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請允許 ClashX 使用定位服務，以獲取您目前連接的 WiFi 名稱，並提供按需暫停服務。"
           }
         }
       }
     },
-    "OK" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "确定"
+    "Ports Open Fail, Please try to restart ClashX": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端口打开失败，请尝试重启ClashX"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確定"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端口打開失敗，請嘗試重啟ClashX"
           }
         }
       }
     },
-    "Open Connection Details" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开连接查看器"
+    "Process": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进程"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打開連接查看器"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行程"
           }
         }
       }
     },
-    "Open Dashboard" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开控制台"
+    "Providers": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供商"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打開控制台"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供商"
           }
         }
       }
     },
-    "Open Log" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开日志"
+    "Proxies": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打開日誌"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理"
           }
         }
       }
     },
-    "Open Menu" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开菜单"
+    "Proxy": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打開菜單"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理"
           }
         }
       }
     },
-    "Open System Login Item Setting" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开系统登录项设置"
+    "Proxy Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出站模式"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打開系統登錄項設定"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出站模式"
           }
         }
       }
     },
-    "Overview" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "概览"
+    "Proxy Provider": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理提供商"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "概覽"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理提供商"
           }
         }
       }
     },
-    "Please enable the location service for ClashX to detect your current WiFi network's SSID name and provide the auto-suspend services." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请允许ClashX使用定位服务来获取当前所连接的WiFi名称从而提供按需暂停服务。"
+    "Proxy Provider Inline": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理提供商内联"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請允許 ClashX 使用定位服務，以獲取您目前連接的 WiFi 名稱，並提供按需暫停服務。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理提供商內嵌"
           }
         }
       }
     },
-    "Ports Open Fail, Please try to restart ClashX" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "端口打开失败，请尝试重启ClashX"
+    "Proxy settings are changed by another process. ClashX is no longer the default system proxy.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统代理设置已被另一个进程修改，ClashX不再是系统默认代理"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "端口打開失敗，請嘗試重啟ClashX"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理設定被另一個程式更改。ClashX 不再是默認的系統代理"
           }
         }
       }
     },
-    "Process" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "进程"
+    "Quit": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "行程"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出"
           }
         }
       }
     },
-    "Providers" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "提供商"
+    "Quit ClashX?": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出ClashX?"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "提供商"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 ClashX?"
           }
         }
       }
     },
-    "Proxies" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理"
+    "ReTest": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新测速"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重測"
           }
         }
       }
     },
-    "Proxy" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理"
+    "Redir Port": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重定向端口"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重導向埠"
           }
         }
       }
     },
-    "Proxy Mode" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出站模式"
+    "Reduce alerts if notification permission is disabled": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在通知权限关闭时减少提示弹窗"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出站模式"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在通知權限關閉時減少提示彈窗"
           }
         }
       }
     },
-    "Proxy Provider" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理提供商"
+    "Reload Config Fail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重载配置文件失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理提供商"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新加載配置失敗"
           }
         }
       }
     },
-    "Proxy Provider Inline" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理提供商内联"
+    "Reload Config Succeed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重载配置文件成功"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理提供商內嵌"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新加載配置成功"
           }
         }
       }
     },
-    "Proxy settings are changed by another process. ClashX is no longer the default system proxy." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "系统代理设置已被另一个进程修改，ClashX不再是系统默认代理"
+    "Reload config file": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新加载配置文件"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代理設定被另一個程式更改。ClashX 不再是默認的系統代理"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新載入設定檔"
           }
         }
       }
     },
-    "Quit" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出"
+    "Remote Config Format Error": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "托管配置文件格式不正确"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遠端配置格式錯誤"
           }
         }
       }
     },
-    "Quit ClashX?" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出ClashX?"
+    "Remote Config Update": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新托管配置文件"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出 ClashX?"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遠程配置更新"
           }
         }
       }
     },
-    "Redir Port" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重定向端口"
+    "Remote Config Update Fail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "托管配置文件更新失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重導向埠"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遠程配置更新失敗"
           }
         }
       }
     },
-    "Reduce alerts if notification permission is disabled" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在通知权限关闭时减少提示弹窗"
+    "Requests": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requests"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在通知權限關閉時減少提示彈窗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請求"
           }
         }
       }
     },
-    "Reload Config Fail" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重载配置文件失败"
+    "Reset": {},
+    "Reset Daemon": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置守护程序"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新加載配置失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置守護進程"
           }
         }
       }
     },
-    "Reload config file" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新加载配置文件"
+    "Reset User Defaults": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置用户默认值"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新載入設定檔"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置使用者預設值"
           }
         }
       }
     },
-    "Reload Config Succeed" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重载配置文件成功"
+    "Resume Refresh": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "继续刷新"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新加載配置成功"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "繼續重新整理"
           }
         }
       }
     },
-    "Remote Config Format Error" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "托管配置文件格式不正确"
+    "Retest": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新测速"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "遠端配置格式錯誤"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新測速"
           }
         }
       }
     },
-    "Remote Config Update" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新托管配置文件"
+    "Rule": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "规则"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "遠程配置更新"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "規則"
           }
         }
       }
     },
-    "Remote Config Update Fail" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "托管配置文件更新失败"
+    "Rule Inline": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "规则内联"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "遠程配置更新失敗"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "規則內嵌"
           }
         }
       }
     },
-    "Requests" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Requests"
+    "Rule Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "规则判断"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请求"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "規則模式"
+          }
+        }
+      }
+    },
+    "Rules": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "规则"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請求"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "規則"
           }
         }
       }
     },
-    "Reset" : {
-
+    "Script": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Script"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "脚本"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "腳本"
+          }
+        }
+      }
     },
-    "Reset Daemon" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重置守护程序"
+    "Search": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重置守護進程"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋"
           }
         }
       }
     },
-    "Reset User Defaults" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重置用户默认值"
+    "Should be a least 1 hour": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "至少需要1小时间隔"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重置使用者預設值"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "應該至少 1 小時"
           }
         }
       }
     },
-    "Retest" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新测速"
+    "Sniff Host": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "嗅探主机"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新測速"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "嗅探主機"
           }
         }
       }
     },
-    "ReTest" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新测速"
+    "Sniffer": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "嗅探"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重測"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "嗅探"
           }
         }
       }
     },
-    "Rule" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "规则"
+    "Socks5 Port": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SOCKS5 端口"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "規則"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SOCKS5 埠"
           }
         }
       }
     },
-    "Rule Inline" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "规则内联"
+    "Source": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来源"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "規則內嵌"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "來源"
           }
         }
       }
     },
-    "Rule Mode" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "规则判断"
+    "Source IP": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "来源 IP"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "規則模式"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "來源 IP"
           }
         }
       }
     },
-    "Rules" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "规则"
+    "Speed": {},
+    "Start Meta Fail!": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开Meta 失败!"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "規則"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "啟動 Meta 失敗！"
           }
         }
       }
     },
-    "Script" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Script"
+    "Status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "脚本"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "状态"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "腳本"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "狀態"
           }
         }
       }
     },
-    "Should be a least 1 hour" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "至少需要1小时间隔"
+    "Stop All": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部断开"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "應該至少 1 小時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部斷開"
           }
         }
       }
     },
-    "size: %lld" : {
-
+    "Subscription Usage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅用量"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱用量"
+          }
+        }
+      }
     },
-    "Sniff Host" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "嗅探主机"
+    "Succeed!": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功！"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "嗅探主機"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功！"
           }
         }
       }
     },
-    "Sniffer" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "嗅探"
+    "Success": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "嗅探"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功"
           }
         }
       }
     },
-    "Socks5 Port" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SOCKS5 端口"
+    "Success!": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功！"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SOCKS5 埠"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功！"
           }
         }
       }
     },
-    "Source" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "来源"
+    "Sys Proxy": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "系统代理"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "來源"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "machine_translated",
+            "value": "系統代理"
           }
         }
       }
     },
-    "Start Meta Fail!" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开Meta 失败!"
+    "System Proxy": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置系统代理"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "啟動 Meta 失敗！"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系統代理"
           }
         }
       }
     },
-    "Status" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Status"
+    "System Proxy Changed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统代理设置已修改"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "状态"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系統代理已更改"
           }
+        }
+      }
+    },
+    "TUN": {},
+    "TUN IP Stack": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TUN IP 栈"
+          }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "狀態"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TUN IP 堆疊"
           }
         }
       }
     },
-    "Succeed!" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功！"
+    "Tap to reload config": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击重载配置文件"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功！"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點擊重新加載配置"
           }
         }
       }
     },
-    "Success" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功"
+    "Test Latency": {},
+    "Testing": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测速中"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "測試中"
           }
         }
       }
     },
-    "Success!" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功！"
+    "The active connections will be interrupted.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活动的连接将被强制打断。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功！"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活躍的連接將被中斷。"
+          }
+        }
+      }
+    },
+    "The core process has exited unexpectedly.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核心进程意外退出。"
           }
         }
       }
     },
-    "System Proxy" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "设置系统代理"
+    "The remote config name is duplicated": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "托管配置文件名称重复"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "系統代理"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遠端配置名稱重複"
           }
         }
       }
     },
-    "System Proxy Changed" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "系统代理设置已修改"
+    "The status icon is coverd or hide by other app.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "菜单栏图标被刘海屏遮挡或者被其他app隐藏，请检查菜单栏状态。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "系統代理已更改"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "狀態圖標被其他應用覆蓋或隱藏"
           }
         }
       }
     },
-    "Tap to reload config" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "点击重载配置文件"
+    "This will remove all app settings and quit ClashX. Continue?": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这将清除所有应用设置并退出 ClashX。是否继续？"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "點擊重新加載配置"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將清除所有應用程式設定並退出 ClashX。是否繼續？"
           }
         }
       }
     },
-    "Testing" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "测速中"
+    "Time": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时间"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "測試中"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
           }
         }
       }
     },
-    "The active connections will be interrupted." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "活动的连接将被强制打断。"
+    "Top Processes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Network Activity"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "活躍的連接將被中斷。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近期网络活动"
           }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近期網路活動"
+          }
         }
       }
     },
-    "The core process has exited unexpectedly." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "核心进程意外退出。"
+    "Traffic": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量"
           }
         }
       }
     },
-    "The remote config name is duplicated" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "托管配置文件名称重复"
+    "Tun Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TUN 模式"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "遠端配置名稱重複"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TUN 模式"
           }
         }
       }
     },
-    "The status icon is coverd or hide by other app." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "菜单栏图标被刘海屏遮挡或者被其他app隐藏，请检查菜单栏状态。"
+    "UL": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "狀態圖標被其他應用覆蓋或隱藏"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行"
           }
         }
       }
     },
-    "This will remove all app settings and quit ClashX. Continue?" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这将清除所有应用设置并退出 ClashX。是否继续？"
+    "UL Speed": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传速度"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "這將清除所有應用程式設定並退出 ClashX。是否繼續？"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳速度"
           }
         }
       }
     },
-    "Time" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "时间"
+    "Unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
           }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
+          }
         }
       }
     },
-    "total: %d, success: %d" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "共计: %d, 成功: %d"
+    "Up": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "共計: %d, 成功: %d"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳"
           }
         }
       }
     },
-    "TUN IP Stack" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TUN IP 栈"
+    "Update": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TUN IP 堆疊"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
           }
         }
       }
     },
-    "Tun Mode" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TUN 模式"
+    "Update All": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新全部"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TUN 模式"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新全部"
           }
         }
       }
     },
-    "UL" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上行"
+    "Update All Providers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新所有提供商"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上行"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新所有提供商"
           }
         }
       }
     },
-    "UL Speed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上传速度"
+    "Update Alpha Meta core": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 Alpha Meta 内核"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上傳速度"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 Alpha Meta 核心"
           }
         }
       }
     },
-    "Unknown" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unknown"
+    "Update GEO Databases": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 GEO 数据库"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未知"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 GEO 資料庫"
+          }
+        }
+      }
+    },
+    "Update GEOIP Database": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新IP数据库"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未知"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 GEOIP 數據庫"
           }
         }
       }
     },
-    "Up" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上传"
+    "Update Tips": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新提示"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上傳"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新提示"
           }
         }
       }
     },
-    "Update" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新"
+    "Update external resource complete": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新外部资源完成"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新外部資源完成"
           }
         }
       }
     },
-    "Update All" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新全部"
+    "Update remote config update interval": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远程配置自动更新间隔"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新全部"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新遠程配置更新間隔"
           }
         }
       }
     },
-    "Update All Providers" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新所有提供商"
+    "Updated %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新于 %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新所有提供商"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新於 %@"
           }
         }
       }
     },
-    "Update Alpha Meta core" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新 Alpha Meta 内核"
+    "Updating": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新中"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新 Alpha Meta 核心"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新中"
           }
         }
       }
     },
-    "Update external resource complete" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新外部资源完成"
+    "Updating GEO Databases...": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 GEO 数据库..."
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新外部資源完成"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在更新 GEO 資料庫..."
           }
         }
       }
     },
-    "Update GEO Databases" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新 GEO 数据库"
+    "Upload": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传速度"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新 GEO 資料庫"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳速度"
           }
         }
       }
     },
-    "Update GEOIP Database" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新IP数据库"
+    "Upload Total": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "总上传"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新 GEOIP 數據庫"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "總上傳"
           }
         }
       }
     },
-    "Update remote config update interval" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "远程配置自动更新间隔"
+    "Use reload config to try reconnect.": {
+      "extractionState": "stale",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用重载配置文件按钮尝试重新连接"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新遠程配置更新間隔"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用重新加載配置嘗試重新連接"
           }
         }
       }
     },
-    "Update Tips" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新提示"
+    "Version: ": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本: "
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新提示"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本："
           }
         }
       }
     },
-    "Updated %@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已更新 %@"
+    "[TFO]": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "[TFO]"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已更新 %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "[TFO]"
           }
         }
       }
     },
-    "Updating" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新中"
+    "fail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失败"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新中"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗"
           }
         }
       }
     },
-    "Updating GEO Databases..." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新 GEO 数据库..."
+    "fails: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失败: %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在更新 GEO 資料庫..."
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗: %@"
           }
         }
       }
     },
-    "Upload" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upload"
+    "hours": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小时"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上传"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小時"
+          }
+        }
+      }
+    },
+    "iCloud not available": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud 不可用"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上傳"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud 不可用"
           }
         }
       }
     },
-    "Upload Total" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上传总量"
+    "ipv6": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv6"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上傳總量"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv6"
           }
         }
       }
     },
-    "Use reload config to try reconnect." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用重载配置文件按钮尝试重新连接"
+    "none": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用重新加載配置嘗試重新連接"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無"
           }
         }
       }
     },
-    "Version: " : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "版本: "
+    "size: %lld": {},
+    "total: %d, success: %d": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共计: %d, 成功: %d"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "版本："
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共計: %d, 成功: %d"
           }
         }
       }
     }
   },
-  "version" : "1.2"
+  "version": "1.3"
 }

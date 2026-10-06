@@ -139,6 +139,13 @@ class ConfigManager {
         }
     }
 
+    /// Persist a proxy group selection so it can be replayed after reload.
+    static func recordProxySelection(group: String, selected: String) {
+        let newModel = SavedProxyModel(group: group, selected: selected, config: selectConfigName)
+        selectedProxyRecords.removeAll { $0.key == newModel.key }
+        selectedProxyRecords.append(newModel)
+    }
+
     var disableShowCurrentProxyInMenu: Bool = UserDefaults.standard.object(forKey: "kSDisableShowCurrentProxyInMenu") as? Bool ?? !AppDelegate.isAboveMacOS14 {
         didSet {
             UserDefaults.standard.set(disableShowCurrentProxyInMenu, forKey: "kSDisableShowCurrentProxyInMenu")

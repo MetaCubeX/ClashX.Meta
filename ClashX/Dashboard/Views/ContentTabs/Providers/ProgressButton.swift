@@ -58,7 +58,7 @@ struct ProgressButton: View {
 			return 12 + 8
 		}
 		
-		let w = str.size(withAttributes: [.font: NSFont.systemFont(ofSize: 13)]).width
+		let w = TextMeasurement.width(of: str, font: NSFont.systemFont(ofSize: 13))
 		return w + 12 + 45
 	}
 }

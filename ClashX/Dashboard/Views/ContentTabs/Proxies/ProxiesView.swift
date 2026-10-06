@@ -5,63 +5,80 @@
 //
 
 import SwiftUI
-@_spi(Advanced) import SwiftUIIntrospect
-
-class ProxiesSearchString: ObservableObject, Identifiable {
-	let id = UUID().uuidString
-	@Published var string: String = ""
-}
 
 struct ProxiesView: View {
 	
-	@ObservedObject var proxyStorage = DBProxyStorage()
+	@StateObject private var proxyStorage = DBProxyStorage()
+
+	@EnvironmentObject var hideProxyNames: HideProxyNames
+	@EnvironmentObject var searchString: ProxiesSearchString
 	
-	@State private var searchString = ProxiesSearchString()
 	@State private var isGlobalMode = false
+	@State private var containerWidth: CGFloat = 0
 	
-	@StateObject private var hideProxyNames = HideProxyNames()
+	private var filterSegments: [String] {
+		searchString.string
+			.lowercased()
+			.split(separator: " ")
+			.map(String.init)
+			.filter { !$0.isEmpty }
+	}
+	
+	private var visibleGroups: [DBProxyGroup] {
+		let groups = proxyStorage.groups.filter { !$0.hidden }
+		guard !filterSegments.isEmpty else { return groups }
+		return groups.filter { group in
+			matchesFilter(group.name) || group.proxies.contains { matchesFilter($0.name) }
+		}
+	}
 	
     var body: some View {
-		NavigationView {
-            List(proxyStorage.groups.filter({ !$0.hidden }), id: \.id) { group in
-				ProxyGroupRowView(proxyGroup: group)
+		ZStack {
+			ScrollView {
+				LazyVStack(spacing: DashboardTheme.spacingBetweenCards) {
+					ForEach(visibleGroups) { group in
+						ProxyGroupCard(proxyGroup: group, width: cardWidth)
+					}
+				}
+				.padding(DashboardTheme.spacingPage)
 			}
-			.introspect(.table, on: .macOS(.v12...)) {
-				$0.refusesFirstResponder = true
-				$0.doubleAction = nil
+			.background(DashboardTheme.pageBackground)
+			.task {
+				await loadProxies()
 			}
-			.listStyle(.plain)
-			EmptyView()
+			.environmentObject(proxyStorage)
+
+			GeometryReader { geometry in
+				Rectangle()
+					.fill(.clear)
+					.frame(height: 1)
+					.onChange(of: geometry.size.width) { newValue in
+						containerWidth = newValue
+					}
+					.onAppear {
+						containerWidth = geometry.size.width
+					}
+			}
+			.frame(height: 1)
 		}
-        .background(Color("SwiftUI Colors/WindowBackgroundColor"))
-		.onReceive(NotificationCenter.default.publisher(for: .toolbarSearchString)) {
-			guard let string = $0.userInfo?["String"] as? String else { return }
-			searchString.string = string
-		}
-		.onReceive(NotificationCenter.default.publisher(for: .hideNames)) {
-			guard let hide = $0.userInfo?["hide"] as? Bool else { return }
-			hideProxyNames.hide = hide
-		}
-		.environmentObject(searchString)
-		.task {
-			await loadProxies()
-		}
-		.environmentObject(hideProxyNames)
     }
+
+	private var cardWidth: CGFloat {
+		containerWidth - DashboardTheme.spacingPage * 2
+	}
 	
+	func matchesFilter(_ name: String) -> Bool {
+		let lower = name.lowercased()
+		return filterSegments.contains { lower.contains($0) }
+	}
 	
 	@MainActor
 	func loadProxies() async {
-//			self.isGlobalMode = ConfigManager.shared.currentConfig?.mode == .global
+		self.isGlobalMode = ConfigManager.shared.currentConfig?.mode == .global
 		let resp = await ApiRequest.getMergedProxyData()
-		proxyStorage.groups = DBProxyStorage(resp).groups.filter {
+		let groups = DBProxyStorage(resp).groups.filter {
 			isGlobalMode ? true : $0.name != "GLOBAL"
 		}
+		proxyStorage.updateGroups(groups)
 	}
 }
-
-//struct ProxiesView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ProxiesView()
-//    }
-//}

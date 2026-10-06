@@ -38,7 +38,7 @@ class AboutViewController: NSViewController {
 
         versionLabel.stringValue = "Version: \(version) (\(build))"
         coreVersionLabel.stringValue = "Meta Core: \(clashCoreVersion)"
-        buildTimeLabel.stringValue = "\(commit)-\(branch) \(buildTime)"
+        buildTimeLabel.stringValue = "\(branch) (\(commit)) \(buildTime)"
     }
 
     override func viewWillAppear() {

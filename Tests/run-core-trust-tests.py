@@ -23,10 +23,13 @@ class CoreTrustTests:
         if not condition:
             raise AssertionError(description)
 
-    def invoke(self, archive, output, succeeds):
+    def invoke(self, archive, output, succeeds, staging=None):
         self.invocations += 1
+        command = ["/bin/bash", str(self.script), str(archive), str(output)]
+        if staging is not None:
+            command.append(str(staging))
         result = subprocess.run(
-            ["/bin/bash", str(self.script), str(archive), str(output)],
+            command,
             cwd=self.directory,
             capture_output=True,
             text=True,
@@ -40,6 +43,8 @@ class CoreTrustTests:
             ),
         )
         self.no_temporary_manifest(Path(output))
+        if staging is not None:
+            self.no_temporary_manifest(Path(staging) / Path(output).name)
 
     def no_temporary_manifest(self, output):
         leftovers = []
@@ -167,6 +172,25 @@ class CoreTrustTests:
         self.invoke(archive, blocked_parent / "manifest.swift", succeeds=False)
         self.require(blocked_parent.read_bytes() == b"preserve this parent", "Failed output creation damaged its parent")
         self.require(self.snapshot(output) == preserved, "Failure scenarios must preserve the existing trusted manifest")
+
+        # Xcode's target TEMP_DIR is writable while DerivedSources only permits
+        # the declared output. Exercise separate staging without losing atomicity.
+        staging = self.directory / "target temporary files"
+        staging.mkdir()
+        staged_output = self.directory / "DerivedSources" / "BundledCoreTrust.swift"
+        self.invoke(archive, staged_output, succeeds=True, staging=staging)
+        self.require(staged_output.read_bytes() == self.manifest(changed),
+                     "Separate staging must publish the trusted digest")
+        staged_snapshot = self.snapshot(staged_output)
+        self.invoke(archive, staged_output, succeeds=True, staging=staging)
+        self.require(self.snapshot(staged_output) == staged_snapshot,
+                     "Separate staging must preserve an unchanged manifest")
+        self.invoke(missing, staged_output, succeeds=False, staging=staging)
+        self.invoke(archive, staged_output, succeeds=False, staging=self.directory / "missing staging")
+        self.invoke(archive, staged_output, succeeds=False, staging=blocked_parent)
+        self.require(self.snapshot(staged_output) == staged_snapshot,
+                     "Staging failures must preserve the previous trusted manifest")
+        self.require(list(staging.iterdir()) == [], "Staging directory must not retain temporary files")
 
 
 def main():

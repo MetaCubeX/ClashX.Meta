@@ -79,20 +79,18 @@ class DBConnectionObject: NSObject {
 	}
 	
 	init(_ conn: DBConnection) {
-		let byteCountFormatter = ByteCountFormatter()
-		let startFormatter = RelativeDateTimeFormatter()
-		startFormatter.unitsStyle = .short
-		
+		let startFormatter = DashboardFormatters.relativeDateTimeShort
+
 		let metadata = conn.metadata
-		
+
 		id = conn.id
 		host = "\(metadata.host == "" ? metadata.destinationIP : metadata.host):\(metadata.destinationPort)"
 		sniffHost = metadata.sniffHost == "" ? "-" : metadata.sniffHost
 		process = metadata.process
 		download = conn.download
-		downloadString = byteCountFormatter.string(fromByteCount: conn.download)
+		downloadString = ByteFormat.total(conn.download, precision: .integer)
 		upload = conn.upload
-		uploadString = byteCountFormatter.string(fromByteCount: conn.upload)
+		uploadString = ByteFormat.total(conn.upload, precision: .integer)
 		chains = conn.chains
 		chainString = conn.chains.reversed().joined(separator: "/")
 		ruleString = conn.rulePayload == "" ? conn.rule : "\(conn.rule) :: \(conn.rulePayload)"
@@ -120,21 +118,19 @@ class DBConnectionObject: NSObject {
 			uploadSpeedString = "-"
 			return
 		}
-		
-		let byteCountFormatter = ByteCountFormatter()
-		
+
 		downloadSpeed = download - old.download
 		uploadSpeed = upload - old.upload
-		
+
 		if downloadSpeed > 0 {
-			downloadSpeedString = byteCountFormatter.string(fromByteCount: downloadSpeed) + "/s"
+			downloadSpeedString = ByteFormat.rate(Int(downloadSpeed))
 		} else {
 			downloadSpeed = 0
 			downloadSpeedString = "-"
 		}
-		
+
 		if uploadSpeed > 0 {
-			uploadSpeedString = byteCountFormatter.string(fromByteCount: uploadSpeed) + "/s"
+			uploadSpeedString = ByteFormat.rate(Int(uploadSpeed))
 		} else {
 			uploadSpeed = 0
 			uploadSpeedString = "-"

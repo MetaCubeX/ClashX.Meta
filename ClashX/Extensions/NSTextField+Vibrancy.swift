@@ -11,6 +11,9 @@ import Cocoa
 class VibrancyTextField: NSTextField {
     private var _allowsVibrancy = true
     override var allowsVibrancy: Bool {
+        if #available(macOS 26, *) {
+            return false
+        }
         return _allowsVibrancy
     }
 

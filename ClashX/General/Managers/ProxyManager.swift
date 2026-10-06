@@ -377,9 +377,15 @@ final class ProxyManager: NSObject {
         if enabled && ExitManager.shared.quitState != .idle { return false }
         tunApplyGeneration += 1
         let generation = tunApplyGeneration
+        Logger.log("applyTunOnKernel enabled=\(enabled) generation=\(generation)")
         await ApiRequest.updateTun(enable: enabled)
-        try? await PrivilegedHelperManager.shared.request(
-            ProxyConfigHelperMessages.UpdateTun(state: enabled, dns: ConfigManager.metaTunDNS))
+        do {
+            try await PrivilegedHelperManager.shared.request(
+                ProxyConfigHelperMessages.UpdateTun(state: enabled, dns: ConfigManager.metaTunDNS))
+            Logger.log("UpdateTun(\(enabled)) done")
+        } catch {
+            Logger.log("UpdateTun(\(enabled)) failed: \(error.localizedDescription)", level: .warning)
+        }
         // Discard stale completion — a newer applyTunOnKernel already ran.
         guard generation == tunApplyGeneration else { return false }
         runtimeState.tunActive = enabled
@@ -388,9 +394,16 @@ final class ProxyManager: NSObject {
 
     func disableTunForTermination() async {
         tunApplyGeneration += 1
-        try? await PrivilegedHelperManager.shared.request(
-            ProxyConfigHelperMessages.UpdateTun(state: false, dns: ConfigManager.metaTunDNS))
+        Logger.log("disableTunForTermination, generation \(tunApplyGeneration)")
+        do {
+            try await PrivilegedHelperManager.shared.request(
+                ProxyConfigHelperMessages.UpdateTun(state: false, dns: ConfigManager.metaTunDNS))
+            Logger.log("UpdateTun(false) done")
+        } catch {
+            Logger.log("UpdateTun(false) failed: \(error.localizedDescription)", level: .warning)
+        }
         runtimeState.tunActive = false
+        Logger.log("tunActive reset to false")
     }
 
     // MARK: - Port Change

@@ -16,7 +16,7 @@ class ProxyGroupMenuItemView: MenuItemBaseView {
             let image = NSImage(named: NSImage.goForwardTemplateName)!.withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 14, weight: .bold, scale: .small))!
             return NSImageView(image: image)
         } else {
-            let label = NSTextField(labelWithString: "▶")
+            let label = VibrancyTextField(labelWithString: "▶")
             label.setContentHuggingPriority(.required, for: .horizontal)
             label.setContentCompressionResistancePriority(.required, for: .horizontal)
             label.textColor = NSColor.labelColor
@@ -29,6 +29,16 @@ class ProxyGroupMenuItemView: MenuItemBaseView {
 
     override var cells: [NSCell?] {
         return [groupNameLabel.cell, selectProxyLabel.cell, arrowLabel.cell]
+    }
+
+    override func updateLabelColors(highlighted: Bool, enabled: Bool) {
+        if highlighted {
+            groupNameLabel.textColor = NSColor.alternateSelectedControlTextColor
+            selectProxyLabel.textColor = NSColor.alternateSelectedControlTextColor
+        } else {
+            groupNameLabel.textColor = enabled ? NSColor.labelColor : NSColor.placeholderTextColor
+            selectProxyLabel.textColor = enabled ? NSColor.secondaryLabelColor : NSColor.placeholderTextColor
+        }
     }
 
     init(group: ClashProxyName, targetProxy: ClashProxyName, hasLeftPadding: Bool, observeUpdate: Bool = true) {

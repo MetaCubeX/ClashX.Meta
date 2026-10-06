@@ -1,0 +1,30 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Cy5-d1-ldi.title" : {
+      "comment" : "Class = \"NSTextFieldCell\"; title = \"0KB/s\"; ObjectID = \"Cy5-d1-ldi\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "0KB/s"
+          }
+        }
+      }
+    },
+    "oCt-YG-3AI.title" : {
+      "comment" : "Class = \"NSTextFieldCell\"; title = \"0KB/s\"; ObjectID = \"oCt-YG-3AI\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "0KB/s"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.3"
+}

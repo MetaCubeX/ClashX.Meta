@@ -9,7 +9,9 @@ import SwiftUI
 struct RulesView: View {
 	
 	@State var ruleItems = [ClashRule]()
+	@State private var columnWidths = RuleColumnWidths(ruleItems: [])
 	
+	@EnvironmentObject var toolbarState: DashboardToolbarState
 	@State private var searchString: String = ""
 	
 	
@@ -22,43 +24,52 @@ struct RulesView: View {
 	}
 	
 	
-    var body: some View {
-		List {
-			ForEach(rules, id: \.element.id) {
-				RuleItemView(index: $0.offset, rule: $0.element)
+	var body: some View {
+		ScrollView {
+			LazyVStack(spacing: 0) {
+				ForEach(rules, id: \.element.id) { item in
+					RuleItemView(index: item.offset + 1, rule: item.element, columnWidths: columnWidths)
+					if item.offset < rules.count - 1 {
+						Divider().opacity(0.3)
+					}
+				}
 			}
+			.clipShape(RoundedRectangle(cornerRadius: DashboardTheme.cardCornerRadius))
+			.overlay(
+				RoundedRectangle(cornerRadius: DashboardTheme.cardCornerRadius)
+					.stroke(DashboardTheme.cardBorder, lineWidth: DashboardTheme.cardBorderWidth)
+			)
+			.padding(DashboardTheme.spacingPage)
 		}
-		.onReceive(NotificationCenter.default.publisher(for: .toolbarSearchString)) {
-			guard let string = $0.userInfo?["String"] as? String else { return }
-			searchString = string
+		.background(DashboardTheme.pageBackground)
+		.onAppear {
+			searchString = toolbarState.searchText
+		}
+		.onChange(of: toolbarState.searchText) { newValue in
+			searchString = newValue
 		}
 		.task {
 			await loadRules()
 		}
-    }
-
+	}
+	
 	func loadRules() async {
 		async let providerResponse = ApiRequest.requestRuleProviderList()
 		async let rulesResponse = ApiRequest.getRules()
-
+		
 		let providerRuleCounts = await providerResponse.allProviders.values.reduce(into: [ClashProviderName: Int]()) {
 			$0[$1.name] = $1.ruleCount
 		}
-        let items = await rulesResponse
-
+		let items = await rulesResponse
+		
 		items.indices.forEach { index in
 			guard let payload = items[index].payload,
 				  let ruleCount = providerRuleCounts[payload] else { return }
 			items[index].size = ruleCount
 		}
-
+		
 		guard !Task.isCancelled else { return }
-        ruleItems = items
+		columnWidths = RuleColumnWidths(ruleItems: items)
+		ruleItems = items
 	}
 }
-
-//struct RulesView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RulesView()
-//    }
-//}

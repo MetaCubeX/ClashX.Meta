@@ -473,11 +473,7 @@ extension MenuItemFactory {
             }
             sender.state = .on
 
-            let newModel = SavedProxyModel(group: proxyGroup, selected: proxyName, config: ConfigManager.selectConfigName)
-            ConfigManager.selectedProxyRecords.removeAll { model -> Bool in
-                return model.key == newModel.key
-            }
-            ConfigManager.selectedProxyRecords.append(newModel)
+            ConfigManager.recordProxySelection(group: proxyGroup, selected: proxyName)
 
             await ConnectionManager.closeConnection(for: proxyGroup)
             await refreshExistingMenuItems()

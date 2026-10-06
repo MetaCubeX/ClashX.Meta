@@ -6,70 +6,53 @@
 
 import SwiftUI
 
+// Overview card refresh tiers:
+// - stream: heroes/totals follow the core push streams
+// - polled: connections/top processes/subscription/network status poll local APIs
+// - none: core version never refreshes
+enum OverviewRefresh {
+	static let streamInterval: TimeInterval = 1
+	static let polledInterval: TimeInterval = 5
+}
+
 struct OverviewView: View {
 	
 	@EnvironmentObject var data: ClashOverviewData
 	
-	@State private var columnCount: Int = 4
-	
 	@State private var version: String = ""
 	
     var body: some View {
-		VStack(spacing: 25) {
-			
-			ZStack(alignment: .topLeading) {
-				LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: columnCount)) {
-					
-					OverviewTopItemView(name: "Upload", value: data.uploadString)
-					OverviewTopItemView(name: "Download", value: data.downloadString)
-					OverviewTopItemView(name: "Upload Total", value: data.uploadTotal)
-					OverviewTopItemView(name: "Download Total", value: data.downloadTotal)
-					
-					OverviewTopItemView(name: "Active Connections", value: data.activeConns)
-					OverviewTopItemView(name: "Memory Usage", value: data.memory)
-					OverviewTopItemView(name: "Mihomo", value: version)
-				}
-				GeometryReader { geometry in
-					Rectangle()
-						.fill(.clear)
-						.frame(height: 1)
-						.onChange(of: geometry.size.width) { newValue in
-							updateColumnCount(newValue)
-						}
-						.onAppear {
-							updateColumnCount(geometry.size.width)
-						}
-				}
-				.frame(height: 1)
-				.padding()
+		ScrollView {
+			OverviewGrid {
+				OverviewHeroItemView(name: "Upload", value: data.uploadString, color: DashboardTheme.chartGreen)
+					.gridCell(column: 0, row: 0)
+				OverviewHeroItemView(name: "Download", value: data.downloadString, color: DashboardTheme.chartBlue)
+					.gridCell(column: 1, row: 0)
+				OverviewTopItemView(name: "Download Total", value: data.downloadTotal)
+					.gridCell(column: 2, row: 0)
+				OverviewTopItemView(name: "Upload Total", value: data.uploadTotal)
+					.gridCell(column: 3, row: 0)
+				ConnectionsStatsCardView()
+					.gridCell(column: 0, row: 1)
+				SubscriptionUsageCardView()
+					.gridCell(column: 1, row: 1)
+				MemoryCardView()
+					.gridCell(column: 2, row: 1)
+				OverviewTopItemView(name: "Core", value: version)
+					.gridCell(column: 3, row: 1)
+				TrafficCardView()
+					.gridCell(column: 0, row: 2, columnSpan: 2, rowSpan: 2)
+				TopProcessesCardView()
+					.gridCell(column: 2, row: 2, columnSpan: 2, rowSpan: 2)
+				NetworkStatusCardView()
+					.gridCell(column: 0, row: 4, columnSpan: 2, rowSpan: 2)
 			}
-			
-
-			HStack {
-				RoundedRectangle(cornerRadius: 2)
-					.fill(Color(compatible: .systemBlue))
-					.frame(width: 20, height: 13)
-				Text("Down")
-				
-				RoundedRectangle(cornerRadius: 2)
-					.fill(Color(compatible: .systemGreen))
-					.frame(width: 20, height: 13)
-				Text("Up")
-			}
-			
-			
-			TrafficGraphView(values: $data.downloadHistories,
-							 graphColor: .systemBlue)
-
-			TrafficGraphView(values: $data.uploadHistories,
-							 graphColor: .systemGreen)
-
+			.padding(DashboardTheme.spacingPage)
 		}
-		.padding()
+		.background(DashboardTheme.pageBackground)
 		.task {
 			await loadVersion()
 		}
-        .background(Color("SwiftUI Colors/WindowBackgroundColor"))
     }
 
 	@MainActor
@@ -77,19 +60,4 @@ struct OverviewView: View {
 		version = await ApiRequest.requestVersion()?.version ?? ""
 	}
 	
-	func updateColumnCount(_ width: Double) {
-		let v = Int(Int(width) / 155)
-		let new = v == 0 ? 1 : v
-		
-		if new != columnCount {
-			columnCount = new
-		}
-	}
-	
 }
-
-//struct OverviewView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        OverviewView()
-//    }
-//}

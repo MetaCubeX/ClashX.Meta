@@ -22,8 +22,17 @@ if [[ ! "$digest" =~ ^[0-9a-f]{64}$ ]]; then
     exit 1
 fi
 
-/bin/mkdir -p "$(/usr/bin/dirname "$output")"
-temporary=$(/usr/bin/mktemp "${output}.XXXXXX")
+output_directory=$(/usr/bin/dirname "$output")
+/bin/mkdir -p "$output_directory"
+# Xcode permits temporary files in TEMP_DIR but only declared files in
+# DERIVED_FILE_DIR. Keep staging on the output filesystem for an atomic rename.
+temporary_directory="${3:-$output_directory}"
+if [ ! -d "$temporary_directory" ] || \
+    [ "$(/usr/bin/stat -L -f %d "$temporary_directory")" != "$(/usr/bin/stat -L -f %d "$output_directory")" ]; then
+    echo "error: Core trust staging directory must exist on the output filesystem." >&2
+    exit 1
+fi
+temporary=$(/usr/bin/mktemp "$temporary_directory/$(/usr/bin/basename "$output").XXXXXX")
 trap '/bin/rm -f "$temporary"' EXIT
 printf 'enum BundledCoreTrust {\n    static let sha256 = "%s"\n}\n' "$digest" > "$temporary"
 if [ ! -f "$output" ] || ! /usr/bin/cmp -s "$temporary" "$output"; then

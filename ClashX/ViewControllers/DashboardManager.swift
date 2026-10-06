@@ -12,7 +12,9 @@ import RxSwift
 class DashboardManager: NSObject {
 	
 	static let shared = DashboardManager()
-	
+
+	let appNameResolver = AppNameResolver()
+
 	override init() {
 	}
 	

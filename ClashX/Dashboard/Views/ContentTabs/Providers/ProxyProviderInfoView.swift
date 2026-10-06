@@ -38,7 +38,7 @@ struct ProxyProviderInfoView: View {
 	var header: some View {
 		HStack() {
 			Text(hideProxyNames.hide
-				 ? String(provider.id.hiddenID)
+				 ? HiddenNameToken.token(for: provider.name)
 					: provider.name)
 				.font(.system(size: 17))
 			Text(verbatim: provider.vehicleType.rawValue)
@@ -62,7 +62,7 @@ struct ProxyProviderInfoView: View {
 				Spacer()
 			}
 			HStack {
-				Text(String(format: NSLocalizedString("Updated %@", comment: ""), provider.updatedAt))
+				Text(provider.updatedAt)
 				Spacer()
 			}
 		}

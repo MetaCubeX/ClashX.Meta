@@ -103,7 +103,21 @@ enum ApiRequestTransport {
     }
 
     static func apiDate(from string: String) -> Date? {
-        return DateFormatter.provider.date(from: string) ?? DateFormatter.js.date(from: string) ?? DateFormatter.simple.date(from: string)
+        if !string.contains("T") {
+            // "MM-dd HH:mm:ss"
+            return DateFormatter.simple.date(from: string)
+        }
+        // ISO-like: count fractional digits after the dot to pick the right format
+        if let dotIndex = string.lastIndex(of: ".") {
+            let afterDot = string[string.index(after: dotIndex)...]
+            let fractionalDigits = afterDot.prefix(while: \.isNumber).count
+            if fractionalDigits >= 5 {
+                // provider: 9 fractional digits (nanoseconds)
+                return DateFormatter.provider.date(from: string)
+            }
+        }
+        // js: 1 fractional digit (tenths of a second)
+        return DateFormatter.js.date(from: string) ?? DateFormatter.provider.date(from: string)
     }
 
     static func makeJSONDecoder() -> JSONDecoder {

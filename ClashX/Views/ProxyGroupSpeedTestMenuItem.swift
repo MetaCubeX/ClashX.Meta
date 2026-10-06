@@ -61,7 +61,7 @@ private class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
     private let label: NSTextField
 
     init(_ title: String) {
-        label = NSTextField(labelWithString: title)
+        label = VibrancyTextField(labelWithString: title)
         label.font = type(of: self).labelFont
         label.sizeToFit()
         let rect = NSRect(x: 0, y: 0, width: label.bounds.width + 40, height: 20)

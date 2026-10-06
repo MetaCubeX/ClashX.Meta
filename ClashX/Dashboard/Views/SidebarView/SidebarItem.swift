@@ -14,7 +14,6 @@ enum SidebarItem: String, Identifiable, CaseIterable {
     
 	case overview = "Overview"
 	case proxies = "Proxies"
-	case providers = "Providers"
 	case rules = "Rules"
 	case conns = "Conns"
 	case config = "Config"
@@ -24,12 +23,10 @@ enum SidebarItem: String, Identifiable, CaseIterable {
         switch self {
         case .overview:
             "chart.bar.xaxis"
-        case .proxies:
-            "globe.asia.australia"
-        case .providers:
-            "link.icloud"
-        case .rules:
-            "waveform.and.magnifyingglass"
+		case .proxies:
+			"globe.asia.australia"
+		case .rules:
+			"waveform.and.magnifyingglass"
         case .conns:
             "app.connected.to.app.below.fill"
         case .config:

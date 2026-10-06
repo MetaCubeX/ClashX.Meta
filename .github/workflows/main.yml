@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: xcode-27
     env:
-      MIHOMO_TAG: v1.19.30
+      MIHOMO_TAG: v1.19.32
       GH_TOKEN: ${{ github.token }}
       
     steps:
@@ -18,11 +18,16 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: install deps
+      run: |
+        bash install_dependency.sh "$MIHOMO_TAG"
+        xcodebuild -resolvePackageDependencies -project ClashX.xcodeproj
+
     - name: build infos
       run: |
         /usr/libexec/PlistBuddy -c "Set CFBundleVersion $(git rev-list --count origin/master..origin/meta)" ClashX/Info.plist
         /usr/libexec/PlistBuddy -c "Set CFBundleShortVersionString $(git describe --tags --abbrev=0)" ClashX/Info.plist
-        /usr/libexec/PlistBuddy -c "Add coreVersion string $(ls clash.meta | grep -m1 "" | sed -ne 's/.*64-\(.*\).gz/\1/p')" ClashX/Info.plist
+        /usr/libexec/PlistBuddy -c "Add coreVersion string $MIHOMO_TAG" ClashX/Info.plist
         /usr/libexec/PlistBuddy -c "Add gitBranch string $GITHUB_REF_NAME" ClashX/Info.plist
         /usr/libexec/PlistBuddy -c "Add gitCommit string ${GITHUB_SHA::7}" ClashX/Info.plist
         /usr/libexec/PlistBuddy -c "Add buildTime string $(date +%Y-%m-%d\ %H:%M)" ClashX/Info.plist
@@ -33,11 +38,7 @@ jobs:
         /usr/libexec/PlistBuddy -c 'Print gitBranch' ClashX/Info.plist
         /usr/libexec/PlistBuddy -c 'Print gitCommit' ClashX/Info.plist
         /usr/libexec/PlistBuddy -c 'Print buildTime' ClashX/Info.plist
-        
-    - name: install deps
-      run: |
-        bash install_dependency.sh "$MIHOMO_TAG"
-        xcodebuild -resolvePackageDependencies -project ClashX.xcodeproj
+
     - name: build
       run: |
         xcodebuild archive -project ClashX.xcodeproj -scheme ClashX\ Meta -archivePath archive/ClashX.xcarchive -showBuildTimingSummary -allowProvisioningUpdates
@@ -88,8 +89,10 @@ jobs:
 
         cp "ClashX Meta.zip" "sparkle-repo/ClashX Meta $GITHUB_REF_NAME.zip"
         
-        brew install sparkle
-        echo '${{ secrets.ED_KEY }}' | $(brew --prefix)/Caskroom/sparkle/2.*/bin/generate_appcast --maximum-deltas 2 --ed-key-file - sparkle-repo
+        gh release download -R sparkle-project/Sparkle -p 'Sparkle-*.tar.xz' -D /tmp --clobber
+        tar -xJf /tmp/Sparkle-*.tar.xz -C /tmp --strip-components=1 bin/generate_appcast
+        
+        echo '${{ secrets.ED_KEY }}' | /tmp/bin/generate_appcast --maximum-deltas 2 --ed-key-file - sparkle-repo
         
         cd sparkle-repo
         git checkout --orphan temp-sparkle
