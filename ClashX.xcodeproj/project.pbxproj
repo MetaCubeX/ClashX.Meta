@@ -93,6 +93,7 @@
 		01BCDB1A2C9ECD010028FA94 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAE72C9ECD010028FA94 /* SidebarView.swift */; };
 		01BCDB1B2C9ECD010028FA94 /* SidebarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAE52C9ECD010028FA94 /* SidebarLabel.swift */; };
 		01BCDB1D2C9EE2CF0028FA94 /* ProgressButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDB1C2C9EE2CF0028FA94 /* ProgressButton.swift */; };
+		01BCDB212C9EEE260028FA94 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 01BCDB202C9EEE260028FA94 /* Sparkle */; };
 		01CA6BC12B6A1B3100E386D6 /* MetaServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */; };
 		01CA6BC22B6A1B3100E386D6 /* MetaServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */; };
 		01D567E62AD158B600CDA0AE /* MetaPrefsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D567E22AD158B500CDA0AE /* MetaPrefsViewController.swift */; };
@@ -459,6 +460,7 @@
 				01F336262AD10D0B0048AF77 /* Gzip in Frameworks */,
 				01F336272AD10D0B0048AF77 /* CocoaLumberjackSwift in Frameworks */,
 				01F3362A2AD10D0B0048AF77 /* KeyboardShortcuts in Frameworks */,
+				01BCDB212C9EEE260028FA94 /* Sparkle in Frameworks */,
 				01F3362C2AD10D0B0048AF77 /* CocoaLumberjack in Frameworks */,
 				01F3362D2AD10D0B0048AF77 /* Yams in Frameworks */,
 				013B220E2F88A219009B30CB /* AsyncHTTPClient in Frameworks */,
@@ -979,6 +981,7 @@
 				01F335C62AD10D0B0048AF77 /* Gzip */,
 				01F335C82AD10D0B0048AF77 /* Yams */,
 				01BCDAB22C9ECB560028FA94 /* SwiftUIIntrospect */,
+				01BCDB202C9EEE260028FA94 /* Sparkle */,
 				013B220D2F88A219009B30CB /* AsyncHTTPClient */,
 				01E908FD2FEE787900C95A3A /* Subprocess */,
 				D4A5B6C7E8F9012345AB678A /* Collections */,
@@ -1042,6 +1045,7 @@
 				015B977E2A4F30EA00F9FA4D /* XCRemoteSwiftPackageReference "GzipSwift" */,
 				015B97812A4F311300F9FA4D /* XCRemoteSwiftPackageReference "Yams" */,
 				01BCDAB12C9ECB560028FA94 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+				01BCDB1F2C9EEE260028FA94 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				013B220C2F88A219009B30CB /* XCRemoteSwiftPackageReference "async-http-client" */,
 				01E908FA2FEE786F00C95A3A /* XCRemoteSwiftPackageReference "swift-subprocess" */,
 				D4A5B6C7E8F9012345AB6789 /* XCRemoteSwiftPackageReference "swift-collections" */,
@@ -1762,6 +1766,14 @@
 				minimumVersion = 26.0.0;
 			};
 		};
+		01BCDB1F2C9EEE260028FA94 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.4;
+			};
+		};
 		01E908FA2FEE786F00C95A3A /* XCRemoteSwiftPackageReference "swift-subprocess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/swiftlang/swift-subprocess";
@@ -1854,6 +1866,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 01BCDAB12C9ECB560028FA94 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = SwiftUIIntrospect;
+		};
+		01BCDB202C9EEE260028FA94 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01BCDB1F2C9EEE260028FA94 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 		01E908FB2FEE786F00C95A3A /* Subprocess */ = {
 			isa = XCSwiftPackageProductDependency;

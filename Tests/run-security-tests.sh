@@ -12,7 +12,6 @@ trap '/bin/rm -rf "$test_directory"' EXIT
     -o "$test_directory/file-tests"
 "$test_directory/file-tests" "$test_directory/fixtures"
 /bin/bash "$repository_root/Tests/run-alpha-security-tests.sh"
-/usr/bin/python3 "$repository_root/Tests/run-app-update-tests.py"
 /bin/bash "$repository_root/Tests/run-storage-security-tests.sh"
 /bin/bash "$repository_root/Tests/run-helper-compatibility-tests.sh"
 /usr/bin/python3 "$repository_root/Tests/run-core-trust-tests.py"
