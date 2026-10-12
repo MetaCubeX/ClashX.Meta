@@ -14,6 +14,8 @@ class RemoteConfigViewController: NSViewController {
     @IBOutlet var deleteButton: NSButton!
     @IBOutlet var updateButton: NSButton!
 
+    private static let preferredWindowSize = NSSize(width: 430, height: 256)
+
     private var latestAddedConfig: RemoteConfigModel?
 
     let disposeBag = DisposeBag()
@@ -23,6 +25,8 @@ class RemoteConfigViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        preferredContentSize = Self.preferredWindowSize
+        configureTableColumns()
         updateButtonStatus()
         tableView.doubleAction = #selector(tableViewDidDoubleClick(tableView:))
 
@@ -35,6 +39,12 @@ class RemoteConfigViewController: NSViewController {
                 let name = note.userInfo?["name"] as? String
                 self.showAdd(defaultUrl: url, name: name, allowAlt: true)
             }.disposed(by: disposeBag)
+    }
+
+    private func configureTableColumns() {
+        let updateTimeColumn = tableView.tableColumn(withIdentifier: NSUserInterfaceItemIdentifier("updateTime"))
+        updateTimeColumn?.minWidth = 86
+        updateTimeColumn?.width = 86
     }
 
     override func viewWillAppear() {
