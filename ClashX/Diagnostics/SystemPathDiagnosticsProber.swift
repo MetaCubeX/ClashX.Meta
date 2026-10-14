@@ -111,12 +111,15 @@ final class SystemPathDiagnosticsProber: PathDiagnosticsProbing {
                     return
                 }
                 let started = Date()
-                ApiRequest.getProxyDelay(proxyName: node) { delay in
+                ProxyHealthCheckQueue.shared.enqueue(key: "diagnostic-delay:\(node):\(UUID().uuidString)") { done in
+                    ApiRequest.getProxyDelay(proxyName: node) { delay in
                     let duration = Date().timeIntervalSince(started)
                     if delay > 0 {
                         completion(self.evidence(.healthy, node, "Observed chain: \(chains.joined(separator: " -> ")); delay \(delay) ms.", duration))
                     } else {
                         completion(self.evidence(.failed, node, "Observed chain: \(chains.joined(separator: " -> ")); delay probe failed.", duration))
+                    }
+                        done()
                     }
                 }
             }

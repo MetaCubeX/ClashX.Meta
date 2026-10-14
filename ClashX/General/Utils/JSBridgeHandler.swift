@@ -64,7 +64,8 @@ class JsBridgeUtil {
 
         bridge.registerHandler("speedTest") { anydata, responseCallback in
             if let proxyName = anydata as? String {
-                ApiRequest.getProxyDelay(proxyName: proxyName) { delay in
+                ProxyHealthCheckQueue.shared.enqueue(key: "interactive-delay:\(proxyName):\(UUID().uuidString)") { done in
+                    ApiRequest.getProxyDelay(proxyName: proxyName) { delay in
                     var resp: Int
                     if delay == Int.max {
                         resp = 0
@@ -72,6 +73,8 @@ class JsBridgeUtil {
                         resp = delay
                     }
                     responseCallback?(resp)
+                        done()
+                    }
                 }
             } else {
                 responseCallback?(nil)

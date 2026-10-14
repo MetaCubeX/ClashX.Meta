@@ -25,6 +25,26 @@ ProxyConfigRemoteProcessProtocol
 @end
 
 @implementation ProxyConfigHelper
+
+static NSString * const kMihomoLabel = @"com.west2online.ClashX.ProxyConfigHelper.mihomo";
+static NSString * const kMihomoPlistPath = @"/Library/LaunchDaemons/com.west2online.ClashX.ProxyConfigHelper.mihomo.plist";
+
+- (NSString *)runLaunchctlArguments:(NSArray<NSString *> *)arguments {
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/bin/launchctl";
+    task.arguments = arguments;
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardError = pipe;
+    @try {
+        [task launch];
+        [task waitUntilExit];
+    } @catch (NSException *exception) {
+        return exception.reason ?: @"launchctl failed";
+    }
+    if (task.terminationStatus == 0) { return nil; }
+    NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] ?: @"launchctl failed";
+}
 - (instancetype)init {
     
     if (self = [super init]) {
@@ -55,15 +75,15 @@ ProxyConfigRemoteProcessProtocol
 - (BOOL)connectionIsVaild: (NSXPCConnection *)connection {
     NSRunningApplication *remoteApp =
     [NSRunningApplication runningApplicationWithProcessIdentifier:connection.processIdentifier];
-    return remoteApp != nil;
+    return [remoteApp.bundleIdentifier isEqualToString:@"com.west2online.ClashX"];
 }
 
 // MARK: - NSXPCListenerDelegate
 
 - (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
-//    if (![self connectionIsVaild:newConnection]) {
-//        return NO;
-//    }
+    if (![self connectionIsVaild:newConnection]) {
+        return NO;
+    }
     newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(ProxyConfigRemoteProcessProtocol)];
     newConnection.exportedObject = self;
     __weak NSXPCConnection *weakConnection = newConnection;
@@ -125,6 +145,64 @@ ProxyConfigRemoteProcessProtocol
     dispatch_async(dispatch_get_main_queue(), ^{
         NSDictionary *info = [ProxySettingTool currentProxySettings];
         reply(info);
+    });
+}
+
+- (void)startMihomoAtPath:(NSString *)path
+               configPath:(NSString *)configPath
+               controller:(NSString *)controller
+                   secret:(NSString *)secret
+                   uiPath:(NSString *)uiPath
+                    reply:(stringReplyBlock)reply {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self runLaunchctlArguments:@[@"unload", kMihomoPlistPath]];
+        [[NSFileManager defaultManager] removeItemAtPath:kMihomoPlistPath error:nil];
+
+        BOOL executable = [[NSFileManager defaultManager] isExecutableFileAtPath:path];
+        BOOL bundledCore = [path hasSuffix:@".app/Contents/Resources/mihomo"];
+        if (!executable || !bundledCore || ![[NSFileManager defaultManager] fileExistsAtPath:configPath]) {
+            reply(@"Mihomo executable or config is missing");
+            return;
+        }
+
+        NSString *configDirectory = [configPath stringByDeletingLastPathComponent];
+        NSString *stdoutPath = [configDirectory stringByAppendingPathComponent:@"mihomo.log"];
+        NSString *stderrPath = [configDirectory stringByAppendingPathComponent:@"mihomo-error.log"];
+        NSMutableArray<NSString *> *arguments = [@[path, @"-d", configDirectory, @"-f", configPath,
+                                                   @"-ext-ctl", controller, @"-secret", secret] mutableCopy];
+        if (uiPath.length > 0) {
+            [arguments addObjectsFromArray:@[@"-ext-ui", uiPath]];
+        }
+        NSDictionary *plist = @{
+            @"Label": kMihomoLabel,
+            @"ProgramArguments": arguments,
+            @"WorkingDirectory": configDirectory,
+            @"EnvironmentVariables": @{@"SAFE_PATHS": configDirectory},
+            @"StandardOutPath": stdoutPath,
+            @"StandardErrorPath": stderrPath,
+            @"RunAtLoad": @YES,
+            @"KeepAlive": @NO
+        };
+        NSError *error = nil;
+        NSData *data = [NSPropertyListSerialization dataWithPropertyList:plist
+                                                                   format:NSPropertyListXMLFormat_v1_0
+                                                                  options:0
+                                                                    error:&error];
+        if (data == nil || ![data writeToFile:kMihomoPlistPath options:NSDataWritingAtomic error:&error]) {
+            reply(error.localizedDescription ?: @"Unable to write Mihomo launchd plist");
+            return;
+        }
+        [[NSFileManager defaultManager] setAttributes:@{NSFilePosixPermissions: @0644}
+                                         ofItemAtPath:kMihomoPlistPath error:nil];
+        reply([self runLaunchctlArguments:@[@"load", kMihomoPlistPath]]);
+    });
+}
+
+- (void)stopMihomo:(stringReplyBlock)reply {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self runLaunchctlArguments:@[@"unload", kMihomoPlistPath]];
+        [[NSFileManager defaultManager] removeItemAtPath:kMihomoPlistPath error:nil];
+        reply(nil);
     });
 }
 

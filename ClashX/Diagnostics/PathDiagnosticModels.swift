@@ -9,7 +9,7 @@ enum PathDiagnosticStage: Int, CaseIterable {
 
     var title: String {
         switch self {
-        case .core: return "Clash Core"
+        case .core: return "Proxy Core"
         case .tun: return "TUN / Route"
         case .dns: return "DNS"
         case .node: return "Exit Node"

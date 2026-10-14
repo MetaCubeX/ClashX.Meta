@@ -1,0 +1,8 @@
+mixed-port: 0
+allow-lan: false
+mode: direct
+log-level: warning
+proxies: []
+proxy-groups: []
+rules:
+  - MATCH,DIRECT

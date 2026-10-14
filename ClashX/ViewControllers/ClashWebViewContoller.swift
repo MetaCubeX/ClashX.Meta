@@ -34,17 +34,19 @@ class ClashWebViewWindowController: NSWindowController {
 extension ClashWebViewWindowController: NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
-        onWindowClose?()
         if let contentVC = contentViewController as? ClashWebViewContoller, let win = window {
             if !win.styleMask.contains(.fullScreen) {
                 contentVC.lastSize = win.frame.size
             }
+            contentVC.teardown()
         }
+        contentViewController = nil
+        onWindowClose?()
     }
 }
 
 class ClashWebViewContoller: NSViewController {
-    let webview: CustomWKWebView = CustomWKWebView()
+    var webview: CustomWKWebView! = CustomWKWebView()
     let diagnosticsView = PathDiagnosticsView()
     private lazy var diagnosticsService = PathDiagnosticsService(prober: SystemPathDiagnosticsProber())
     private let diagnosticsHeight: CGFloat = 104
@@ -182,8 +184,22 @@ class ClashWebViewContoller: NSViewController {
     }
 
     deinit {
-        diagnosticsService.cancel()
+        teardown()
         NSApp.setActivationPolicy(.accessory)
+    }
+
+    func teardown() {
+        diagnosticsService.cancel()
+        guard let webview = webview else { return }
+        bridge?.reset()
+        bridge = nil
+        webview.stopLoading()
+        webview.navigationDelegate = nil
+        webview.uiDelegate = nil
+        webview.configuration.userContentController.removeAllUserScripts()
+        webview.loadHTMLString("", baseURL: nil)
+        webview.removeFromSuperview()
+        self.webview = nil
     }
 
     private func runPathDiagnostics() {

@@ -53,6 +53,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var disposeBag = DisposeBag()
     var statusItemView: StatusItemView!
     var isSpeedTesting = false
+    private let coreRuntimeMenuItem = NSMenuItem()
 
     var runAfterConfigReload: (() -> Void)?
 
@@ -105,7 +106,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // start proxy
         Logger.log("initClashCore")
-        initClashCore()
+        CoreRuntimeManager.shared.initialize()
         Logger.log("initClashCore finish")
         setupData()
         runAfterConfigReload = { [weak self] in
@@ -179,6 +180,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ aNotification: Notification) {
         UserDefaults.standard.set(0, forKey: "launch_fail_times")
         Logger.log("ClashX will terminate")
+        CoreRuntimeManager.shared.stop()
         if NetworkChangeNotifier.isCurrentSystemSetToClash(looser: true) ||
             NetworkChangeNotifier.hasInterfaceProxySetToClash() {
             Logger.log("Need Reset Proxy Setting again",level: .error)
@@ -187,6 +189,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func setupStatusMenuItemData() {
+        coreRuntimeMenuItem.isEnabled = false
+        statusMenu.insertItem(coreRuntimeMenuItem, at: 0)
+        statusMenu.insertItem(.separator(), at: 1)
+        updateCoreRuntimeMenuItem()
         ConfigManager.shared
             .showNetSpeedIndicatorObservable
             .bind { [weak self] show in
@@ -209,6 +215,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }).disposed(by: disposeBag)
 
         remoteConfigAutoupdateMenuItem.state = RemoteConfigManager.autoUpdateEnable ? .on : .off
+    }
+
+    private func updateCoreRuntimeMenuItem() {
+        coreRuntimeMenuItem.title = "\(NSLocalizedString("Current Core", comment: "")): \(CoreRuntimeManager.shared.displayName)"
     }
 
     func setupData() {
@@ -406,13 +416,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // setup ui config first
-        if let htmlPath = Bundle.main.path(forResource: "index", ofType: "html", inDirectory: "dashboard") {
+        if CoreRuntimeManager.shared.kind == .legacy,
+           let htmlPath = Bundle.main.path(forResource: "index", ofType: "html", inDirectory: "dashboard") {
             let uiPath = URL(fileURLWithPath: htmlPath).deletingLastPathComponent().path
             setUIPath(uiPath.goStringBuffer())
         }
 
         Logger.log("Trying start proxy")
-        let string = run(ConfigManager.builtInApiMode.goObject(), ConfigManager.allowConnectFromLan.goObject())?.toString() ?? ""
+        let string = CoreRuntimeManager.shared.start(checkConfig: ConfigManager.builtInApiMode,
+                                                     allowLan: ConfigManager.allowConnectFromLan)
+        updateCoreRuntimeMenuItem()
         let jsonData = string.data(using: .utf8) ?? Data()
         if let res = try? JSONDecoder().decode(StartProxyResp.self, from: jsonData) {
             let port = res.externalController.components(separatedBy: ":").last ?? "9090"
@@ -537,12 +550,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             for group in groups {
                 Logger.log("Start auto health check for group \(group.name)")
-                ApiRequest.healthCheck(proxy: group.name)
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(group.name)") { done in
+                    ApiRequest.healthCheck(proxy: group.name, completeHandler: done)
+                }
             }
             
             for provider in providers {
                 Logger.log("Start auto health check for provider \(provider)")
-                ApiRequest.healthCheck(proxy: provider)
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(provider)") { done in
+                    ApiRequest.healthCheck(proxy: provider, completeHandler: done)
+                }
             }
         }
     }
@@ -643,22 +660,27 @@ extension AppDelegate {
         NSUserNotificationCenter.default.postSpeedTestBeginNotice()
 
         isSpeedTesting = true
+        ProxyHealthCheckQueue.shared.cancelQueued()
 
         ApiRequest.getMergedProxyData { [weak self] resp in
             let group = DispatchGroup()
 
             for (name, _) in resp?.enclosingProviderResp?.providers ?? [:] {
                 group.enter()
-                ApiRequest.healthCheck(proxy: name) {
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(name)", work: { done in
+                    ApiRequest.healthCheck(proxy: name, completeHandler: done)
+                }, completion: {
                     group.leave()
-                }
+                })
             }
 
             for p in resp?.proxiesMap["GLOBAL"]?.all ?? [] {
                 group.enter()
-                ApiRequest.getProxyDelay(proxyName: p) { _ in
+                ProxyHealthCheckQueue.shared.enqueue(key: "delay:\(p)", work: { done in
+                    ApiRequest.getProxyDelay(proxyName: p) { _ in done() }
+                }, completion: {
                     group.leave()
-                }
+                })
             }
             group.notify(queue: DispatchQueue.main) {
                 NSUserNotificationCenter.default.postSpeedTestFinishNotice()

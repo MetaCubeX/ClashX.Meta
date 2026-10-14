@@ -104,7 +104,8 @@ private final class PathDiagnosticStageView: NSView {
 
     init(stage: PathDiagnosticStage) {
         self.stage = stage
-        titleLabel = NSTextField(labelWithString: stage.title)
+        let title = stage == .core ? CoreRuntimeManager.shared.displayName : stage.title
+        titleLabel = NSTextField(labelWithString: title)
         super.init(frame: .zero)
         setup()
     }

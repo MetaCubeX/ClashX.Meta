@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D1B000012C00000100000001 /* CoreRuntimeSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B000112C00000100000001 /* CoreRuntimeSelector.swift */; };
+		D1B000022C00000100000001 /* LegacyCoreRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B000122C00000100000001 /* LegacyCoreRuntime.swift */; };
+		D1B000032C00000100000001 /* MihomoCoreRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B000132C00000100000001 /* MihomoCoreRuntime.swift */; };
+		D1B000042C00000100000001 /* ProxyHealthCheckQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B000142C00000100000001 /* ProxyHealthCheckQueue.swift */; };
+		D1B000052C00000100000001 /* MihomoConfigComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B000152C00000100000001 /* MihomoConfigComposer.swift */; };
+		D1B000062C00000100000001 /* mihomo in Resources */ = {isa = PBXBuildFile; fileRef = D1B000162C00000100000001 /* mihomo */; };
+		D1B000072C00000100000001 /* CoreRuntimeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B000172C00000100000001 /* CoreRuntimeManager.swift */; };
 		D1A000012C00000100000001 /* PathDiagnosticModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000112C00000100000001 /* PathDiagnosticModels.swift */; };
 		D1A000022C00000100000001 /* PathDiagnosticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000122C00000100000001 /* PathDiagnosticsService.swift */; };
 		D1A000032C00000100000001 /* SystemPathDiagnosticsProber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000132C00000100000001 /* SystemPathDiagnosticsProber.swift */; };
@@ -130,6 +137,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D1B000112C00000100000001 /* CoreRuntimeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreRuntimeSelector.swift; sourceTree = "<group>"; };
+		D1B000122C00000100000001 /* LegacyCoreRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCoreRuntime.swift; sourceTree = "<group>"; };
+		D1B000132C00000100000001 /* MihomoCoreRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoCoreRuntime.swift; sourceTree = "<group>"; };
+		D1B000142C00000100000001 /* ProxyHealthCheckQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyHealthCheckQueue.swift; sourceTree = "<group>"; };
+		D1B000152C00000100000001 /* MihomoConfigComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoConfigComposer.swift; sourceTree = "<group>"; };
+		D1B000162C00000100000001 /* mihomo */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = MihomoCore/mihomo; sourceTree = "<group>"; };
+		D1B000172C00000100000001 /* CoreRuntimeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreRuntimeManager.swift; sourceTree = "<group>"; };
 		D1A000112C00000100000001 /* PathDiagnosticModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathDiagnosticModels.swift; sourceTree = "<group>"; };
 		D1A000122C00000100000001 /* PathDiagnosticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathDiagnosticsService.swift; sourceTree = "<group>"; };
 		D1A000132C00000100000001 /* SystemPathDiagnosticsProber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemPathDiagnosticsProber.swift; sourceTree = "<group>"; };
@@ -256,6 +270,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D1B000202C00000100000001 /* CoreRuntime */ = {
+			isa = PBXGroup;
+			children = (
+				D1B000112C00000100000001 /* CoreRuntimeSelector.swift */,
+				D1B000172C00000100000001 /* CoreRuntimeManager.swift */,
+				D1B000212C00000100000001 /* LegacyCore */,
+				D1B000222C00000100000001 /* MihomoCore */,
+			);
+			path = CoreRuntime;
+			sourceTree = "<group>";
+		};
+		D1B000212C00000100000001 /* LegacyCore */ = {
+			isa = PBXGroup;
+			children = (
+				D1B000122C00000100000001 /* LegacyCoreRuntime.swift */,
+			);
+			path = LegacyCore;
+			sourceTree = "<group>";
+		};
+		D1B000222C00000100000001 /* MihomoCore */ = {
+			isa = PBXGroup;
+			children = (
+				D1B000132C00000100000001 /* MihomoCoreRuntime.swift */,
+				D1B000152C00000100000001 /* MihomoConfigComposer.swift */,
+			);
+			path = MihomoCore;
+			sourceTree = "<group>";
+		};
 		D1A000202C00000100000001 /* Diagnostics */ = {
 			isa = PBXGroup;
 			children = (
@@ -307,6 +349,7 @@
 		491C250121BD561200AB5D44 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				D1B000142C00000100000001 /* ProxyHealthCheckQueue.swift */,
 				4952C3CF2117027C004A4FA8 /* ConfigFileManager.swift */,
 				49CF3B5B20CE8068001EBF94 /* ClashResourceManager.swift */,
 				49CF3B6420CEE06C001EBF94 /* ConfigManager.swift */,
@@ -393,6 +436,7 @@
 		49761DA521C9490400AE13EF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D1B000162C00000100000001 /* mihomo */,
 				4929F676258CD89B00A435F6 /* Country.mmdb.gz */,
 				4929F60F258CD22E00A435F6 /* menu_icon@2x.png */,
 				49761DA621C9497000AE13EF /* dashboard */,
@@ -447,6 +491,7 @@
 		49CF3B1F20CD7463001EBF94 /* ClashX */ = {
 			isa = PBXGroup;
 			children = (
+				D1B000202C00000100000001 /* CoreRuntime */,
 				D1A000202C00000100000001 /* Diagnostics */,
 				8A2BBEA527A03A920081EBEF /* AppleScript */,
 				49722FDD211ED2A900650A41 /* Vendor */,
@@ -627,6 +672,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B000062C00000100000001 /* mihomo in Resources */,
 				49761DA721C9497000AE13EF /* dashboard in Resources */,
 				4929F677258CD89B00A435F6 /* Country.mmdb.gz in Resources */,
 				4981C88B216BAE4A008CC14A /* Localizable.strings in Resources */,
@@ -720,6 +766,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B000012C00000100000001 /* CoreRuntimeSelector.swift in Sources */,
+				D1B000022C00000100000001 /* LegacyCoreRuntime.swift in Sources */,
+				D1B000032C00000100000001 /* MihomoCoreRuntime.swift in Sources */,
+				D1B000042C00000100000001 /* ProxyHealthCheckQueue.swift in Sources */,
+				D1B000052C00000100000001 /* MihomoConfigComposer.swift in Sources */,
+				D1B000072C00000100000001 /* CoreRuntimeManager.swift in Sources */,
 				D1A000012C00000100000001 /* PathDiagnosticModels.swift in Sources */,
 				D1A000022C00000100000001 /* PathDiagnosticsService.swift in Sources */,
 				D1A000032C00000100000001 /* SystemPathDiagnosticsProber.swift in Sources */,

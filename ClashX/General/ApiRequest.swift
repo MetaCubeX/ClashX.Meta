@@ -74,6 +74,9 @@ class ApiRequest {
     private var alamoFireManager: Session
 
     static func useDirectApi() -> Bool {
+        if CoreRuntimeManager.shared.kind == .mihomo {
+            return false
+        }
         if ConfigManager.shared.overrideApiURL != nil {
             return false
         }
@@ -125,7 +128,18 @@ class ApiRequest {
 
         // DEV MODE: Use API
         if !useDirectApi() {
-            req("/configs", method: .put, parameters: ["Path": configPath], encoding: JSONEncoding.default).responseJSON { res in
+            let effectivePath: String
+            if CoreRuntimeManager.shared.kind == .mihomo {
+                do {
+                    effectivePath = try MihomoConfigComposer.effectiveConfigPath(for: configPath)
+                } catch {
+                    callback(error.localizedDescription)
+                    return
+                }
+            } else {
+                effectivePath = configPath
+            }
+            req("/configs", method: .put, parameters: ["Path": effectivePath], encoding: JSONEncoding.default).responseJSON { res in
                 if res.response?.statusCode == 204 {
                     ConfigManager.shared.isRunning = true
                     callback(nil)

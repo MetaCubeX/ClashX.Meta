@@ -185,3 +185,4 @@
 
 /* No comment provided by engineer. */
 "Use reload config to try reconnect." = "使用重载配置文件按钮尝试重新连接";
+"Current Core" = "当前内核";
