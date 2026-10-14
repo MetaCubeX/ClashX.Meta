@@ -21,6 +21,15 @@ enum MihomoConfigComposerTests {
 
         let noTun = "mixed-port: 7890\nrules: []"
         expect(MihomoConfigComposer.applyingSystemStackDefault(to: noTun) == noTun, "do not create TUN section")
+
+        let enabled = MihomoConfigComposer.applyingTunOverride(to: noTun, enabled: true)
+        expect(enabled.contains("tun:\n  enable: true\n  stack: system"), "enabled override creates system TUN")
+
+        let disabled = MihomoConfigComposer.applyingTunOverride(to: missing, enabled: false)
+        expect(disabled.contains("enable: false"), "disabled override turns existing TUN off")
+
+        let preserveStack = MihomoConfigComposer.applyingTunOverride(to: explicit, enabled: true)
+        expect(preserveStack.contains("stack: gvisor"), "enabled override preserves explicit stack")
         print("MihomoConfigComposerTests passed")
     }
 }

@@ -1,6 +1,8 @@
 import Foundation
 
 enum MihomoConfigComposer {
+    static let tunEnabledOverrideKey = "MihomoTunEnabledOverride"
+
     static func applyingSystemStackDefault(to source: String) -> String {
         var lines = source.components(separatedBy: "\n")
         guard let tunIndex = lines.firstIndex(where: { line in
@@ -31,9 +33,44 @@ enum MihomoConfigComposer {
         return lines.joined(separator: "\n")
     }
 
+    static func applyingTunOverride(to source: String, enabled: Bool) -> String {
+        var lines = source.components(separatedBy: "\n")
+        guard let tunIndex = lines.firstIndex(where: { line in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            return !line.hasPrefix(" ") && !line.hasPrefix("\t") && trimmed == "tun:"
+        }) else {
+            guard enabled else { return source }
+            let separator = source.isEmpty || source.hasSuffix("\n") ? "" : "\n"
+            return source + separator + "tun:\n  enable: true\n  stack: system\n"
+        }
+
+        let end = lines[(tunIndex + 1)...].firstIndex(where: { line in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            return !trimmed.isEmpty && !trimmed.hasPrefix("#") && !line.hasPrefix(" ") && !line.hasPrefix("\t")
+        }) ?? lines.endIndex
+        let indent = lines[(tunIndex + 1)..<end]
+            .first(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty })
+            .map { String($0.prefix { $0 == " " || $0 == "\t" }) } ?? "  "
+        if let enableIndex = lines[(tunIndex + 1)..<end].firstIndex(where: {
+            $0.trimmingCharacters(in: .whitespaces).hasPrefix("enable:")
+        }) {
+            lines[enableIndex] = "\(indent)enable: \(enabled)"
+        } else {
+            lines.insert("\(indent)enable: \(enabled)", at: tunIndex + 1)
+        }
+        let updated = lines.joined(separator: "\n")
+        return enabled ? applyingSystemStackDefault(to: updated) : updated
+    }
+
     static func effectiveConfigPath(for sourcePath: String) throws -> String {
         let source = try String(contentsOfFile: sourcePath, encoding: .utf8)
-        let effective = applyingSystemStackDefault(to: source)
+        let defaults = UserDefaults.standard
+        let effective: String
+        if defaults.object(forKey: tunEnabledOverrideKey) != nil {
+            effective = applyingTunOverride(to: source, enabled: defaults.bool(forKey: tunEnabledOverrideKey))
+        } else {
+            effective = applyingSystemStackDefault(to: source)
+        }
         let directory = URL(fileURLWithPath: kConfigFolderPath).appendingPathComponent("mihomo-runtime", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let destination = directory.appendingPathComponent("effective.yaml")

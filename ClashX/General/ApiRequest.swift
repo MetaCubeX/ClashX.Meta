@@ -107,6 +107,20 @@ class ApiRequest {
         completeHandler(config)
     }
 
+    static func requestTunEnabled(completeHandler: @escaping (Bool?) -> Void) {
+        guard CoreRuntimeManager.shared.kind == .mihomo else {
+            completeHandler(nil)
+            return
+        }
+        req("/configs").responseJSON { response in
+            guard case let .success(value) = response.result else {
+                completeHandler(nil)
+                return
+            }
+            completeHandler(JSON(value)["tun"]["enable"].bool)
+        }
+    }
+
     static func requestConfigUpdate(configName: String, callback: @escaping ((ErrorString?) -> Void)) {
         if iCloudManager.shared.isICloudEnable() {
             iCloudManager.shared.getUrl { url in

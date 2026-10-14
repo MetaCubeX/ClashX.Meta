@@ -54,6 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItemView: StatusItemView!
     var isSpeedTesting = false
     private let coreRuntimeMenuItem = NSMenuItem()
+    private let tunModeMenuItem = NSMenuItem()
 
     var runAfterConfigReload: (() -> Void)?
 
@@ -194,6 +195,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusMenu.insertItem(coreRuntimeMenuItem, at: 0)
         statusMenu.insertItem(.separator(), at: 1)
         updateCoreRuntimeMenuItem()
+        setupTunModeMenuItem()
         ConfigManager.shared
             .showNetSpeedIndicatorObservable
             .bind { [weak self] show in
@@ -216,6 +218,51 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }).disposed(by: disposeBag)
 
         remoteConfigAutoupdateMenuItem.state = RemoteConfigManager.autoUpdateEnable ? .on : .off
+    }
+
+    private func setupTunModeMenuItem() {
+        tunModeMenuItem.title = NSLocalizedString("TUN Mode", comment: "")
+        tunModeMenuItem.action = #selector(toggleTunMode)
+        tunModeMenuItem.target = self
+        tunModeMenuItem.isEnabled = false
+        let index = statusMenu.index(of: proxySettingMenuItem)
+        statusMenu.insertItem(tunModeMenuItem, at: index >= 0 ? index + 1 : 2)
+    }
+
+    private func refreshTunModeMenuItem() {
+        let available = CoreRuntimeManager.shared.kind == .mihomo && ConfigManager.shared.isRunning
+        tunModeMenuItem.isEnabled = available
+        guard available else {
+            tunModeMenuItem.state = .off
+            return
+        }
+        ApiRequest.requestTunEnabled { [weak self] enabled in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.tunModeMenuItem.state = enabled == true ? .on : .off
+            }
+        }
+    }
+
+    @objc private func toggleTunMode() {
+        guard CoreRuntimeManager.shared.kind == .mihomo else { return }
+        let previousEnabled = tunModeMenuItem.state == .on
+        let enabled = !previousEnabled
+        tunModeMenuItem.isEnabled = false
+        UserDefaults.standard.set(enabled, forKey: MihomoConfigComposer.tunEnabledOverrideKey)
+        ApiRequest.requestConfigUpdate(configName: ConfigManager.selectConfigName) { [weak self] error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                if let error = error {
+                    UserDefaults.standard.set(previousEnabled, forKey: MihomoConfigComposer.tunEnabledOverrideKey)
+                    self.tunModeMenuItem.isEnabled = true
+                    NSUserNotificationCenter.default.post(title: NSLocalizedString("TUN Mode", comment: ""), info: error)
+                } else {
+                    self.syncConfig()
+                    self.refreshTunModeMenuItem()
+                }
+            }
+        }
     }
 
     private func updateCoreRuntimeMenuItem() {
@@ -480,9 +527,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ConfigManager.shared.isRunning = true
             proxyModeMenuItem.isEnabled = true
             dashboardMenuItem.isEnabled = true
+            refreshTunModeMenuItem()
         } else {
             ConfigManager.shared.isRunning = false
             proxyModeMenuItem.isEnabled = false
+            refreshTunModeMenuItem()
             NSUserNotificationCenter.default.postConfigErrorNotice(msg: string)
         }
         Logger.log("Start proxy done")
