@@ -2,17 +2,17 @@
 
 ## Goal
 
-Replace the embedded 2022 Clash core with the maintained Mihomo sidecar architecture from the official ClashX.Meta `meta` branch, while preserving the current-path diagnostics feature and adding bounded health checks and deterministic Dashboard cleanup.
+Add the maintained Mihomo sidecar without removing the embedded 2022 Clash core. macOS 13 and newer select Mihomo; older supported macOS releases keep the legacy core. Preserve the current-path diagnostics feature and add bounded health checks and deterministic Dashboard cleanup.
 
 ## Migration Strategy
 
-Create `feature/mihomo-migration` from the official ClashX.Meta `meta` branch. Keep the existing local `master` untouched as the rollback point. Reapply the current-path diagnostics behavior to the official Dashboard architecture rather than merging the old embedded-core implementation into the new branch.
+Keep the existing application and deployment target as the compatibility baseline. Move only ownership wrappers into `ClashX/CoreRuntime/LegacyCore/`, add the new implementation under `ClashX/CoreRuntime/MihomoCore/`, and expose both through one `CoreRuntime` interface. `CoreRuntimeSelector` chooses Mihomo on macOS 13+ and the legacy embedded core below macOS 13. A developer override may force either implementation for testing.
 
-The migration uses the official standalone Mihomo executable launched through the privileged helper. It does not embed Mihomo as a Go `c-archive`. The stable Mihomo release tag is pinned during packaging, both macOS architectures are downloaded, release checksums are verified, and the packaged executable is validated before launch.
+The Mihomo implementation uses the official standalone executable launched through the privileged helper. It does not embed Mihomo as a Go `c-archive`. The stable Mihomo release tag is pinned during packaging, both macOS architectures are downloaded, release checksums are verified, and the packaged executable is validated before launch. The legacy binary and its entry points remain available and are not deleted.
 
 ## Core Lifecycle
 
-The application owns one logical Mihomo instance:
+The application owns one logical selected-core instance. On macOS 13+ its Mihomo lifecycle is:
 
 ```text
 App startup
@@ -84,10 +84,11 @@ Use the new kernel state and Mihomo controller responses as evidence. Preserve t
 
 ## Compatibility and Rollback
 
-- Existing configuration files remain in their upstream-supported ClashX.Meta location.
+- Existing configuration files remain in the current ClashX location.
 - Explicit proxy, DNS, TUN, and stack settings are preserved.
-- The old `master` branch remains unchanged and buildable as the rollback point.
-- Migration work stays on `feature/mihomo-migration` until build and runtime verification pass.
+- macOS 10.13 through 12 continue using the legacy embedded core.
+- macOS 13+ use Mihomo by default; both Intel and Apple Silicon binaries are packaged.
+- The two implementations live in independent folders and can be switched by the selector without deleting either one.
 - No automatic replacement of a user's downloaded Alpha core occurs.
 
 ## Verification
