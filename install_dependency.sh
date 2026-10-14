@@ -6,6 +6,9 @@ cd ClashX/goClash
 python3 build_clash_universal.py
 cd ../..
 
+echo "Package Mihomo core"
+./scripts/package_mihomo.sh
+
 echo "Pod install"
 bundle install --jobs 4
 bundle exec pod install

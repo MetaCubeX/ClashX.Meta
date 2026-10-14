@@ -21,7 +21,7 @@ class StatusItemView: NSView {
     weak var statusItem: NSStatusItem?
 
     lazy var menuImage: NSImage = {
-        let customImagePath = (NSHomeDirectory() as NSString).appendingPathComponent("/.config/clash/menuImage.png")
+        let customImagePath = (NSHomeDirectory() as NSString).appendingPathComponent("/.config/clash.meta/menuImage.png")
         if let image = NSImage(contentsOfFile: customImagePath) {
             return image
         }
@@ -105,6 +105,12 @@ class StatusItemView: NSView {
 
     func showSpeedContainer(show: Bool) {
         speedContainerView.isHidden = !show
+        updateStatusItemView()
+    }
+
+    func apply(displayMode: StatusItemDisplayMode) {
+        imageView.isHidden = !displayMode.showsIcon
+        speedContainerView.isHidden = !displayMode.showsSpeed
         updateStatusItemView()
     }
 

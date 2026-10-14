@@ -33,4 +33,13 @@ typedef void(^dictReplyBlock)(NSDictionary *);
                               error:(stringReplyBlock)reply;
 
 - (void)getCurrentProxySetting:(dictReplyBlock)reply;
+
+- (void)startMihomoAtPath:(NSString *)path
+               configPath:(NSString *)configPath
+               controller:(NSString *)controller
+                   secret:(NSString *)secret
+                   uiPath:(NSString *)uiPath
+                    reply:(stringReplyBlock)reply;
+
+- (void)stopMihomo:(stringReplyBlock)reply;
 @end

@@ -43,7 +43,9 @@ class ProxyGroupSpeedTestMenuItem: NSMenuItem {
 
     @objc func healthCheck() {
         guard testType == .reTest else { return }
-        ApiRequest.healthCheck(proxy: proxyGroup.name)
+        ProxyHealthCheckQueue.shared.enqueue(key: "health:\(proxyGroup.name)") { done in
+            ApiRequest.healthCheck(proxy: self.proxyGroup.name, completeHandler: done)
+        }
         ApiRequest.getMergedProxyData { [weak self] proxyResp in
             guard let self = self else { return }
             var providers = Set<ClashProxyName>()
@@ -52,8 +54,10 @@ class ProxyGroupSpeedTestMenuItem: NSMenuItem {
             }.forEach{
                 providers.insert($0)
             }
-            providers.forEach{
-                ApiRequest.healthCheck(proxy: $0)
+            providers.forEach { provider in
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(provider)") { done in
+                    ApiRequest.healthCheck(proxy: provider, completeHandler: done)
+                }
             }
         }
         menu?.cancelTracking()
@@ -114,13 +118,15 @@ fileprivate class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
 
         for proxyName in proxies {
             testGroup.enter()
-            ApiRequest.getProxyDelay(proxyName: proxyName) { delay in
+            ProxyHealthCheckQueue.shared.enqueue(key: "delay:\(proxyName)", work: { done in
+                ApiRequest.getProxyDelay(proxyName: proxyName) { delay in
                 let delayStr = delay == 0 ? NSLocalizedString("fail", comment: "") : "\(delay) ms"
                 NotificationCenter.default.post(name: .speedTestFinishForProxy,
                                                 object: nil,
                                                 userInfo: ["proxyName": proxyName, "delay": delayStr, "rawValue": delay])
-                testGroup.leave()
-            }
+                    done()
+                }
+            }, completion: { testGroup.leave() })
         }
 
         label.stringValue = NSLocalizedString("Testing", comment: "")
@@ -130,9 +136,9 @@ fileprivate class ProxyGroupSpeedTestMenuItemView: MenuItemBaseView {
         for provider in providers {
             testGroup.enter()
 
-            ApiRequest.healthCheck(proxy: provider) {
-                testGroup.leave()
-            }
+            ProxyHealthCheckQueue.shared.enqueue(key: "health:\(provider)", work: { done in
+                ApiRequest.healthCheck(proxy: provider, completeHandler: done)
+            }, completion: { testGroup.leave() })
         }
 
         testGroup.notify(queue: .main) {

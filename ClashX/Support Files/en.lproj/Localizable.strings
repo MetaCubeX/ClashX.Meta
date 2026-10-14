@@ -26,7 +26,7 @@
 "Cancel" = "Cancel";
 
 /* No comment provided by engineer. */
-"ClashX fail to create ~/.config/clash folder. Please check privileges or manually create folder and restart ClashX." = "ClashX fail to create ~/.config/clash folder. Please check privileges or manually create folder and restart ClashX.";
+"ClashX fail to create ~/.config/clash folder. Please check privileges or manually create folder and restart ClashX." = "ClashX Meta fail to create ~/.config/clash.meta folder. Please check privileges or manually create folder and restart ClashX Meta.";
 
 /* No comment provided by engineer. */
 "ClashX needs to install/update a helper tool with administrator privileges, otherwise ClashX won't be able to configure system proxy." = "ClashX needs to install/update a helper tool with administrator privileges, otherwise ClashX won't be able to configure system proxy.";
@@ -137,6 +137,7 @@
 
 /* No comment provided by engineer. */
 "Show speedTest at top" = "Show speedTest at top";
+"Only show network speed" = "Only show network speed";
 
 /* No comment provided by engineer. */
 "Stable" = "Stable";
@@ -185,3 +186,7 @@
 
 /* No comment provided by engineer. */
 "Use reload config to try reconnect." = "Use reload config to try reconnect.";
+"Current Core" = "Current Core";
+"Automatic" = "Automatic";
+"Core selection saved" = "Core selection saved";
+"Restart ClashX to apply." = "Restart ClashX to apply.";

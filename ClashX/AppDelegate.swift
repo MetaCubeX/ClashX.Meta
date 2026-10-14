@@ -16,8 +16,6 @@ import AppCenter
 import AppCenterAnalytics
 
 
-private let statusItemLengthWithSpeed: CGFloat = 72
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
@@ -53,6 +51,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var disposeBag = DisposeBag()
     var statusItemView: StatusItemView!
     var isSpeedTesting = false
+    private let coreRuntimeMenuItem = NSMenuItem()
+    private let tunModeMenuItem = NSMenuItem()
+    private let showNetSpeedOnlyMenuItem = NSMenuItem()
 
     var runAfterConfigReload: (() -> Void)?
 
@@ -74,9 +75,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Logger.log("Appversion: \(AppVersionUtil.currentVersion) \(AppVersionUtil.currentBuild)")
         ProcessInfo.processInfo.disableSuddenTermination()
         // setup menu item first
-        statusItem = NSStatusBar.system.statusItem(withLength: statusItemLengthWithSpeed)
+        statusItem = NSStatusBar.system.statusItem(withLength: StatusItemDisplayMode.full.statusItemLength)
         statusItemView = StatusItemView.create(statusItem: statusItem)
-        statusItemView.frame = CGRect(x: 0, y: 0, width: statusItemLengthWithSpeed, height: 22)
+        statusItemView.frame = CGRect(x: 0, y: 0, width: StatusItemDisplayMode.full.statusItemLength, height: 22)
         statusMenu.delegate = self
         registCrashLogger()
         DispatchQueue.main.async {
@@ -105,7 +106,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // start proxy
         Logger.log("initClashCore")
-        initClashCore()
+        CoreRuntimeManager.shared.initialize()
         Logger.log("initClashCore finish")
         setupData()
         runAfterConfigReload = { [weak self] in
@@ -179,6 +180,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ aNotification: Notification) {
         UserDefaults.standard.set(0, forKey: "launch_fail_times")
         Logger.log("ClashX will terminate")
+        CoreRuntimeManager.shared.stop()
         if NetworkChangeNotifier.isCurrentSystemSetToClash(looser: true) ||
             NetworkChangeNotifier.hasInterfaceProxySetToClash() {
             Logger.log("Need Reset Proxy Setting again",level: .error)
@@ -187,15 +189,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func setupStatusMenuItemData() {
-        ConfigManager.shared
-            .showNetSpeedIndicatorObservable
-            .bind { [weak self] show in
+        coreRuntimeMenuItem.isEnabled = true
+        setupCoreRuntimeMenu()
+        statusMenu.insertItem(coreRuntimeMenuItem, at: 0)
+        statusMenu.insertItem(.separator(), at: 1)
+        updateCoreRuntimeMenuItem()
+        setupTunModeMenuItem()
+        setupNetSpeedOnlyMenuItem()
+        Observable.combineLatest(ConfigManager.shared.showNetSpeedIndicatorObservable,
+                                 ConfigManager.shared.showNetSpeedOnlyObservable)
+            .bind { [weak self] show, speedOnly in
                 guard let self = self else { return }
                 self.showNetSpeedIndicatorMenuItem.state = (show ?? true) ? .on : .off
-                let statusItemLength: CGFloat = (show ?? true) ? statusItemLengthWithSpeed : 25
-                self.statusItem.length = statusItemLength
-                self.statusItemView.frame.size.width = statusItemLength
-                self.statusItemView.showSpeedContainer(show: show ?? true)
+                self.showNetSpeedOnlyMenuItem.state = (speedOnly ?? false) ? .on : .off
+                let mode = StatusItemDisplayMode.resolve(showSpeed: show ?? true,
+                                                         speedOnly: speedOnly ?? false)
+                self.statusItem.length = mode.statusItemLength
+                self.statusItemView.frame.size.width = mode.statusItemLength
+                self.statusItemView.apply(displayMode: mode)
             }.disposed(by: disposeBag)
 
         statusItemView.updateViewStatus(enableProxy: ConfigManager.shared.proxyPortAutoSet)
@@ -209,6 +220,116 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }).disposed(by: disposeBag)
 
         remoteConfigAutoupdateMenuItem.state = RemoteConfigManager.autoUpdateEnable ? .on : .off
+    }
+
+    private func setupNetSpeedOnlyMenuItem() {
+        showNetSpeedOnlyMenuItem.title = NSLocalizedString("Only show network speed", comment: "")
+        showNetSpeedOnlyMenuItem.action = #selector(toggleNetSpeedOnly)
+        showNetSpeedOnlyMenuItem.target = self
+        let index = statusMenu.index(of: showNetSpeedIndicatorMenuItem)
+        statusMenu.insertItem(showNetSpeedOnlyMenuItem, at: index >= 0 ? index + 1 : 0)
+    }
+
+    @objc private func toggleNetSpeedOnly() {
+        let enabled = !ConfigManager.shared.showNetSpeedOnly
+        if enabled {
+            ConfigManager.shared.showNetSpeedIndicator = true
+        }
+        ConfigManager.shared.showNetSpeedOnly = enabled
+    }
+
+    private func setupTunModeMenuItem() {
+        tunModeMenuItem.title = NSLocalizedString("TUN Mode", comment: "")
+        tunModeMenuItem.action = #selector(toggleTunMode)
+        tunModeMenuItem.target = self
+        tunModeMenuItem.isEnabled = false
+        let index = statusMenu.index(of: proxySettingMenuItem)
+        statusMenu.insertItem(tunModeMenuItem, at: index >= 0 ? index + 1 : 2)
+    }
+
+    private func refreshTunModeMenuItem() {
+        let available = CoreRuntimeManager.shared.kind == .mihomo && ConfigManager.shared.isRunning
+        tunModeMenuItem.isEnabled = available
+        guard available else {
+            tunModeMenuItem.state = .off
+            return
+        }
+        ApiRequest.requestTunEnabled { [weak self] enabled in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.tunModeMenuItem.state = enabled == true ? .on : .off
+            }
+        }
+    }
+
+    @objc private func toggleTunMode() {
+        guard CoreRuntimeManager.shared.kind == .mihomo else { return }
+        let previousEnabled = tunModeMenuItem.state == .on
+        let enabled = !previousEnabled
+        tunModeMenuItem.isEnabled = false
+        UserDefaults.standard.set(enabled, forKey: MihomoConfigComposer.tunEnabledOverrideKey)
+        ApiRequest.requestConfigUpdate(configName: ConfigManager.selectConfigName) { [weak self] error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                if let error = error {
+                    UserDefaults.standard.set(previousEnabled, forKey: MihomoConfigComposer.tunEnabledOverrideKey)
+                    self.tunModeMenuItem.isEnabled = true
+                    NSUserNotificationCenter.default.post(title: NSLocalizedString("TUN Mode", comment: ""), info: error)
+                } else {
+                    self.syncConfig()
+                    self.refreshTunModeMenuItem()
+                }
+            }
+        }
+    }
+
+    private func updateCoreRuntimeMenuItem() {
+        coreRuntimeMenuItem.title = "\(NSLocalizedString("Current Core", comment: "")): \(CoreRuntimeManager.shared.displayName)"
+        let selected = UserDefaults.standard.string(forKey: CoreRuntimeSelector.overrideKey)
+        coreRuntimeMenuItem.submenu?.items.forEach { item in
+            item.state = item.representedObject as? String == (selected ?? "auto") ? .on : .off
+        }
+    }
+
+    private func setupCoreRuntimeMenu() {
+        let submenu = NSMenu()
+        let choices: [(String, String, Selector)] = [
+            (NSLocalizedString("Automatic", comment: ""), "auto", #selector(selectAutomaticCore)),
+            ("Mihomo v\(MihomoCoreRuntime.version)", CoreRuntimeKind.mihomo.rawValue, #selector(selectMihomoCore)),
+            ("Legacy Clash", CoreRuntimeKind.legacy.rawValue, #selector(selectLegacyCore)),
+        ]
+        for choice in choices {
+            let item = NSMenuItem(title: choice.0, action: choice.2, keyEquivalent: "")
+            item.target = self
+            item.representedObject = choice.1
+            if choice.1 == CoreRuntimeKind.mihomo.rawValue,
+               ProcessInfo.processInfo.operatingSystemVersion.majorVersion < MihomoCoreRuntime.minimumSystemMajorVersion {
+                item.isEnabled = false
+            }
+            submenu.addItem(item)
+        }
+        coreRuntimeMenuItem.submenu = submenu
+    }
+
+    @objc private func selectAutomaticCore() {
+        UserDefaults.standard.removeObject(forKey: CoreRuntimeSelector.overrideKey)
+        notifyCoreSelectionChanged()
+    }
+
+    @objc private func selectMihomoCore() {
+        UserDefaults.standard.set(CoreRuntimeKind.mihomo.rawValue, forKey: CoreRuntimeSelector.overrideKey)
+        notifyCoreSelectionChanged()
+    }
+
+    @objc private func selectLegacyCore() {
+        UserDefaults.standard.set(CoreRuntimeKind.legacy.rawValue, forKey: CoreRuntimeSelector.overrideKey)
+        notifyCoreSelectionChanged()
+    }
+
+    private func notifyCoreSelectionChanged() {
+        updateCoreRuntimeMenuItem()
+        NSUserNotificationCenter.default.post(title: NSLocalizedString("Core selection saved", comment: ""),
+                                              info: NSLocalizedString("Restart ClashX to apply.", comment: ""))
     }
 
     func setupData() {
@@ -280,9 +401,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 .take(while:{_ in ConfigManager.shared.proxyPortAutoSet})
                 .observe(on: MainScheduler.instance)
                 .bind(onNext: { _ in
-                    SystemProxyManager.shared.enableProxy()
+                    if ConfigManager.shared.currentConfig != nil {
+                        SystemProxyManager.shared.enableProxy()
+                    }
                 }).disposed(by: disposeBag)
-        } else if ConfigManager.shared.proxyPortAutoSet {
+        } else if ConfigManager.shared.proxyPortAutoSet,
+                  ConfigManager.shared.currentConfig != nil {
             SystemProxyManager.shared.enableProxy()
         }
         
@@ -406,13 +530,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // setup ui config first
-        if let htmlPath = Bundle.main.path(forResource: "index", ofType: "html", inDirectory: "dashboard") {
+        if CoreRuntimeManager.shared.kind == .legacy,
+           let htmlPath = Bundle.main.path(forResource: "index", ofType: "html", inDirectory: "dashboard") {
             let uiPath = URL(fileURLWithPath: htmlPath).deletingLastPathComponent().path
             setUIPath(uiPath.goStringBuffer())
         }
 
         Logger.log("Trying start proxy")
-        let string = run(ConfigManager.builtInApiMode.goObject(), ConfigManager.allowConnectFromLan.goObject())?.toString() ?? ""
+        let string = CoreRuntimeManager.shared.start(checkConfig: ConfigManager.builtInApiMode,
+                                                     allowLan: ConfigManager.allowConnectFromLan)
+        updateCoreRuntimeMenuItem()
         let jsonData = string.data(using: .utf8) ?? Data()
         if let res = try? JSONDecoder().decode(StartProxyResp.self, from: jsonData) {
             let port = res.externalController.components(separatedBy: ":").last ?? "9090"
@@ -421,9 +548,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ConfigManager.shared.isRunning = true
             proxyModeMenuItem.isEnabled = true
             dashboardMenuItem.isEnabled = true
+            refreshTunModeMenuItem()
         } else {
             ConfigManager.shared.isRunning = false
             proxyModeMenuItem.isEnabled = false
+            refreshTunModeMenuItem()
             NSUserNotificationCenter.default.postConfigErrorNotice(msg: string)
         }
         Logger.log("Start proxy done")
@@ -537,12 +666,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             for group in groups {
                 Logger.log("Start auto health check for group \(group.name)")
-                ApiRequest.healthCheck(proxy: group.name)
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(group.name)") { done in
+                    ApiRequest.healthCheck(proxy: group.name, completeHandler: done)
+                }
             }
             
             for provider in providers {
                 Logger.log("Start auto health check for provider \(provider)")
-                ApiRequest.healthCheck(proxy: provider)
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(provider)") { done in
+                    ApiRequest.healthCheck(proxy: provider, completeHandler: done)
+                }
             }
         }
     }
@@ -597,7 +730,11 @@ extension AppDelegate {
     }
 
     @IBAction func actionShowNetSpeedIndicator(_ sender: NSMenuItem) {
-        ConfigManager.shared.showNetSpeedIndicator = !(sender.state == .on)
+        let show = !(sender.state == .on)
+        ConfigManager.shared.showNetSpeedIndicator = show
+        if !show {
+            ConfigManager.shared.showNetSpeedOnly = false
+        }
     }
 
     @IBAction func actionSetSystemProxy(_ sender: Any) {
@@ -643,22 +780,27 @@ extension AppDelegate {
         NSUserNotificationCenter.default.postSpeedTestBeginNotice()
 
         isSpeedTesting = true
+        ProxyHealthCheckQueue.shared.cancelQueued()
 
         ApiRequest.getMergedProxyData { [weak self] resp in
             let group = DispatchGroup()
 
             for (name, _) in resp?.enclosingProviderResp?.providers ?? [:] {
                 group.enter()
-                ApiRequest.healthCheck(proxy: name) {
+                ProxyHealthCheckQueue.shared.enqueue(key: "health:\(name)", work: { done in
+                    ApiRequest.healthCheck(proxy: name, completeHandler: done)
+                }, completion: {
                     group.leave()
-                }
+                })
             }
 
             for p in resp?.proxiesMap["GLOBAL"]?.all ?? [] {
                 group.enter()
-                ApiRequest.getProxyDelay(proxyName: p) { _ in
+                ProxyHealthCheckQueue.shared.enqueue(key: "delay:\(p)", work: { done in
+                    ApiRequest.getProxyDelay(proxyName: p) { _ in done() }
+                }, completion: {
                     group.leave()
-                }
+                })
             }
             group.notify(queue: DispatchQueue.main) {
                 NSUserNotificationCenter.default.postSpeedTestFinishNotice()
