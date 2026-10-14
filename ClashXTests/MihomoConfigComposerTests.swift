@@ -30,6 +30,12 @@ enum MihomoConfigComposerTests {
 
         let preserveStack = MihomoConfigComposer.applyingTunOverride(to: explicit, enabled: true)
         expect(preserveStack.contains("stack: gvisor"), "enabled override preserves explicit stack")
+
+        let noPort = "mode: rule\nrules: []"
+        expect(MihomoConfigComposer.applyingMixedPortDefault(to: noPort).hasPrefix("mixed-port: 7890\n"), "missing proxy ports default to mixed 7890")
+
+        let explicitPort = "port: 8888\nmode: rule"
+        expect(MihomoConfigComposer.applyingMixedPortDefault(to: explicitPort) == explicitPort, "explicit proxy port survives")
         print("MihomoConfigComposerTests passed")
     }
 }

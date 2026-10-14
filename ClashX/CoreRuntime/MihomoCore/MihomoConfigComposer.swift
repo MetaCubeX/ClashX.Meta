@@ -62,15 +62,25 @@ enum MihomoConfigComposer {
         return enabled ? applyingSystemStackDefault(to: updated) : updated
     }
 
+    static func applyingMixedPortDefault(to source: String) -> String {
+        let proxyPortKeys = ["port:", "socks-port:", "mixed-port:"]
+        let hasProxyPort = source.components(separatedBy: "\n").contains { line in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            return !line.hasPrefix(" ") && !line.hasPrefix("\t") && proxyPortKeys.contains { trimmed.hasPrefix($0) }
+        }
+        return hasProxyPort ? source : "mixed-port: 7890\n" + source
+    }
+
     static func effectiveConfigPath(for sourcePath: String) throws -> String {
         let source = try String(contentsOfFile: sourcePath, encoding: .utf8)
         let defaults = UserDefaults.standard
-        let effective: String
+        let tunEffective: String
         if defaults.object(forKey: tunEnabledOverrideKey) != nil {
-            effective = applyingTunOverride(to: source, enabled: defaults.bool(forKey: tunEnabledOverrideKey))
+            tunEffective = applyingTunOverride(to: source, enabled: defaults.bool(forKey: tunEnabledOverrideKey))
         } else {
-            effective = applyingSystemStackDefault(to: source)
+            tunEffective = applyingSystemStackDefault(to: source)
         }
+        let effective = applyingMixedPortDefault(to: tunEffective)
         let directory = URL(fileURLWithPath: kConfigFolderPath).appendingPathComponent("mihomo-runtime", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let destination = directory.appendingPathComponent("effective.yaml")
