@@ -383,9 +383,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 .take(while:{_ in ConfigManager.shared.proxyPortAutoSet})
                 .observe(on: MainScheduler.instance)
                 .bind(onNext: { _ in
-                    SystemProxyManager.shared.enableProxy()
+                    if ConfigManager.shared.currentConfig != nil {
+                        SystemProxyManager.shared.enableProxy()
+                    }
                 }).disposed(by: disposeBag)
-        } else if ConfigManager.shared.proxyPortAutoSet {
+        } else if ConfigManager.shared.proxyPortAutoSet,
+                  ConfigManager.shared.currentConfig != nil {
             SystemProxyManager.shared.enableProxy()
         }
         
