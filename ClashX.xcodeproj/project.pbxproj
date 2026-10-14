@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D1A000012C00000100000001 /* PathDiagnosticModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000112C00000100000001 /* PathDiagnosticModels.swift */; };
+		D1A000022C00000100000001 /* PathDiagnosticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000122C00000100000001 /* PathDiagnosticsService.swift */; };
+		D1A000032C00000100000001 /* SystemPathDiagnosticsProber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000132C00000100000001 /* SystemPathDiagnosticsProber.swift */; };
+		D1A000042C00000100000001 /* PathDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A000142C00000100000001 /* PathDiagnosticsView.swift */; };
 		4913C82321157D0200F6B87C /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4913C82221157D0200F6B87C /* Notification.swift */; };
 		491E6203258A424D00313AEF /* CommonUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 491E61FD258A424500313AEF /* CommonUtils.m */; };
 		49228457270AADE20027A4B6 /* RemoteConfigUpdateIntervalSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49228456270AADE20027A4B6 /* RemoteConfigUpdateIntervalSettingView.swift */; };
@@ -126,6 +130,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D1A000112C00000100000001 /* PathDiagnosticModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathDiagnosticModels.swift; sourceTree = "<group>"; };
+		D1A000122C00000100000001 /* PathDiagnosticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathDiagnosticsService.swift; sourceTree = "<group>"; };
+		D1A000132C00000100000001 /* SystemPathDiagnosticsProber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemPathDiagnosticsProber.swift; sourceTree = "<group>"; };
+		D1A000142C00000100000001 /* PathDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathDiagnosticsView.swift; sourceTree = "<group>"; };
 		4913C82221157D0200F6B87C /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		491E61FC258A424500313AEF /* CommonUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonUtils.h; sourceTree = "<group>"; };
 		491E61FD258A424500313AEF /* CommonUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommonUtils.m; sourceTree = "<group>"; };
@@ -248,6 +256,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D1A000202C00000100000001 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				D1A000112C00000100000001 /* PathDiagnosticModels.swift */,
+				D1A000122C00000100000001 /* PathDiagnosticsService.swift */,
+				D1A000132C00000100000001 /* SystemPathDiagnosticsProber.swift */,
+				D1A000142C00000100000001 /* PathDiagnosticsView.swift */,
+			);
+			path = Diagnostics;
+			sourceTree = "<group>";
+		};
 		4913C82021157CEB00F6B87C /* Macro */ = {
 			isa = PBXGroup;
 			children = (
@@ -428,6 +447,7 @@
 		49CF3B1F20CD7463001EBF94 /* ClashX */ = {
 			isa = PBXGroup;
 			children = (
+				D1A000202C00000100000001 /* Diagnostics */,
 				8A2BBEA527A03A920081EBEF /* AppleScript */,
 				49722FDD211ED2A900650A41 /* Vendor */,
 				4913C82021157CEB00F6B87C /* Macro */,
@@ -700,6 +720,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1A000012C00000100000001 /* PathDiagnosticModels.swift in Sources */,
+				D1A000022C00000100000001 /* PathDiagnosticsService.swift in Sources */,
+				D1A000032C00000100000001 /* SystemPathDiagnosticsProber.swift in Sources */,
+				D1A000042C00000100000001 /* PathDiagnosticsView.swift in Sources */,
 				49ABB749236B0F9E00535CD7 /* UnsafePointer+bridge.swift in Sources */,
 				499A485522ED707300F6C675 /* RemoteConfigViewController.swift in Sources */,
 				49CF3B5C20CE8068001EBF94 /* ClashResourceManager.swift in Sources */,

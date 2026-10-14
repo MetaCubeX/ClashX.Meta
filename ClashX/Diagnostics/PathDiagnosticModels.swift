@@ -18,7 +18,7 @@ enum PathDiagnosticStage: Int, CaseIterable {
     }
 }
 
-enum PathDiagnosticStatus {
+enum PathDiagnosticStatus: Equatable {
     case checking
     case healthy
     case failed

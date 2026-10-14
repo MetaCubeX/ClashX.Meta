@@ -45,6 +45,9 @@ extension ClashWebViewWindowController: NSWindowDelegate {
 
 class ClashWebViewContoller: NSViewController {
     let webview: CustomWKWebView = CustomWKWebView()
+    let diagnosticsView = PathDiagnosticsView()
+    private lazy var diagnosticsService = PathDiagnosticsService(prober: SystemPathDiagnosticsProber())
+    private let diagnosticsHeight: CGFloat = 104
     var bridge: WebViewJavascriptBridge?
     let disposeBag = DisposeBag()
     let minSize = NSSize(width: 920, height: 580)
@@ -105,6 +108,19 @@ class ClashWebViewContoller: NSViewController {
             self?.webview.reload()
         }.disposed(by: disposeBag)
 
+        diagnosticsView.onRetry = { [weak self] in
+            self?.runPathDiagnostics()
+        }
+
+        Observable.merge(
+            NotificationCenter.default.rx.notification(.systemNetworkStatusDidChange),
+            NotificationCenter.default.rx.notification(.systemNetworkStatusIPUpdate)
+        )
+        .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
+        .bind { [weak self] _ in
+            self?.runPathDiagnostics()
+        }.disposed(by: disposeBag)
+
         loadWebRecourses()
     }
 
@@ -134,17 +150,26 @@ class ClashWebViewContoller: NSViewController {
         if NSApp.activationPolicy() == .accessory {
             NSApp.setActivationPolicy(.regular)
         }
+        runPathDiagnostics()
     }
 
     func setupView() {
         view.addSubview(effectView)
+        view.addSubview(diagnosticsView)
         view.addSubview(webview)
     }
 
     override func viewDidLayout() {
         super.viewDidLayout()
         effectView.frame = view.bounds
-        webview.frame = view.bounds
+        diagnosticsView.frame = NSRect(x: 0,
+                                       y: max(0, view.bounds.height - diagnosticsHeight),
+                                       width: view.bounds.width,
+                                       height: diagnosticsHeight)
+        webview.frame = NSRect(x: 0,
+                               y: 0,
+                               width: view.bounds.width,
+                               height: max(0, view.bounds.height - diagnosticsHeight))
     }
 
     func loadWebRecourses() {
@@ -157,7 +182,22 @@ class ClashWebViewContoller: NSViewController {
     }
 
     deinit {
+        diagnosticsService.cancel()
         NSApp.setActivationPolicy(.accessory)
+    }
+
+    private func runPathDiagnostics() {
+        diagnosticsView.showChecking()
+        diagnosticsService.run { [weak self] snapshot in
+            for stage in PathDiagnosticStage.allCases {
+                guard let result = snapshot.results[stage] else { continue }
+                let duration = result.duration.map { String(format: " %.0fms", $0 * 1000) } ?? ""
+                Logger.log("[PathDiagnostics] \(stage.title) \(result.status.displayName)\(duration)", level: result.status == .failed ? .error : .info)
+            }
+            DispatchQueue.main.async {
+                self?.diagnosticsView.update(snapshot)
+            }
+        }
     }
 }
 
