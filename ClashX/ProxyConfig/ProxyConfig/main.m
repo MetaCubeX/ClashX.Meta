@@ -6,7 +6,7 @@ NSString const* version = @"0.1.3";
 
 
 NSArray<NSString *>* getIgnoreList() {
-    NSString *configPath = [NSHomeDirectory() stringByAppendingString:@"/.config/clash/proxyIgnoreList.plist"];
+    NSString *configPath = [NSHomeDirectory() stringByAppendingString:@"/.config/clash.meta/proxyIgnoreList.plist"];
     if ([NSFileManager.defaultManager fileExistsAtPath:configPath]) {
         NSArray *arr = [[NSArray alloc] initWithContentsOfFile:configPath];
         if (arr != nil && arr.count > 0 && [arr containsObject:@"127.0.0.1"]) {
