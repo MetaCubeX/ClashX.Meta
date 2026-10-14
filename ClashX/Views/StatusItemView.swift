@@ -108,6 +108,12 @@ class StatusItemView: NSView {
         updateStatusItemView()
     }
 
+    func apply(displayMode: StatusItemDisplayMode) {
+        imageView.isHidden = !displayMode.showsIcon
+        speedContainerView.isHidden = !displayMode.showsSpeed
+        updateStatusItemView()
+    }
+
     func updateStatusItemView() {
         statusItem?.updateImage(withView: self)
     }

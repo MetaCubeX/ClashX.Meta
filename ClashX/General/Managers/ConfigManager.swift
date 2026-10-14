@@ -92,6 +92,17 @@ class ConfigManager {
 
     let showNetSpeedIndicatorObservable = UserDefaults.standard.rx.observe(Bool.self, "showNetSpeedIndicator")
 
+    var showNetSpeedOnly: Bool {
+        get {
+            return UserDefaults.standard.bool(forKey: "showNetSpeedOnly")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "showNetSpeedOnly")
+        }
+    }
+
+    let showNetSpeedOnlyObservable = UserDefaults.standard.rx.observe(Bool.self, "showNetSpeedOnly")
+
     var benchMarkUrl: String = UserDefaults.standard.string(forKey: "benchMarkUrl") ?? "http://cp.cloudflare.com/generate_204" {
         didSet {
             UserDefaults.standard.set(benchMarkUrl, forKey: "benchMarkUrl")

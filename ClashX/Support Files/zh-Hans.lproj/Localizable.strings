@@ -137,6 +137,7 @@
 
 /* No comment provided by engineer. */
 "Show speedTest at top" = "顶端显示测速按钮";
+"Only show network speed" = "仅显示网速";
 
 /* No comment provided by engineer. */
 "Stable" = "Stable";

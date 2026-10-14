@@ -16,8 +16,6 @@ import AppCenter
 import AppCenterAnalytics
 
 
-private let statusItemLengthWithSpeed: CGFloat = 72
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
@@ -55,6 +53,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var isSpeedTesting = false
     private let coreRuntimeMenuItem = NSMenuItem()
     private let tunModeMenuItem = NSMenuItem()
+    private let showNetSpeedOnlyMenuItem = NSMenuItem()
 
     var runAfterConfigReload: (() -> Void)?
 
@@ -76,9 +75,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Logger.log("Appversion: \(AppVersionUtil.currentVersion) \(AppVersionUtil.currentBuild)")
         ProcessInfo.processInfo.disableSuddenTermination()
         // setup menu item first
-        statusItem = NSStatusBar.system.statusItem(withLength: statusItemLengthWithSpeed)
+        statusItem = NSStatusBar.system.statusItem(withLength: StatusItemDisplayMode.full.statusItemLength)
         statusItemView = StatusItemView.create(statusItem: statusItem)
-        statusItemView.frame = CGRect(x: 0, y: 0, width: statusItemLengthWithSpeed, height: 22)
+        statusItemView.frame = CGRect(x: 0, y: 0, width: StatusItemDisplayMode.full.statusItemLength, height: 22)
         statusMenu.delegate = self
         registCrashLogger()
         DispatchQueue.main.async {
@@ -196,15 +195,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusMenu.insertItem(.separator(), at: 1)
         updateCoreRuntimeMenuItem()
         setupTunModeMenuItem()
-        ConfigManager.shared
-            .showNetSpeedIndicatorObservable
-            .bind { [weak self] show in
+        setupNetSpeedOnlyMenuItem()
+        Observable.combineLatest(ConfigManager.shared.showNetSpeedIndicatorObservable,
+                                 ConfigManager.shared.showNetSpeedOnlyObservable)
+            .bind { [weak self] show, speedOnly in
                 guard let self = self else { return }
                 self.showNetSpeedIndicatorMenuItem.state = (show ?? true) ? .on : .off
-                let statusItemLength: CGFloat = (show ?? true) ? statusItemLengthWithSpeed : 25
-                self.statusItem.length = statusItemLength
-                self.statusItemView.frame.size.width = statusItemLength
-                self.statusItemView.showSpeedContainer(show: show ?? true)
+                self.showNetSpeedOnlyMenuItem.state = (speedOnly ?? false) ? .on : .off
+                let mode = StatusItemDisplayMode.resolve(showSpeed: show ?? true,
+                                                         speedOnly: speedOnly ?? false)
+                self.statusItem.length = mode.statusItemLength
+                self.statusItemView.frame.size.width = mode.statusItemLength
+                self.statusItemView.apply(displayMode: mode)
             }.disposed(by: disposeBag)
 
         statusItemView.updateViewStatus(enableProxy: ConfigManager.shared.proxyPortAutoSet)
@@ -218,6 +220,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }).disposed(by: disposeBag)
 
         remoteConfigAutoupdateMenuItem.state = RemoteConfigManager.autoUpdateEnable ? .on : .off
+    }
+
+    private func setupNetSpeedOnlyMenuItem() {
+        showNetSpeedOnlyMenuItem.title = NSLocalizedString("Only show network speed", comment: "")
+        showNetSpeedOnlyMenuItem.action = #selector(toggleNetSpeedOnly)
+        showNetSpeedOnlyMenuItem.target = self
+        let index = statusMenu.index(of: showNetSpeedIndicatorMenuItem)
+        statusMenu.insertItem(showNetSpeedOnlyMenuItem, at: index >= 0 ? index + 1 : 0)
+    }
+
+    @objc private func toggleNetSpeedOnly() {
+        let enabled = !ConfigManager.shared.showNetSpeedOnly
+        if enabled {
+            ConfigManager.shared.showNetSpeedIndicator = true
+        }
+        ConfigManager.shared.showNetSpeedOnly = enabled
     }
 
     private func setupTunModeMenuItem() {
@@ -712,7 +730,11 @@ extension AppDelegate {
     }
 
     @IBAction func actionShowNetSpeedIndicator(_ sender: NSMenuItem) {
-        ConfigManager.shared.showNetSpeedIndicator = !(sender.state == .on)
+        let show = !(sender.state == .on)
+        ConfigManager.shared.showNetSpeedIndicator = show
+        if !show {
+            ConfigManager.shared.showNetSpeedOnly = false
+        }
     }
 
     @IBAction func actionSetSystemProxy(_ sender: Any) {

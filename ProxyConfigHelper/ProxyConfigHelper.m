@@ -68,7 +68,18 @@ static NSString * const kMihomoPlistPath = @"/Library/LaunchDaemons/com.west2onl
 
 - (void)connectionCheckOnLaunch {
     if (self.connections.count == 0) {
+        [self stopMihomoIfOrphaned];
         self.shouldQuit = YES;
+    }
+}
+
+- (void)stopMihomoIfOrphaned {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:kMihomoPlistPath]) {
+        NSString *error = [self runLaunchctlArguments:@[@"unload", kMihomoPlistPath]];
+        if (error.length > 0) {
+            NSLog(@"Failed to stop orphaned Mihomo: %@", error);
+        }
+        [[NSFileManager defaultManager] removeItemAtPath:kMihomoPlistPath error:nil];
     }
 }
 
@@ -89,10 +100,13 @@ static NSString * const kMihomoPlistPath = @"/Library/LaunchDaemons/com.west2onl
     __weak NSXPCConnection *weakConnection = newConnection;
     __weak ProxyConfigHelper *weakSelf = self;
     newConnection.invalidationHandler = ^{
-        [weakSelf.connections removeObject:weakConnection];
-        if (weakSelf.connections.count == 0) {
-            weakSelf.shouldQuit = YES;
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.connections removeObject:weakConnection];
+            if (weakSelf.connections.count == 0) {
+                [weakSelf stopMihomoIfOrphaned];
+                weakSelf.shouldQuit = YES;
+            }
+        });
     };
     [self.connections addObject:newConnection];
     [newConnection resume];
