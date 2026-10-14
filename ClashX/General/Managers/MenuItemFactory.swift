@@ -117,11 +117,6 @@ class MenuItemFactory {
     {
         let proxyMap = proxyInfo.proxiesMap
 
-        let isGlobalMode = ConfigManager.shared.currentConfig?.mode == .global
-        if !isGlobalMode {
-            if proxyGroup.name == "GLOBAL" { return nil }
-        }
-
         let menu = NSMenuItem(title: proxyGroup.name, action: nil, keyEquivalent: "")
         let selectedName = proxyGroup.now ?? ""
         if !ConfigManager.shared.disableShowCurrentProxyInMenu {
