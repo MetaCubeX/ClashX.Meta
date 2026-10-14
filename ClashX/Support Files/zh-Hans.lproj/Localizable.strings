@@ -186,3 +186,6 @@
 /* No comment provided by engineer. */
 "Use reload config to try reconnect." = "使用重载配置文件按钮尝试重新连接";
 "Current Core" = "当前内核";
+"Automatic" = "自动（推荐）";
+"Core selection saved" = "内核选择已保存";
+"Restart ClashX to apply." = "重启 ClashX 后生效。";

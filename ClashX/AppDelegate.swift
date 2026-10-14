@@ -189,7 +189,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func setupStatusMenuItemData() {
-        coreRuntimeMenuItem.isEnabled = false
+        coreRuntimeMenuItem.isEnabled = true
+        setupCoreRuntimeMenu()
         statusMenu.insertItem(coreRuntimeMenuItem, at: 0)
         statusMenu.insertItem(.separator(), at: 1)
         updateCoreRuntimeMenuItem()
@@ -219,6 +220,51 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateCoreRuntimeMenuItem() {
         coreRuntimeMenuItem.title = "\(NSLocalizedString("Current Core", comment: "")): \(CoreRuntimeManager.shared.displayName)"
+        let selected = UserDefaults.standard.string(forKey: CoreRuntimeSelector.overrideKey)
+        coreRuntimeMenuItem.submenu?.items.forEach { item in
+            item.state = item.representedObject as? String == (selected ?? "auto") ? .on : .off
+        }
+    }
+
+    private func setupCoreRuntimeMenu() {
+        let submenu = NSMenu()
+        let choices: [(String, String, Selector)] = [
+            (NSLocalizedString("Automatic", comment: ""), "auto", #selector(selectAutomaticCore)),
+            ("Mihomo v\(MihomoCoreRuntime.version)", CoreRuntimeKind.mihomo.rawValue, #selector(selectMihomoCore)),
+            ("Legacy Clash", CoreRuntimeKind.legacy.rawValue, #selector(selectLegacyCore)),
+        ]
+        for choice in choices {
+            let item = NSMenuItem(title: choice.0, action: choice.2, keyEquivalent: "")
+            item.target = self
+            item.representedObject = choice.1
+            if choice.1 == CoreRuntimeKind.mihomo.rawValue,
+               ProcessInfo.processInfo.operatingSystemVersion.majorVersion < MihomoCoreRuntime.minimumSystemMajorVersion {
+                item.isEnabled = false
+            }
+            submenu.addItem(item)
+        }
+        coreRuntimeMenuItem.submenu = submenu
+    }
+
+    @objc private func selectAutomaticCore() {
+        UserDefaults.standard.removeObject(forKey: CoreRuntimeSelector.overrideKey)
+        notifyCoreSelectionChanged()
+    }
+
+    @objc private func selectMihomoCore() {
+        UserDefaults.standard.set(CoreRuntimeKind.mihomo.rawValue, forKey: CoreRuntimeSelector.overrideKey)
+        notifyCoreSelectionChanged()
+    }
+
+    @objc private func selectLegacyCore() {
+        UserDefaults.standard.set(CoreRuntimeKind.legacy.rawValue, forKey: CoreRuntimeSelector.overrideKey)
+        notifyCoreSelectionChanged()
+    }
+
+    private func notifyCoreSelectionChanged() {
+        updateCoreRuntimeMenuItem()
+        NSUserNotificationCenter.default.post(title: NSLocalizedString("Core selection saved", comment: ""),
+                                              info: NSLocalizedString("Restart ClashX to apply.", comment: ""))
     }
 
     func setupData() {

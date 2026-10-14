@@ -186,3 +186,6 @@
 /* No comment provided by engineer. */
 "Use reload config to try reconnect." = "Use reload config to try reconnect.";
 "Current Core" = "Current Core";
+"Automatic" = "Automatic";
+"Core selection saved" = "Core selection saved";
+"Restart ClashX to apply." = "Restart ClashX to apply.";

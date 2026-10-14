@@ -191,7 +191,7 @@ class ClashWebViewContoller: NSViewController {
     func teardown() {
         diagnosticsService.cancel()
         guard let webview = webview else { return }
-        bridge?.reset()
+        bridge?.setWebViewDelegate(nil)
         bridge = nil
         webview.stopLoading()
         webview.navigationDelegate = nil
