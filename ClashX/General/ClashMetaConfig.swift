@@ -45,6 +45,11 @@ class ClashMetaConfig: NSObject {
         
         var safePaths: String?
 
+        var encodedData: Data? {
+            guard let yaml = try? YAMLEncoder().encode(self) else { return nil }
+            return yaml.data(using: .utf8)
+        }
+
         var path: String {
             get {
                 guard let s = try? YAMLEncoder().encode(self),

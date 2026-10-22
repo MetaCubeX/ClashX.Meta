@@ -21,13 +21,23 @@ class DebugSettingViewController: NSViewController {
     }
 
     @IBAction func actionUnInstallProxyHelper(_ sender: Any) {
-        Task {
-            await PrivilegedHelperManager.shared.removeInstallHelper()
+        Task { @MainActor in
+            do {
+                try await PrivilegedHelperManager.shared.removeInstallHelper()
+            } catch PrivilegedHelperManager.HelperInstallationError.cancelled {
+                return
+            } catch {
+                Logger.log("Remove helper failed: \(error.localizedDescription)", level: .error)
+                NSAlert.alert(with: error.localizedDescription)
+            }
         }
     }
 
     @IBAction func actionOpenLogFolder(_ sender: Any) {
         NSWorkspace.shared.openFilePath(Logger.shared.logFolder())
+        if FileManager.default.fileExists(atPath: Logger.shared.coreLogFolder) {
+            NSWorkspace.shared.openFilePath(Logger.shared.coreLogFolder)
+        }
     }
 
     @IBAction func actionOpenLocalConfig(_ sender: Any) {

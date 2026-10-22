@@ -39,10 +39,9 @@ enum Paths {
     }
 
     static func alphaCorePath() -> URL? {
-		Paths
-			.applicationSupportDirectory()?
-			.appendingPathComponent(kDefauleMetaCoreName)
+        URL(fileURLWithPath: (try? TrustedCoreStore.alphaInfo().path) ?? TrustedCoreStore.alphaPath)
     }
+
 
 	static func applicationSupportDirectory() -> URL? {
 		FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)

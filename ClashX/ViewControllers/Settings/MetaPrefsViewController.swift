@@ -87,6 +87,7 @@ class MetaPrefsViewController: NSViewController {
 	}
 	
 	@IBAction func updateAlpha(_ sender: NSButton) {
+        alphaInfoGeneration += 1
 		sender.isEnabled = false
 		updateProgressIndicator.isHidden = false
 		updateProgressIndicator.startAnimation(nil)
@@ -95,20 +96,19 @@ class MetaPrefsViewController: NSViewController {
 		
 		Task {
 			do {
-                let assets = try await dl.alphaAssets()
-				let asset = try await dl.alphaCoreAsset(assets)
-				let ver = try dl.checkVersion(asset)
-				let data = try await dl.downloadCore(ver)
-                let checksum = try await dl.checksumString(assets, asset: asset)
-                let newVer = try dl.replaceCore(data, checksum: checksum)
-				
+                let info = try await dl.update()
+                let newVer = info.version
+
 				await MainActor.run {
 					self.updateAlphaVersion(newVer)
 					let msg = NSLocalizedString("Version: ", comment: "") + newVer
 					UserNotificationCenter.shared.postNotificationAlert(title: "Clash Meta Core", info: msg)
 				}
 			} catch {
-				UserNotificationCenter.shared.postNotificationAlert(title: "Clash Meta Core", info: error.localizedDescription)
+                await MainActor.run {
+                    UserNotificationCenter.shared.postNotificationAlert(title: "Clash Meta Core", info: error.localizedDescription)
+                    self.setAlphaVersion()
+                }
 			}
 			
 			await MainActor.run {
@@ -131,6 +131,7 @@ class MetaPrefsViewController: NSViewController {
 	var prefsSnapshot = [String]()
 	var versionSnapshot = "none"
 	var alphaCoreUpdated = false
+    private var alphaInfoGeneration = 0
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
@@ -179,18 +180,22 @@ class MetaPrefsViewController: NSViewController {
         }
 	}
 	
-	func setAlphaVersion() {
-		if let alphaCorePath = Paths.alphaCorePath(),
-		   let v = ClashProcess.verifyCoreFile(alphaCorePath.path)?.version {
-			updateAlphaVersion(v)
-		} else {
-			updateAlphaVersion(nil)
-		}
-	}
-	
+    func setAlphaVersion() {
+        alphaInfoGeneration += 1
+        let generation = alphaInfoGeneration
+        Task {
+            let info = try? await AlphaMetaDownloader.installed()
+            await MainActor.run {
+                guard generation == self.alphaInfoGeneration else { return }
+                self.versionSnapshot = info?.version ?? "none"
+                self.updateAlphaVersion(info?.version)
+            }
+        }
+    }
+
 	func updateAlphaVersion(_ version: String?) {
 		let enable = version != nil
-		useAlphaButton.isEnabled = enable
+		useAlphaButton.isEnabled = enable || ConfigManager.useAlphaCore
 		showAlphaButton.isEnabled = enable
 		if let v = version {
 			alphaVersionTextField.stringValue = v

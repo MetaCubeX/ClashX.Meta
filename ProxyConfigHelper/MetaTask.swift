@@ -6,10 +6,11 @@
 import Cocoa
 import Subprocess
 import System
+import Darwin
 
 private actor StartState {
     var finished = false
-    var logs = [String]()
+    private var logs = ""
 
     func markFinished() -> Bool {
         guard !finished else { return false }
@@ -20,25 +21,32 @@ private actor StartState {
     var isFinished: Bool { finished }
 
     func appendLogs(_ items: [String]) {
-        logs.append(contentsOf: items)
+        logs += items.joined(separator: "\n") + "\n"
+        if logs.count > 65_536 { logs = String(logs.suffix(65_536)) }
     }
 
     func logsString() -> String {
-        logs.joined(separator: "\n")
+        logs
     }
 }
 
 class MetaTask: NSObject {
     private enum StartError: LocalizedError {
         case invalidConfig
+        case launchFailed
 
         var errorDescription: String? {
             switch self {
             case .invalidConfig:
                 return "Can't decode config file."
+            case .launchFailed:
+                return "launchd could not load or start the verified core."
             }
         }
     }
+
+    private static let managedRunDir = TrustedCoreStore.runDirectory
+    private let logMaintenance = CoreLogMaintenance()
 
     struct MetaCurl: Decodable {
         let hello: String
@@ -53,20 +61,29 @@ class MetaTask: NSObject {
 
     private var serverResult: MetaServer?
 
-    private func stdoutLogPath(_ confPath: String) -> String {
-        "\(confPath)/logs/\(serverResult?.sessionId ?? "")/\(kCoreLogName)"
+    private func safeSessionId() -> String {
+        serverResult?.sessionId ?? ""
     }
 
-    private func stderrLogPath(_ confPath: String) -> String {
-        "\(confPath)/logs/\(serverResult?.sessionId ?? "")/\(kCoreCrashLogName)"
+    private func coreLogDir() -> String {
+        "\(CoreLogMaintenance.rootDirectory)/\(safeSessionId())"
+    }
+
+    private func stdoutLogPath() -> String {
+        "\(coreLogDir())/\(kCoreLogName)"
+    }
+
+    private func stderrLogPath() -> String {
+        "\(coreLogDir())/\(kCoreCrashLogName)"
     }
 
     // MARK: - Public API
 
     func start(_ path: String,
                confPath: String,
-               confFilePath: String,
-               confJSON: String) -> AsyncStream<String> {
+               configData: Data,
+               confJSON: String,
+               core: ProxyConfigHelperCore) -> AsyncStream<String> {
         let state = StartState()
 
         return AsyncStream { continuation in
@@ -76,8 +93,9 @@ class MetaTask: NSObject {
                 do {
                     try await self?.startProcess(path,
                                                  confPath: confPath,
-                                                 confFilePath: confFilePath,
+                                                 configData: configData,
                                                  confJSON: confJSON,
+                                                 core: core,
                                                  state: state,
                                                  continuation: continuation)
                 } catch let error as StartError {
@@ -96,7 +114,8 @@ class MetaTask: NSObject {
     func stop() async {
         _ = try? await run(.name("launchctl"), arguments: ["stop", Self.label], output: .discarded)
         _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
-        try? FileManager.default.removeItem(atPath: Self.plistPath)
+        logMaintenance.stop()
+        try? PrivilegedDirectory.open(Self.plistDir).remove(Self.plistFileName)
     }
 
     @discardableResult
@@ -111,9 +130,10 @@ class MetaTask: NSObject {
         if isLoaded {
             _ = try? await run(.name("launchctl"), arguments: ["stop", Self.label], output: .discarded)
             _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
-            try? FileManager.default.removeItem(atPath: Self.plistPath)
+            try? PrivilegedDirectory.open(Self.plistDir).remove(Self.plistFileName)
         }
         _ = try? await run(.name("killall"), arguments: ["com.metacubex.ClashX.ProxyConfigHelper.meta"], output: .discarded)
+        logMaintenance.stop()
         return isLoaded
     }
 
@@ -137,24 +157,30 @@ class MetaTask: NSObject {
     }
 
     func testExternalController(_ server: MetaServer) async -> Bool {
-        var args = [server.externalController]
-        if server.secret != "" {
-            args.append(contentsOf: [
-                "--header",
-                "Authorization: Bearer \(server.secret)"
-            ])
-        }
-
-        guard let data: Data = try? await run(
-            .name("curl"),
-            arguments: Arguments(args),
-            output: .data(limit: 65536)
-        ).standardOutput,
-              let str = try? JSONDecoder().decode(MetaCurl.self, from: data),
-              (str.hello == "clash.meta" || str.hello == "mihomo") else {
-            return false
-        }
-        return true
+        guard let address = URLComponents(string: "http://" + server.externalController),
+              address.scheme == "http", address.host == "127.0.0.1",
+              let port = address.port, (1...65535).contains(port),
+              address.user == nil, address.password == nil,
+              address.path.isEmpty, address.query == nil, address.fragment == nil,
+              let url = address.url, server.secret.utf8.count <= 4096,
+              !server.secret.contains("\r"), !server.secret.contains("\n") else { return false }
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 2)
+        if !server.secret.isEmpty { request.setValue("Bearer " + server.secret, forHTTPHeaderField: "Authorization") }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.connectionProxyDictionary = [:]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        do {
+            let (bytes, response) = try await session.bytes(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return false }
+            var data = Data()
+            for try await byte in bytes {
+                guard data.count < 4096 else { return false }
+                data.append(byte)
+            }
+            let result = try JSONDecoder().decode(MetaCurl.self, from: data)
+            return result.hello == "clash.meta" || result.hello == "mihomo"
+        } catch { return false }
     }
 
     func formatMsg(_ msg: String) -> String {
@@ -184,8 +210,9 @@ class MetaTask: NSObject {
 
     private func startProcess(_ path: String,
                               confPath: String,
-                              confFilePath: String,
+                              configData: Data,
                               confJSON: String,
+                              core: ProxyConfigHelperCore,
                               state: StartState,
                               continuation: AsyncStream<String>.Continuation) async throws {
 
@@ -201,14 +228,31 @@ class MetaTask: NSObject {
             return result.jsonString()
         }
 
-        let logPath = stdoutLogPath(confPath)
+        guard confPath.hasPrefix("/"), !confPath.utf8.contains(0), confPath.utf8.count <= 4096 else {
+            throw PrivilegedFileError.unsafePath(confPath)
+        }
+        let sessionDirectory = try CoreLogMaintenance.sessionDirectory(sessionID: result.sessionId)
+        let corePath: String
+        switch core {
+        case .bundled: corePath = try TrustedCoreStore.bundled(source: path)
+        case .alpha: corePath = try TrustedCoreStore.alpha().path
+        }
+        let safeConfFilePath = try TrustedCoreStore.writeConfig(configData)
+        let logDirectory = try PrivilegedDirectory.open(sessionDirectory, create: true)
+        try logDirectory.ensureLog(kCoreLogName)
+        try logDirectory.ensureLog(kCoreCrashLogName)
+        try logMaintenance.start(sessionID: result.sessionId)
 
-        try writePlist(path: path, confPath: confPath, confFilePath: confFilePath)
+        let logPath = stdoutLogPath()
+
+        try writePlist(corePath: corePath, confPath: confPath, confFilePath: safeConfFilePath)
 
         _ = try? await run(.name("launchctl"), arguments: ["unload", Self.plistPath], output: .discarded)
         do {
-            _ = try await run(.name("launchctl"), arguments: ["load", Self.plistPath], output: .discarded)
-            _ = try await run(.name("launchctl"), arguments: ["start", Self.label], output: .discarded)
+            let loaded = try await run(.path("/bin/launchctl"), arguments: ["load", Self.plistPath], output: .discarded)
+            guard loaded.terminationStatus.isSuccess else { throw StartError.launchFailed }
+            let started = try await run(.path("/bin/launchctl"), arguments: ["start", Self.label], output: .discarded)
+            guard started.terminationStatus.isSuccess else { throw StartError.launchFailed }
         } catch {
             guard await state.markFinished() else { return }
             continuation.yield("Start meta error: \(error.localizedDescription).")
@@ -274,7 +318,7 @@ class MetaTask: NSObject {
             try? await Task.sleep(seconds: 30)
             guard await state.markFinished() else { return }
             let logs = await state.logsString()
-            continuation.yield(encodeServerResult(with: logs))
+            continuation.yield("The core did not become ready within 30 seconds.\n" + logs)
             continuation.finish()
         }
 
@@ -283,9 +327,9 @@ class MetaTask: NSObject {
         _ = await timeoutTask.value
     }
 
-    private func writePlist(path: String, confPath: String, confFilePath: String) throws {
+    private func writePlist(corePath: String, confPath: String, confFilePath: String) throws {
         guard let serverResult else { return }
-        var programArguments = [path, "-d", confPath]
+        var programArguments = [corePath, "-d", confPath]
         if !confFilePath.isEmpty {
             programArguments.append(contentsOf: ["-f", confFilePath])
         }
@@ -293,18 +337,17 @@ class MetaTask: NSObject {
         let plist: [String: Any] = [
             "Label": Self.label,
             "ProgramArguments": programArguments,
-            "WorkingDirectory": confPath,
+            "WorkingDirectory": Self.managedRunDir,
             "EnvironmentVariables": ["SAFE_PATHS": serverResult.safePaths],
-            "StandardOutPath": stdoutLogPath(confPath),
-            "StandardErrorPath": stderrLogPath(confPath),
+            "StandardOutPath": stdoutLogPath(),
+            "StandardErrorPath": stderrLogPath(),
             "KeepAlive": false
         ]
 
         let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
 
-        let fm = FileManager.default
-        try? fm.removeItem(atPath: Self.plistPath)
-        fm.createFile(atPath: Self.plistPath, contents: data)
+        let directory = try PrivilegedDirectory.open(Self.plistDir)
+        try directory.write(data, name: Self.plistFileName, mode: 0o644)
     }
 
     private func readNewLines(from path: String, offset: UInt64) -> (lines: [String], newOffset: UInt64) {
