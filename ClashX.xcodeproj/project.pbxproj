@@ -34,6 +34,10 @@
 		0197255A2CA15D6400C14E49 /* UserNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019725592CA15D6400C14E49 /* UserNotificationCenter.swift */; };
 		0197255C2CA15FC600C14E49 /* NSWorkspace+openFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0197255B2CA15FC600C14E49 /* NSWorkspace+openFile.swift */; };
 		019A239628657A7A00AE5698 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019A239528657A7A00AE5698 /* main.swift */; };
+		019B1D22308BCFD900628CD4 /* DashboardWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019B1D21308BCFD900628CD4 /* DashboardWindowController.swift */; };
+		019B1D24308BD1B000628CD4 /* DashboardSidebarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019B1D23308BD1B000628CD4 /* DashboardSidebarViewController.swift */; };
+		019B1D26308BD1B800628CD4 /* DashboardContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019B1D25308BD1B800628CD4 /* DashboardContentViewController.swift */; };
+		019B1D29308BE16D00628CD4 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 019B1D28308BE16D00628CD4 /* AsyncAlgorithms */; };
 		01BB50A2302E2B80004C38EE /* ApiRequestStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BB50A1302E2B80004C38EE /* ApiRequestStream.swift */; };
 		01BB50AF302F6AAB004C38EE /* ProxyLatencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BB50AE302F6AAB004C38EE /* ProxyLatencyView.swift */; };
 		01BB50B1302F6AB4004C38EE /* ProxyRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BB50B0302F6AB4004C38EE /* ProxyRowView.swift */; };
@@ -51,7 +55,6 @@
 		01BCDAB32C9ECB560028FA94 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 01BCDAB22C9ECB560028FA94 /* SwiftUIIntrospect */; };
 		01BCDAF02C9ECD010028FA94 /* DBProviderStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDABB2C9ECD010028FA94 /* DBProviderStorage.swift */; };
 		01BCDAF12C9ECD010028FA94 /* ProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAD42C9ECD010028FA94 /* ProviderRowView.swift */; };
-		01BCDAF22C9ECD010028FA94 /* DashboardViewContoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAB92C9ECD010028FA94 /* DashboardViewContoller.swift */; };
 		01BCDAF42C9ECD010028FA94 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAEC2C9ECD010028FA94 /* DashboardView.swift */; };
 		01BCDAF52C9ECD010028FA94 /* Connections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAC82C9ECD010028FA94 /* Connections.swift */; };
 		01BCDAF62C9ECD010028FA94 /* ConfigItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BCDAC52C9ECD010028FA94 /* ConfigItemView.swift */; };
@@ -272,6 +275,9 @@
 		019725592CA15D6400C14E49 /* UserNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationCenter.swift; sourceTree = "<group>"; };
 		0197255B2CA15FC600C14E49 /* NSWorkspace+openFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSWorkspace+openFile.swift"; sourceTree = "<group>"; };
 		019A239528657A7A00AE5698 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		019B1D21308BCFD900628CD4 /* DashboardWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardWindowController.swift; sourceTree = "<group>"; };
+		019B1D23308BD1B000628CD4 /* DashboardSidebarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSidebarViewController.swift; sourceTree = "<group>"; };
+		019B1D25308BD1B800628CD4 /* DashboardContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardContentViewController.swift; sourceTree = "<group>"; };
 		01B1CB092A2E20C10073EA34 /* DashboardManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardManager.swift; sourceTree = "<group>"; };
 		01BB50A1302E2B80004C38EE /* ApiRequestStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiRequestStream.swift; sourceTree = "<group>"; };
 		01BB50AE302F6AAB004C38EE /* ProxyLatencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyLatencyView.swift; sourceTree = "<group>"; };
@@ -286,7 +292,6 @@
 		01BB50CE303057F8004C38EE /* FormatterExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatterExtension.swift; sourceTree = "<group>"; };
 		01BB50D230309B40004C38EE /* OverviewGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewGridLayout.swift; sourceTree = "<group>"; };
 		01BC9ABD2928E5C600F9B177 /* MetaDNS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetaDNS.swift; sourceTree = "<group>"; };
-		01BCDAB92C9ECD010028FA94 /* DashboardViewContoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewContoller.swift; sourceTree = "<group>"; };
 		01BCDABA2C9ECD010028FA94 /* DBConnectionSnapShot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBConnectionSnapShot.swift; sourceTree = "<group>"; };
 		01BCDABB2C9ECD010028FA94 /* DBProviderStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBProviderStorage.swift; sourceTree = "<group>"; };
 		01BCDABC2C9ECD010028FA94 /* DBProxyStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBProxyStorage.swift; sourceTree = "<group>"; };
@@ -445,6 +450,7 @@
 				01F336262AD10D0B0048AF77 /* Gzip in Frameworks */,
 				01F336272AD10D0B0048AF77 /* CocoaLumberjackSwift in Frameworks */,
 				01F3362A2AD10D0B0048AF77 /* KeyboardShortcuts in Frameworks */,
+				019B1D29308BE16D00628CD4 /* AsyncAlgorithms in Frameworks */,
 				01BCDB212C9EEE260028FA94 /* Sparkle in Frameworks */,
 				01F3362C2AD10D0B0048AF77 /* CocoaLumberjack in Frameworks */,
 				01F3362D2AD10D0B0048AF77 /* Yams in Frameworks */,
@@ -473,9 +479,11 @@
 				01BCDABD2C9ECD010028FA94 /* Models */,
 				01BCDB1E2C9EE32F0028FA94 /* Extensions */,
 				01BCDAEF2C9ECD010028FA94 /* Views */,
-				01BCDAB92C9ECD010028FA94 /* DashboardViewContoller.swift */,
 				011C613F3039B4A200374954 /* Dashboard.storyboard */,
 				010C40CE303DEC5600FCB252 /* DashboardToolbarController.swift */,
+				019B1D21308BCFD900628CD4 /* DashboardWindowController.swift */,
+				019B1D23308BD1B000628CD4 /* DashboardSidebarViewController.swift */,
+				019B1D25308BD1B800628CD4 /* DashboardContentViewController.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -964,6 +972,7 @@
 				013B220D2F88A219009B30CB /* AsyncHTTPClient */,
 				01E908FD2FEE787900C95A3A /* Subprocess */,
 				D4A5B6C7E8F9012345AB678A /* Collections */,
+				019B1D28308BE16D00628CD4 /* AsyncAlgorithms */,
 			);
 			productName = ClashX;
 			productReference = 01F336442AD10D0B0048AF77 /* ClashX Meta.app */;
@@ -1027,6 +1036,7 @@
 				013B220C2F88A219009B30CB /* XCRemoteSwiftPackageReference "async-http-client" */,
 				01E908FA2FEE786F00C95A3A /* XCRemoteSwiftPackageReference "swift-subprocess" */,
 				D4A5B6C7E8F9012345AB6789 /* XCRemoteSwiftPackageReference "swift-collections" */,
+				019B1D27308BE16D00628CD4 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 			);
 			productRefGroup = 49CF3B1E20CD7463001EBF94 /* Products */;
 			projectDirPath = "";
@@ -1137,6 +1147,7 @@
 				01BB50B9302F8C17004C38EE /* TextMeasurement.swift in Sources */,
 				01EF58B02FF6472600432213 /* HideProxyNames.swift in Sources */,
 				01BB50C43030303C004C38EE /* ProxyGroupCollapseStore.swift in Sources */,
+				019B1D24308BD1B000628CD4 /* DashboardSidebarViewController.swift in Sources */,
 				01E909002FEF838700C95A3A /* ExitManager.swift in Sources */,
 				01EF58B62FF77D1B00432213 /* ConfigOverride.swift in Sources */,
 				01F335FA2AD10D0B0048AF77 /* RemoteConfigManager.swift in Sources */,
@@ -1166,7 +1177,6 @@
 				01F336102AD10D0B0048AF77 /* NormalMenuItemView.swift in Sources */,
 				01BCDAF02C9ECD010028FA94 /* DBProviderStorage.swift in Sources */,
 				01BCDAF12C9ECD010028FA94 /* ProviderRowView.swift in Sources */,
-				01BCDAF22C9ECD010028FA94 /* DashboardViewContoller.swift in Sources */,
 				01BCDAF42C9ECD010028FA94 /* DashboardView.swift in Sources */,
 				01BCDAF52C9ECD010028FA94 /* Connections.swift in Sources */,
 				01BCDAF62C9ECD010028FA94 /* ConfigItemView.swift in Sources */,
@@ -1179,6 +1189,7 @@
 				01BCDAFE2C9ECD010028FA94 /* RuleItemView.swift in Sources */,
 				01BCDAFF2C9ECD010028FA94 /* ConnectionsTableView.swift in Sources */,
 				01BCDB002C9ECD010028FA94 /* DBConnectionSnapShot.swift in Sources */,
+				019B1D26308BD1B800628CD4 /* DashboardContentViewController.swift in Sources */,
 				01BCDB012C9ECD010028FA94 /* ProxyNodeView.swift in Sources */,
 				01BCDB022C9ECD010028FA94 /* ProxyProviderInfoView.swift in Sources */,
 				01BCDB032C9ECD010028FA94 /* ProvidersView.swift in Sources */,
@@ -1193,6 +1204,7 @@
 				01BCDB0C2C9ECD010028FA94 /* NSTableViewExtension.swift in Sources */,
 				01BCDB0E2C9ECD010028FA94 /* ArrayExtensions.swift in Sources */,
 				01BCDB102C9ECD010028FA94 /* ProxiesView.swift in Sources */,
+				019B1D22308BCFD900628CD4 /* DashboardWindowController.swift in Sources */,
 				01BCDB112C9ECD010028FA94 /* OverviewView.swift in Sources */,
 				01BCDB122C9ECD010028FA94 /* ProviderProxiesView.swift in Sources */,
 				01BCDB132C9ECD010028FA94 /* ConfigView.swift in Sources */,
@@ -1701,6 +1713,14 @@
 				minimumVersion = 6.0.0;
 			};
 		};
+		019B1D27308BE16D00628CD4 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.7;
+			};
+		};
 		01BCDAB12C9ECB560028FA94 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect";
@@ -1804,6 +1824,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 013B220C2F88A219009B30CB /* XCRemoteSwiftPackageReference "async-http-client" */;
 			productName = AsyncHTTPClient;
+		};
+		019B1D28308BE16D00628CD4 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 019B1D27308BE16D00628CD4 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
 		};
 		01BCDAB22C9ECB560028FA94 /* SwiftUIIntrospect */ = {
 			isa = XCSwiftPackageProductDependency;

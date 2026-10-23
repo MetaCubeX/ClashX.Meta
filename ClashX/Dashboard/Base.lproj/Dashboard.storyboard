@@ -1,44 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="Hio-NQ-XYp">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="25408" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="5AE-fa-s3F">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24765"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="25408"/>
+        <capability name="NSView safe area layout guides" minToolsVersion="12.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Window Controller-->
-        <scene sceneID="7bL-QR-vJ2">
+        <scene sceneID="gEW-0a-lGA">
             <objects>
-                <windowController showSeguePresentationStyle="single" id="Hio-NQ-XYp" customClass="DashboardWindowController" customModule="ClashX_Meta" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="DashboardWindow" animationBehavior="default" id="LEE-Di-LVI">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-                        <rect key="contentRect" x="294" y="312" width="480" height="270"/>
+                <windowController showSeguePresentationStyle="single" id="5AE-fa-s3F" customClass="DashboardWindowController" customModule="ClashX_Meta" customModuleProvider="target" sceneMemberID="viewController">
+                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="DashboardWindow" animationBehavior="default" id="gPq-OJ-qYr">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
+                        <rect key="contentRect" x="294" y="312" width="920" height="580"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1050"/>
-                        <view key="contentView" id="89c-Ag-ogm">
-                            <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                        <value key="minSize" type="size" width="680" height="420"/>
+                        <view key="contentView" id="qqO-Se-dn9">
+                            <rect key="frame" x="0.0" y="0.0" width="920" height="580"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </view>
+                        <toolbar key="toolbar" implicitIdentifier="09D11707-F4A3-4FD5-970E-AC5832E91C2B" autosavesConfiguration="NO" showsBaselineSeparator="NO" displayMode="iconAndLabel" sizeMode="regular" id="ueH-rb-IJh">
+                            <allowedToolbarItems>
+                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="kCR-gx-Dr3"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="6xE-gW-KNH"/>
+                            </allowedToolbarItems>
+                            <defaultToolbarItems>
+                                <toolbarItem reference="6xE-gW-KNH"/>
+                            </defaultToolbarItems>
+                        </toolbar>
+                        <connections>
+                            <outlet property="delegate" destination="5AE-fa-s3F" id="muc-Jk-9eb"/>
+                        </connections>
                     </window>
                     <connections>
-                        <segue destination="QeG-MB-OIk" kind="relationship" relationship="window.shadowedContentViewController" id="Ekt-Oj-iWG"/>
+                        <segue destination="Irk-Yj-HhT" kind="relationship" relationship="window.shadowedContentViewController" id="fuZ-bk-o43"/>
                     </connections>
                 </windowController>
-                <customObject id="hg8-98-It1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <customObject id="P7m-fu-tC8" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="70" y="-253"/>
+            <point key="canvasLocation" x="-105" y="391"/>
         </scene>
-        <!--Dashboard View Contoller-->
-        <scene sceneID="m43-M7-WYF">
+        <!--Dashboard Split View Controller-->
+        <scene sceneID="r57-Ax-d02">
             <objects>
-                <customObject id="K8F-Hi-mUA" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <viewController id="QeG-MB-OIk" customClass="DashboardViewContoller" customModule="ClashX_Meta" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="YSX-Nl-x9S">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </view>
-                </viewController>
+                <splitViewController id="Irk-Yj-HhT" customClass="DashboardSplitViewController" customModule="ClashX_Meta" customModuleProvider="target" sceneMemberID="viewController">
+                    <splitViewItems>
+                        <splitViewItem canCollapse="YES" holdingPriority="260" behavior="sidebar" id="O53-t3-qiv"/>
+                        <splitViewItem id="ruu-aT-BEq"/>
+                    </splitViewItems>
+                    <splitView key="splitView" dividerStyle="thin" vertical="YES" id="Ead-98-tsx">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </splitView>
+                    <connections>
+                        <segue destination="Foa-af-zJO" kind="relationship" relationship="splitItems" id="8j6-59-4c3"/>
+                        <segue destination="naX-qR-ZQp" kind="relationship" relationship="splitItems" id="W9f-if-EPP"/>
+                    </connections>
+                </splitViewController>
+                <customObject id="5Lm-jq-Plb" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="70" y="180"/>
+            <point key="canvasLocation" x="-105" y="970"/>
+        </scene>
+        <!--Dashboard Sidebar View Controller-->
+        <scene sceneID="i0j-7f-JRv">
+            <objects>
+                <viewController id="Foa-af-zJO" customClass="DashboardSidebarViewController" customModule="ClashX_Meta" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="DLM-Dr-kiS">
+                        <rect key="frame" x="0.0" y="0.0" width="149" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="fHz-td-oGz">
+                                <rect key="frame" x="0.0" y="0.0" width="149" height="248"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="230" id="NS4-T1-gtt"/>
+                                </constraints>
+                            </customView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="fHz-td-oGz" firstAttribute="top" secondItem="m11-lt-ihL" secondAttribute="top" id="3vG-tD-jZl"/>
+                            <constraint firstItem="fHz-td-oGz" firstAttribute="leading" secondItem="DLM-Dr-kiS" secondAttribute="leading" id="ON8-af-UPZ"/>
+                            <constraint firstItem="fHz-td-oGz" firstAttribute="bottom" secondItem="m11-lt-ihL" secondAttribute="bottom" id="ZMJ-DS-Duw"/>
+                            <constraint firstAttribute="trailing" secondItem="fHz-td-oGz" secondAttribute="trailing" id="axl-h7-ZAY"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="m11-lt-ihL"/>
+                        <viewLayoutGuide key="layoutMargins" id="MF6-bX-iL3"/>
+                    </view>
+                    <connections>
+                        <outlet property="listView" destination="fHz-td-oGz" id="nXg-4c-J0d"/>
+                    </connections>
+                </viewController>
+                <customObject id="aUr-Lk-RRI" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-297.5" y="1462"/>
+        </scene>
+        <!--Dashboard Content View Controller-->
+        <scene sceneID="Kxd-FV-cDW">
+            <objects>
+                <viewController id="naX-qR-ZQp" customClass="DashboardContentViewController" customModule="ClashX_Meta" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="dtR-aH-auX">
+                        <rect key="frame" x="0.0" y="0.0" width="302" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="M2f-Vk-9CE">
+                                <rect key="frame" x="0.0" y="0.0" width="302" height="248"/>
+                            </customView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="M2f-Vk-9CE" firstAttribute="trailing" secondItem="UJt-sC-oKU" secondAttribute="trailing" id="7On-T4-tMl"/>
+                            <constraint firstItem="M2f-Vk-9CE" firstAttribute="bottom" secondItem="UJt-sC-oKU" secondAttribute="bottom" id="MZK-VZ-HUN"/>
+                            <constraint firstItem="M2f-Vk-9CE" firstAttribute="leading" secondItem="UJt-sC-oKU" secondAttribute="leading" id="o8y-G8-OmU"/>
+                            <constraint firstItem="UJt-sC-oKU" firstAttribute="top" secondItem="M2f-Vk-9CE" secondAttribute="top" id="xZL-hD-gVY"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="UJt-sC-oKU"/>
+                        <viewLayoutGuide key="layoutMargins" id="Za5-QA-gQ9"/>
+                    </view>
+                    <connections>
+                        <outlet property="contentView" destination="M2f-Vk-9CE" id="2qI-PW-2b1"/>
+                    </connections>
+                </viewController>
+                <customObject id="R8W-PT-zcc" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="112" y="1462"/>
         </scene>
     </scenes>
 </document>

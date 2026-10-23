@@ -7,8 +7,6 @@
 import SwiftUI
 
 struct DashboardView: View {
-	static let minimumSize = CGSize(width: 920, height: 580)
-
 	@ObservedObject var chromeState: DashboardChromeState
 	@ObservedObject var toolbarState: DashboardToolbarState
 	@ObservedObject var apiDatasStorage: ClashApiDatasStorage
@@ -22,13 +20,21 @@ struct DashboardView: View {
 	@StateObject private var connectionsStatsPoller = ConnectionsStatsPoller()
 	@State private var detailReloadID = UUID()
 
+	init(chromeState: DashboardChromeState,
+	     toolbarState: DashboardToolbarState,
+	     apiDatasStorage: ClashApiDatasStorage) {
+		_chromeState = ObservedObject(wrappedValue: chromeState)
+		_toolbarState = ObservedObject(wrappedValue: toolbarState)
+		_apiDatasStorage = ObservedObject(wrappedValue: apiDatasStorage)
+	}
+
 	var body: some View {
-		NavigationSplitView(columnVisibility: $chromeState.columnVisibility) {
-			SidebarView(selection: $chromeState.selection, clashApiDatasStorage: apiDatasStorage)
-				.navigationSplitViewColumnWidth(min: 160, ideal: 200, max: 240)
-		} detail: {
-			detailView.id(detailReloadID)
-		}
+		DashboardSelectedPageView(
+			selection: chromeState.selection,
+			proxyContentSegment: chromeState.proxyContentSegment,
+			ruleContentSegment: chromeState.ruleContentSegment
+		)
+		.id(detailReloadID)
 		.environmentObject(apiDatasStorage.overviewData)
 		.environmentObject(apiDatasStorage.logStorage)
 		.environmentObject(apiDatasStorage.connsStorage)
@@ -40,12 +46,7 @@ struct DashboardView: View {
 		.environmentObject(topAppsPoller)
 		.environmentObject(connectionsStatsPoller)
 		.environmentObject(providerStorage)
-		.frame(
-			minWidth: Self.minimumSize.width,
-			idealWidth: Self.minimumSize.width,
-			minHeight: Self.minimumSize.height,
-			idealHeight: Self.minimumSize.height
-		)
+		.frame(maxWidth: .infinity, maxHeight: .infinity)
 		.onAppear {
 			// Re-bridge mirrored state: this view's @StateObject stores reset
 			// on window recreation while toolbarState (VC-owned) keeps values.
@@ -77,22 +78,27 @@ struct DashboardView: View {
 			detailReloadID = UUID()
 		}
 	}
+}
 
-	@ViewBuilder
-	private var detailView: some View {
+private struct DashboardSelectedPageView: View {
+	let selection: SidebarItem?
+	let proxyContentSegment: ProxyContentSegment
+	let ruleContentSegment: RuleContentSegment
+
+	var body: some View {
 		NavigationStack {
-			switch chromeState.selection {
+			switch selection {
 			case .overview:
 				OverviewView()
 			case .proxies:
-				switch chromeState.proxyContentSegment {
+				switch proxyContentSegment {
 				case .proxyList:
 					ProxiesView()
 				case .proxyProviders:
 					ProvidersView(mode: .proxy)
 				}
 			case .rules:
-				switch chromeState.ruleContentSegment {
+				switch ruleContentSegment {
 				case .ruleList:
 					RulesView()
 				case .ruleProviders:
