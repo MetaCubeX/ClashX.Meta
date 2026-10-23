@@ -118,7 +118,11 @@ class Logger {
         let sessionId = dateFormatter.string(from: Date())
 
         let logsDir = "\(kConfigFolderPath)logs/\(sessionId)"
-        try? FileManager.default.createDirectory(atPath: logsDir, withIntermediateDirectories: true)
+        do {
+            try FileManager.default.createDirectory(atPath: logsDir, withIntermediateDirectories: true)
+        } catch {
+            DDLogError("setupLogSession: create \(logsDir) failed: \(error.localizedDescription)")
+        }
 
         configure(logDirectory: logsDir, sessionId: sessionId)
 

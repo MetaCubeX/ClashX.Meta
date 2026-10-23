@@ -145,6 +145,16 @@ class RemoteConfigManager {
         Logger.log("[Auto Upgrade] Finish \(config.name) result: \(error ?? "succeed")")
     }
 
+    /// Session that bypasses the system proxy (direct connection only).
+    /// Subscription updates can receive a stale TLS certificate chain when
+    /// routed through the local proxy core, so they always go direct.
+    private static let directSession: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.connectionProxyDictionary = [:]
+        configuration.timeoutIntervalForRequest = 30
+        return URLSession(configuration: configuration)
+    }()
+
     static func getRemoteConfigData(config: RemoteConfigModel) async -> (String?, String?) {
         guard let url = URL(string: config.url) else {
             assertionFailure()
@@ -153,10 +163,30 @@ class RemoteConfigManager {
         }
         
         do {
-            let urlRequest = URLRequest(url: url, cachePolicy: .reloadIgnoringCacheData)
-            let (data, response) = try await URLSession.shared.data(for: urlRequest)
-            return (String(data: data, encoding: .utf8), response.suggestedFilename)
+            var urlRequest = URLRequest(url: url, cachePolicy: .reloadIgnoringCacheData)
+            // Preserve the system-default User-Agent unless a custom value is configured.
+            if let userAgent = config.userAgent?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !userAgent.isEmpty {
+                urlRequest.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+            }
+            
+            // Bypass the system proxy: subscription updates can receive a
+            // stale TLS certificate chain when routed through the proxy core.
+            let (data, response) = try await directSession.data(for: urlRequest)
+            if let httpResponse = response as? HTTPURLResponse,
+               !(200...299).contains(httpResponse.statusCode) {
+                Logger.log("[getRemoteConfigData] http status \(httpResponse.statusCode), \(config.name) \(config.url)")
+                return (nil, nil)
+            }
+            guard let configStr = String(data: data, encoding: .utf8) else {
+                let preview = data.prefix(16).map { String(format: "%02x", $0) }.joined()
+                let headers = (response as? HTTPURLResponse)?.allHeaderFields ?? [:]
+                Logger.log("[getRemoteConfigData] decode fail, \(config.name) len=\(data.count) head=0x\(preview) headers=\(headers)", level: .error)
+                return (nil, nil)
+            }
+            return (configStr, response.suggestedFilename)
         } catch {
+            Logger.log("[getRemoteConfigData] error: \(error) url=\(config.url)", level: .error)
             return (nil, nil)
         }
     }
