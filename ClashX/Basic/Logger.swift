@@ -38,14 +38,17 @@ class Logger {
     private(set) var sessionId = ""
     
     private let coreLog = DDLog()
-    private var cleanupLogTask: Task<Void, Never>?
+
+    var coreLogFolder: String {
+        (try? CoreLogMaintenance.sessionDirectory(sessionID: sessionId)) ?? CoreLogMaintenance.rootDirectory
+    }
 
     var coreLogPath: String {
-        "\(logFolder())/\(kCoreLogName)"
+        "\(coreLogFolder)/\(kCoreLogName)"
     }
 
     var coreCrashLogPath: String {
-        "\(logFolder())/\(kCoreCrashLogName)"
+        "\(coreLogFolder)/\(kCoreCrashLogName)"
     }
 
     private init() {
@@ -76,8 +79,6 @@ class Logger {
         coreLog.removeAllLoggers()
         coreLog.add(newCoreLogger)
         coreFileLogger = newCoreLogger
-        
-        startCleanup()
     }
 
     private func logToLog(_ ddlog: DDLog, msg: String, level: ClashLogLevel) {
@@ -122,9 +123,6 @@ class Logger {
 
         configure(logDirectory: logsDir, sessionId: sessionId)
 
-        FileManager.default.createFile(atPath: coreLogPath, contents: nil)
-        FileManager.default.createFile(atPath: coreCrashLogPath, contents: nil)
-
         cleanupLogDirectories()
     }
     
@@ -143,35 +141,5 @@ class Logger {
         for name in sorted[maxCount...] {
             try? FileManager.default.removeItem(atPath: "\(logsRoot)\(name)")
         }
-    }
-    
-    
-    func startCleanup() {
-        cleanupLogTask = Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(seconds: 5 * 60)
-                try? Self.trimLog(atPath: coreLogPath, maxSize: 1024 * 1024)
-            }
-        }
-    }
-
-    private static func trimLog(atPath path: String, maxSize: Int) throws {
-        let url = URL(fileURLWithPath: path)
-        let size = (try FileManager.default.attributesOfItem(atPath: path)[.size] as? NSNumber)?.uint64Value ?? 0
-        guard size > UInt64(maxSize) else { return }
-
-        let handle = try FileHandle(forUpdating: url)
-        defer { try? handle.close() }
-
-        try handle.seek(toOffset: size - UInt64(maxSize))
-        var tail = try handle.read(upToCount: maxSize) ?? Data()
-
-        if let firstNewline = tail.firstIndex(of: 0x0A) {
-            tail.removeSubrange(0...firstNewline)
-        }
-
-        try handle.seek(toOffset: 0)
-        try handle.write(contentsOf: tail)
-        try handle.truncate(atOffset: UInt64(tail.count))
     }
 }

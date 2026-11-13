@@ -104,6 +104,9 @@ class UserNotificationCenter: NSObject {
 		let response = alert.runModal()
 		if response == .alertSecondButtonReturn {
 			NSWorkspace.shared.openFilePath(Logger.shared.logFolder())
+            if FileManager.default.fileExists(atPath: Logger.shared.coreLogFolder) {
+                NSWorkspace.shared.openFilePath(Logger.shared.coreLogFolder)
+            }
 		}
 		ExitManager.shared.requestQuit(force: true)
 	}
