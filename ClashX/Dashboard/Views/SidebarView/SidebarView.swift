@@ -16,12 +16,11 @@ struct SidebarView: View {
 	@State private var reloadID = UUID().uuidString
 	@State private var updateConnectionsTask: Task<Void, Never>?
 	@State private var pollingTask: Task<Void, Never>?
-	@State private var localSelection: SidebarItem?
 	// Chained in-flight tasks outlive onDisappear cancellation; this gates apply.
 	@State private var isActive = false
 	
     var body: some View {
-		List(selection: $localSelection) {
+		List(selection: $selection) {
 			SidebarLabel(item: .overview)
 				.tag(SidebarItem.overview)
 			
@@ -45,20 +44,8 @@ struct SidebarView: View {
 			$0.allowsEmptySelection = false
 		}
 		.listStyle(.sidebar)
+        .focusable(false)
 		.id(reloadID)
-		.onAppear { localSelection = selection }
-		.onChange(of: selection) { newValue in
-			if newValue != localSelection {
-				localSelection = newValue
-			}
-		}
-		.onChange(of: localSelection) { newValue in
-			Task { @MainActor in
-				if newValue != selection {
-					selection = newValue
-				}
-			}
-		}
 		.onAppear {
 			isActive = true
 			if ConfigOverride.shared.logLevel == .unknow {

@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: xcode-27
     env:
-      MIHOMO_TAG: v1.19.33
+      MIHOMO_TAG: v1.19.34
       GH_TOKEN: ${{ github.token }}
       
     steps:
